@@ -19,6 +19,7 @@ const Body = styled.div`
 `
 
 const Main = () => {
+  if (typeof window === "undefined") return <></>
   const { page, setPage, setUser } = useUser()
 
   useEffect(() => {
