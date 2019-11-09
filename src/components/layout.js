@@ -18,9 +18,6 @@ import { UserProvider } from "../contexts/UserContext"
 
 const Wrapper = styled.div`
   margin: 0 auto;
-  max-width: ${LARGE}px;
-  padding: 0px 1.0875rem 1.45rem;
-  padding-top: 0;
   color: ${BASE_TEXT_COLOR};
   background: ${BACKGROUND};
 `
@@ -38,11 +35,11 @@ const Layout = ({ searchValue, setSearchValue, children }) => {
 
   return (
     <UserProvider>
-      <Header
+      {/* <Header
         siteTitle={data.site.siteMetadata.title}
         searchValue={searchValue}
         setSearchValue={setSearchValue}
-      />
+      /> */}
       <Wrapper>
         <main>{children}</main>
       </Wrapper>

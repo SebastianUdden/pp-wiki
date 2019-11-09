@@ -5,11 +5,11 @@ import { UserProvider } from "../contexts/UserContext"
 import Main from "../components/main"
 
 const IndexPage = () => {
-  const [searchValue, setSearchValue] = useState("1234567893")
+  const [searchValue, setSearchValue] = useState("")
   return (
     <UserProvider>
       <Layout searchValue={searchValue} setSearchValue={setSearchValue}>
-        <Main searchValue={searchValue} />
+        <Main searchValue={searchValue} setSearchValue={setSearchValue} />
       </Layout>
     </UserProvider>
   )
