@@ -2,7 +2,8 @@ const pe = {
   id: "1234567890",
   title: "P/E",
   secondaryText: "Price-to-earnings",
-  description: "Beskrivning av P/E",
+  description:
+    "Price to earnings är ett mått på vad nuvarande aktiepris är i relation till hur mycket vinst bolaget genererar. Som tumregel är ett P/E under 18 att anse som attraktivt, och över 30 som övervärderat.",
   tags: ["värdering", "finansiell analys", "nyckeltal"],
   link: {
     title: "Google",
