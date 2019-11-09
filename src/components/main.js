@@ -18,7 +18,7 @@ const Body = styled.div`
   margin-bottom: 10vh;
 `
 
-const Main = () => {
+const Main = ({ searchValue }) => {
   if (typeof window === "undefined") return <></>
   const { page, setPage, setUser } = useUser()
 
@@ -35,18 +35,18 @@ const Main = () => {
     <>
       <SEO title="Home" />
       <Body>
-        {page === "wiki" && <Wiki data={MOCK_WIKI} />}
+        {page === "wiki" && <Wiki data={MOCK_WIKI} searchValue={searchValue} />}
         {/* {page === "home" && <Home />}
         {page === "signup" && <Signup fields={SIGNUP_FIELDS} />}
         {page === "login" && <Login fields={LOGIN_FIELDS} />}
         {page === "settings" && <Settings />} */}
       </Body>
-      <Footer
+      {/* <Footer
         items={FOOTER_MENU.map(item => ({
           ...item,
           onClick: () => setPage(item.page),
         }))}
-      />
+      /> */}
     </>
   )
 }

@@ -31,6 +31,7 @@ import {
   NavigationLink,
 } from "project-pillow-components"
 import { DEFAULT_FONT } from "../constants/font"
+import { MOCK_WIKI } from "./wiki/wiki-mocks"
 
 const Wrapper = styled.header`
   background: ${BACKGROUND};
@@ -94,11 +95,19 @@ const H2 = styled.h2`
   margin-bottom: 2rem;
 `
 
-const Header = ({ siteTitle }) => {
+const SubNavigationLinkWrapper = styled.div`
+  margin-left: 2rem;
+`
+
+const Header = ({
+  data = MOCK_WIKI,
+  siteTitle,
+  searchValue,
+  setSearchValue,
+}) => {
   const { user, setPage } = useUser()
   const [value, setValue] = useState("")
-  const [showSearch, setShowSearch] = useState(true)
-  const [searchValue, setSearchValue] = useState("")
+  const [showSearch, setShowSearch] = useState(false)
 
   const [selected, setSelected] = useState("")
   const [hide, setHide] = useState(true)
@@ -115,8 +124,41 @@ const Header = ({ siteTitle }) => {
         hide={hide}
         buttonElementId="hamburger-menu"
       >
-        <H2>{selected}</H2>
-        <NavigationLink
+        <H2>{data.title}</H2>
+        {data.children.map(child => (
+          <>
+            <NavigationLink
+              backgroundColor={MAIN_THEME.PRIMARY.color.background}
+              colorHover={MAIN_THEME.PRIMARY.color.background}
+              color={MAIN_THEME.WHITE.color.foreground}
+              svg={insertPhoto}
+              title={child.title}
+              onClick={() => {
+                setHide(true)
+                setSearchValue(child.title)
+              }}
+              selected={selected === child.id}
+            />
+            {child.children &&
+              child.children.map(subChild => (
+                <SubNavigationLinkWrapper>
+                  <NavigationLink
+                    backgroundColor={MAIN_THEME.PRIMARY.color.background}
+                    colorHover={MAIN_THEME.PRIMARY.color.background}
+                    color={MAIN_THEME.WHITE.color.foreground}
+                    svg={insertPhoto}
+                    title={subChild.title}
+                    onClick={() => {
+                      setHide(true)
+                      setSearchValue(subChild.title)
+                    }}
+                    selected={selected === subChild.id}
+                  />
+                </SubNavigationLinkWrapper>
+              ))}
+          </>
+        ))}
+        {/* <NavigationLink
           backgroundColor={MAIN_THEME.PRIMARY.color.background}
           colorHover={MAIN_THEME.PRIMARY.color.background}
           color={MAIN_THEME.WHITE.color.foreground}
@@ -260,7 +302,7 @@ const Header = ({ siteTitle }) => {
             setSelected("Chapter 7")
           }}
           selected={selected === "Chapter 7"}
-        />
+        /> */}
       </NavigationDrawer>
       <AppBarTop>
         {!showSearch && (
@@ -273,7 +315,7 @@ const Header = ({ siteTitle }) => {
                   setHide(false)
                 }}
               />
-              <Title>Regular Appbar</Title>
+              <Title>Wiki</Title>
             </InnerWrapper>
             <InnerWrapper>
               <ActionItem
