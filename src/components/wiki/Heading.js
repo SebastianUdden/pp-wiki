@@ -3,37 +3,37 @@ import styled from "styled-components"
 
 const H1 = styled.h1`
   border-bottom: 2px solid ${p => p.color};
-  margin: 1rem 0 0.3rem;
+  margin: 1rem 0 0rem;
 `
 const H2 = styled.h2`
   border-bottom: 1px solid ${p => p.color};
   padding: 0 0 0.3rem 0;
-  margin: 1rem 0 0.5rem 0;
+  margin: 1rem 0 0rem;
 `
 const H3 = styled.h3`
   border-bottom: 1px solid ${p => p.color};
   padding: 0 0 0.3rem 0;
-  margin: 1rem 0 0.5rem 0;
+  margin: 1rem 0 0rem;
 `
 const H4 = styled.h4`
   border-bottom: 1px solid ${p => p.color};
   padding: 0 0 0.3rem 0;
-  margin: 1rem 0 0.5rem 0;
+  margin: 1rem 0 0rem;
 `
 const H5 = styled.h5`
   border-bottom: 1px solid ${p => p.color};
   padding: 0 0 0.3rem 0;
-  margin: 1rem 0 0.5rem 0;
+  margin: 1rem 0 0rem;
 `
 const H6 = styled.h6`
   border-bottom: 1px solid ${p => p.color};
   padding: 0 0 0.3rem 0;
-  margin: 0.5rem 0;
+  margin: 0.5rem 0 0;
 `
 const P = styled.p`
   border-bottom: 1px solid ${p => p.color};
   padding: 0 0 0.3rem 0;
-  margin: 0 0 0.3rem 0;
+  margin: 0;
 `
 const Heading = ({
   level,

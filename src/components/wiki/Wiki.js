@@ -1,14 +1,19 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import styled, { css } from "styled-components"
 import { ToggleSwitch, Chips, Table } from "project-pillow-components"
 import { DP_TYPES, MAIN_THEME } from "../../constants/theme"
 import { Toggle, Label } from "../main"
 import Heading from "./Heading"
 import { MEDIA_MIN_MEDIUM } from "../../constants/sizes"
+import Breadcrumbs from "./Breadcrumbs"
 
 const Wrapper = styled.div`
+  /* max-height: ${p => (p.created ? 40000 : 0)}px;
+  transition: max-height 10s ease; */
   width: 100%;
+  overflow: hidden;
   margin: 0.5rem 0;
+
   ${p =>
     p.toggleStyle &&
     css`
@@ -64,6 +69,7 @@ const Wiki = ({
   toggleStyle = true,
   data,
   level,
+  crumbs = [],
 }) => {
   const isSelectedMatch = checkMatchingSelectionData(data, selected)
   const isSearchMatch = !selected && checkMatchingSearchData(data, searchValue)
@@ -73,8 +79,16 @@ const Wiki = ({
     ? 2
     : undefined
   const [showChildren, setShowChildren] = useState(data.showChildren)
+  const [created, setCreated] = useState(false)
+  const newCrumbs = [...crumbs, data.title]
+  //   useEffect(() => {
+  //     setTimeout(() => {
+  //       setCreated(true)
+  //     }, 100)
+  //   }, [])
+
   return isSelectedMatch || isSearchMatch || parentIsMatch ? (
-    <Wrapper toggleStyle={toggleStyle}>
+    <Wrapper toggleStyle={toggleStyle} created={created}>
       {data && (
         <>
           <Heading
@@ -83,6 +97,9 @@ const Wiki = ({
           >
             {data.title}
           </Heading>
+          {newCrumbs.length > 1 && (
+            <Breadcrumbs crumbs={newCrumbs} setSelected={setSelected} />
+          )}
           {data.tags && (
             <Chips
               chips={data.tags.map(t => ({ title: t }))}
@@ -129,6 +146,7 @@ const Wiki = ({
                 setSelected={setSelected}
                 parentIsMatch={showChildren}
                 level={lvl}
+                crumbs={newCrumbs}
               />
             ))}
         </>
@@ -145,6 +163,7 @@ const Wiki = ({
         selected={selected}
         setSelected={setSelected}
         level={lvl}
+        crumbs={newCrumbs}
         // parentIsMatch={parentIsMatch || isMatch}
       />
     ))
