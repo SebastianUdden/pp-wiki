@@ -17,6 +17,10 @@ const Crumb = styled.button`
   padding: 0;
   font-size: x-small;
   color: ${p => p.color};
+  border: none;
+  background-color: transparent;
+  outline: none;
+  cursor: pointer;
 `
 
 const Breadcrumbs = ({ crumbs = [], color = "#ffffff55", setSelected }) => {

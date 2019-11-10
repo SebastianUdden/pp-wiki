@@ -136,6 +136,7 @@ const Main = ({ searchValue, setSearchValue }) => {
                 onClick={() => {
                   setHide(true)
                   setSelected(child.title)
+                  setSearchValue(undefined)
                 }}
                 selected={selected === child.id}
               />
@@ -151,6 +152,7 @@ const Main = ({ searchValue, setSearchValue }) => {
                       onClick={() => {
                         setHide(true)
                         setSelected(subChild.title)
+                        setSearchValue(undefined)
                       }}
                       selected={selected === subChild.id}
                     />
@@ -216,7 +218,10 @@ const Main = ({ searchValue, setSearchValue }) => {
                 setSearchValue("")
               }}
               onClose={() => setShowSearch(false)}
-              onSubmit={value => setSearchValue(value)}
+              onSubmit={value => {
+                setSelected(undefined)
+                setSearchValue(value)
+              }}
               padding="1rem"
             />
           )}
