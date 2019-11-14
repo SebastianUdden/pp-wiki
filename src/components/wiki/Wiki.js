@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import styled, { css } from "styled-components"
-import { ToggleSwitch, Chips, Table } from "project-pillow-components"
+import {
+  Breadcrumbs,
+  Chips,
+  Heading,
+  Table,
+  ToggleSwitch,
+} from "project-pillow-components"
 import { DP_TYPES, MAIN_THEME } from "../../constants/theme"
 import { Toggle, Label } from "../main"
-import Heading from "./Heading"
 import { MEDIA_MIN_MEDIUM } from "../../constants/sizes"
-import Breadcrumbs from "./Breadcrumbs"
+import Description from "./Description"
 
 const Wrapper = styled.div`
   /* max-height: ${p => (p.created ? 40000 : 0)}px;
@@ -49,11 +54,19 @@ const checkMatchingSearchData = (data, searchValue) => {
     (data.description &&
       data.description.toLowerCase().includes(searchValue.toLowerCase())) ||
     (data.tags &&
-      data.tags.find(tag =>
+      data.tags.some(tag =>
         tag.toLowerCase().includes(searchValue.toLowerCase())
       ))
   )
 }
+
+// const includesSearchQueries = (searchQueries, elements) => {
+//   return searchQueries.every(searchQuery =>
+//     elements.some(element =>
+//       element.toLowerCase().includes(searchQuery.toLowerCase())
+//     )
+//   )
+// }
 
 const checkMatchingSelectionData = (data, selected) => {
   if (!data || !selected) return false
@@ -98,7 +111,11 @@ const Wiki = ({
             {data.title}
           </Heading>
           {newCrumbs.length > 1 && (
-            <Breadcrumbs crumbs={newCrumbs} setSelected={setSelected} />
+            <Breadcrumbs
+              crumbs={newCrumbs}
+              setSelected={setSelected}
+              size="medium"
+            />
           )}
           {data.tags && (
             <Chips
@@ -106,7 +123,10 @@ const Wiki = ({
               onChange={value => value[0] && setSearchValue(value[0])}
             />
           )}
-          {data.description && <P>{data.description}</P>}
+          {data.description && (
+            <Description description={data.description} summary={false} />
+          )}
+          {/* {data.description && <P>{data.description}</P>} */}
           {data.link && (
             <A href={data.link.href} target="_blank">
               {data.link.title}
@@ -120,6 +140,13 @@ const Wiki = ({
               headingForegroundColor="#cccccc"
               backgroundColor="#222222"
               alternateColor="#888888"
+            />
+          )}
+          {data.children && data.children.length > 0 && (
+            <Breadcrumbs
+              crumbs={data.children.map(child => child.title)}
+              setSelected={setSelected}
+              size="medium"
             />
           )}
           {data.children &&

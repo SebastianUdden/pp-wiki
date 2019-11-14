@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 import { useUser } from "../contexts/UserContext"
+import { apiUrl } from "../constants/urls"
 import SEO from "./seo"
 import Footer from "./footer/footer"
 import { FOOTER_MENU } from "../constants/menus"
@@ -17,17 +18,17 @@ import {
   ToggleSwitch,
 } from "project-pillow-components"
 
-// import Home from "./home/Home"
-// import Signup from "./user/Signup"
-// import Login from "./user/Login"
-// import Settings from "./user/Settings"
-// import { LOGIN_FIELDS, SIGNUP_FIELDS } from "../constants/fields"
+import Signup from "./user/Signup"
+import Login from "./user/Login"
+import Settings from "./user/Settings"
+import { LOGIN_FIELDS, SIGNUP_FIELDS } from "../constants/fields"
 
 import Wiki from "./wiki/Wiki"
 import { MOCK_WIKI } from "./wiki/wiki-mocks"
 import { DP6, MAIN_THEME } from "../constants/theme"
 import { DEFAULT_FONT } from "../constants/font"
 import { MEDIA_MAX_MEDIUM, MEDIA_MIN_MEDIUM } from "../constants/sizes"
+import { get } from "./api/api"
 
 const Page = styled.div`
   padding: 0;
@@ -83,8 +84,9 @@ const SubNavigationLinkWrapper = styled.div`
 
 const Main = ({ searchValue, setSearchValue }) => {
   if (typeof window === "undefined") return <></>
-  const data = MOCK_WIKI
-  const { page, setPage, setUser } = useUser()
+  const [useDb, setUseDb] = useState(false)
+  const [data, setData] = useState(MOCK_WIKI)
+  const { page, setPage, user, setUser } = useUser()
   const [checked, setChecked] = useState(true)
   const [value, setValue] = useState("")
   const [showSearch, setShowSearch] = useState(false)
@@ -95,11 +97,42 @@ const Main = ({ searchValue, setSearchValue }) => {
   const [showOverflow, setShowOverflow] = useState(false)
 
   useEffect(() => {
+    get(`${apiUrl}/wikis`).then(wikis => {
+      if (wikis.error) return
+      setData(
+        useDb
+          ? {
+              id: "1234567897",
+              title: "Wiki",
+              description: "Pillow wiki",
+              children: wikis,
+            }
+          : MOCK_WIKI
+      )
+    })
+  }, [useDb])
+
+  useEffect(() => {
     setUser({
+      _id: localStorage.getItem("_id") || "",
       username: localStorage.getItem("username") || "",
       email: localStorage.getItem("email") || "",
       password: localStorage.getItem("password") || "",
       loggedIn: localStorage.getItem("loggedIn") === "true",
+    })
+    get(`${apiUrl}/users`, "Unauthorized").then(users => {
+      if (users.error) return
+      if (!users.find(u => u.username === user.username)) {
+        setUser({})
+      }
+      // setUsers(users)
+      // setCurrentUser(
+      //   users.find(
+      //     user =>
+      //       user.username === sessionStorage.getItem("username") &&
+      //       user.password === sessionStorage.getItem("password")
+      //   )
+      // )
     })
   }, [page])
 
@@ -125,6 +158,14 @@ const Main = ({ searchValue, setSearchValue }) => {
           >
             {data.title}
           </H2>
+          <Toggle>
+            <ToggleSwitch
+              checked={useDb}
+              onClick={() => setUseDb(!useDb)}
+              backgroundColor={MAIN_THEME.PRIMARY.color.background}
+            />
+            <Label>Använd mock-data</Label>
+          </Toggle>
           {data.children.map(child => (
             <React.Fragment key={child.id}>
               <NavigationLink
@@ -210,7 +251,7 @@ const Main = ({ searchValue, setSearchValue }) => {
           {showSearch && (
             <Search
               value={value}
-              previousSearchValue="farm-to-table"
+              previousSearchValue="Development"
               onChange={e => setValue(e.target.value)}
               onBack={() => {
                 setShowSearch(false)
@@ -229,7 +270,7 @@ const Main = ({ searchValue, setSearchValue }) => {
         <Body>
           {page === "wiki" && (
             <Wiki
-              data={MOCK_WIKI}
+              data={data}
               searchValue={searchValue}
               setSearchValue={setSearchValue}
               selected={selected}
@@ -237,18 +278,28 @@ const Main = ({ searchValue, setSearchValue }) => {
               toggleStyle={checked}
             />
           )}
+          {page === "signup" && <Signup fields={SIGNUP_FIELDS} />}
+          {page === "login" && <Login fields={LOGIN_FIELDS} />}
+          {page === "settings" && <Settings />}
         </Body>
-        {/* {page === "home" && <Home />}
-        {page === "signup" && <Signup fields={SIGNUP_FIELDS} />}
-        {page === "login" && <Login fields={LOGIN_FIELDS} />}
-        {page === "settings" && <Settings />} */}
       </Page>
-      {/* <Footer
-        items={FOOTER_MENU.map(item => ({
-          ...item,
-          onClick: () => setPage(item.page),
-        }))}
-      /> */}
+      <Footer
+        items={FOOTER_MENU.filter(
+          item => item.title !== "Wiki" || user.username
+        ).map(item => {
+          if (item.title === "Login" && user.username) {
+            return {
+              ...item,
+              title: user.username,
+              onClick: () => setPage(item.page),
+            }
+          }
+          return {
+            ...item,
+            onClick: () => setPage(item.page),
+          }
+        })}
+      />
     </>
   )
 }

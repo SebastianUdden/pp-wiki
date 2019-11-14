@@ -39,13 +39,6 @@ const Home = () => {
 
   return (
     <Wrapper>
-      {JSON.stringify(card)}
-      <Card
-        title="Hey"
-        secondaryText="This"
-        supportingText="Another text"
-        onUpdate={value => setCard(value)}
-      />
       <H1>
         Hey{" "}
         <Em>{(user.loggedIn && (user.username || user.email)) || "buddy"}</Em>!

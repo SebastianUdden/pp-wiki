@@ -1,8 +1,8 @@
 {
-  "name": "project-pillow-progressive-web-app",
+  "name": "pillow-wiki",
   "private": true,
-  "description": "A PWA starter kit",
-  "version": "0.2.0",
+  "description": "Pillow Wiki",
+  "version": "0.2.1",
   "author": "Sebastian Uddén <sebastian.udden@gmail.com>",
   "dependencies": {
     "gatsby": "^2.15.19",
@@ -18,7 +18,7 @@
     "react-dom": "^16.10.2",
     "react-helmet": "^5.2.1",
     "styled-components": "^4.3.2",
-    "project-pillow-components": "1.1.8"
+    "project-pillow-components": "1.1.10"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.4",

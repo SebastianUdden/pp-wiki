@@ -89,13 +89,22 @@ const javaScript = {
   children: [jsBasics],
 }
 
+const headings = {
+  id: "7244567895",
+  title: "Headings",
+  secondaryText: "",
+  description:
+    "HTML-element som styr rubriker, från största till minsta är de <h1>, <h2>, <h3>, <h4>, <h5> och <h6>. För att skriva en rubrik skriver man alltså <h1>Stor rubrik</h1>.",
+  children: [],
+}
+
 const htmlElements = {
   id: "7234567895",
   title: "HTML Elements",
   secondaryText: "",
   description:
-    "HTML-element skrivs ut i två olika format, antingen <ElementTyp>Innehåll</ElementTyp> eller <ElementTyp />. Den första används när ett element ska ha ett innehåll (children), det andra används för element som antingen bara har en styling (med CSS) eller när de är dynamiska element (ex. <input /> för att användarens ska skriva in ny text). Det finns exempelvis rubriker av olika storlek (<h1>, <h2> ... <h6>), paragrafer (<p>), radbrytningar (<br>) och listor (<ul>, <ol>, <li>).",
-  children: [],
+    "HTML-element [test](https://www.google.com) skrivs ut i två olika format, antingen <ElementTyp>Innehåll</ElementTyp> eller <ElementTyp />. Den första används när ett element ska ha ett innehåll (children), det andra används för element som antingen bara har en styling (med CSS) eller när de är dynamiska element (ex. <input /> för att användarens ska skriva in ny text). Det finns exempelvis rubriker av olika storlek (<h1>, <h2> ... <h6>), paragrafer (<p>), radbrytningar (<br>) och listor (<ul>, <ol>, <li>).",
+  children: [headings],
 }
 
 const html = {
@@ -103,7 +112,7 @@ const html = {
   title: "HTML",
   secondaryText: "Hanterar struktur för webbsidor",
   description:
-    "HTML bygger upp stommen för en webbsida, det är i grunden gjort för text-struktur och har många likheter med hur exempelvis ett Word-dokument är uppbyggt. Alla html-element är i grunden rektanglar, vi kan föreställa oss ett antal tavlor i olika storlekar som sätts tätt ovanpå varandra för att pryda en vägg. Tavlorna kan ha olika bredd baserat på ex. textinnehåll men de placeras alltid ovanpå varandra om inte annat är definierat.",
+    "HTML bygger upp stommen för en webbsida, det är i grunden gjort för text-struktur och har många likheter med hur exempelvis ett Word-dokument är uppbyggt. Alla html-element är i grunden rektanglar, som en liknelse kan vi föreställa oss ett antal tavlor i olika storlekar som sätts tätt ovanpå varandra för att pryda en vägg. Tavlorna kan ha olika bredd baserat på ex. textinnehåll men de placeras alltid ovanpå varandra om inte annat är definierat.",
   children: [htmlElements],
 }
 
