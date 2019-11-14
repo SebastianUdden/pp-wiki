@@ -4,10 +4,6 @@ export const FOOTER_MENU = [
     page: "wiki",
   },
   {
-    title: "Home",
-    page: "home",
-  },
-  {
     title: "Signup",
     page: "signup",
   },
