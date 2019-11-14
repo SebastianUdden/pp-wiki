@@ -11,7 +11,7 @@ import {
 const initialState = {
   user: {},
   tempUser: {},
-  page: "wiki",
+  page: "login",
   clearUser: () => {},
   clearTempUser: () => {},
   setUser: () => {},

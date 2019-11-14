@@ -122,17 +122,12 @@ const Main = ({ searchValue, setSearchValue }) => {
     })
     get(`${apiUrl}/users`, "Unauthorized").then(users => {
       if (users.error) return
-      if (!users.find(u => u.username === user.username)) {
-        setUser({})
-      }
-      // setUsers(users)
-      // setCurrentUser(
-      //   users.find(
-      //     user =>
-      //       user.username === sessionStorage.getItem("username") &&
-      //       user.password === sessionStorage.getItem("password")
-      //   )
-      // )
+      const exists = users.find(
+        u =>
+          u.username === user.username ||
+          u.username === localStorage.getItem("username")
+      )
+      if (!exists) setUser({})
     })
   }, [page])
 
@@ -211,6 +206,7 @@ const Main = ({ searchValue, setSearchValue }) => {
                   colorHover={MAIN_THEME.PRIMARY.color.background}
                   svg={menu}
                   onClick={() => {
+                    if (!user.loggedIn) return
                     setHide(false)
                   }}
                   padding="1rem"
@@ -218,6 +214,7 @@ const Main = ({ searchValue, setSearchValue }) => {
                 <Title
                   color={MAIN_THEME.PRIMARY.color.background}
                   onClick={() => {
+                    if (!user.loggedIn) return
                     setSelected(undefined)
                     setSearchValue("")
                   }}
@@ -285,7 +282,7 @@ const Main = ({ searchValue, setSearchValue }) => {
       </Page>
       <Footer
         items={FOOTER_MENU.filter(
-          item => item.title !== "Wiki" || user.username
+          item => item.title !== "Wiki" || user.loggedIn
         ).map(item => {
           if (item.title === "Login" && user.username) {
             return {

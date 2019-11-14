@@ -71,7 +71,7 @@ const Login = ({ fields }) => {
                 })
                 localStorage.setItem("loggedIn", true)
                 setUser({ ...user, loggedIn: true })
-                setPage("home")
+                setPage("wiki")
                 return
               }
               setInvalidEntry(true)
