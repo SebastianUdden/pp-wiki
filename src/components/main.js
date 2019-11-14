@@ -114,7 +114,6 @@ const Main = ({ searchValue, setSearchValue }) => {
 
   useEffect(() => {
     setUser({
-      _id: localStorage.getItem("_id") || "",
       username: localStorage.getItem("username") || "",
       email: localStorage.getItem("email") || "",
       password: localStorage.getItem("password") || "",
