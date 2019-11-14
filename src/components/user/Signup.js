@@ -11,6 +11,8 @@ import {
 } from "./common"
 import { ERROR, ON_ERROR } from "../../constants/theme"
 import Modal from "../ui/Modal"
+import { create } from "../api/api"
+import { apiUrl } from "../../constants/urls"
 
 const validateForm = inputRefs => {
   const results = inputRefs.map(ref => ref.current.validate())
@@ -36,7 +38,7 @@ const Signup = ({ fields }) => {
 
   return (
     <Wrapper>
-      {user.email && user.password && (
+      {user.email && user.password && user.loggedIn && (
         <>
           <FieldHint>
             You are already signed up as <Em>{user.username || user.email}</Em>,
@@ -55,7 +57,9 @@ const Signup = ({ fields }) => {
               <Button
                 backgroundColor={ERROR}
                 color={ON_ERROR}
-                onClick={() => clearUser()}
+                onClick={() => {
+                  clearUser()
+                }}
               >
                 Confirm
               </Button>
@@ -63,7 +67,7 @@ const Signup = ({ fields }) => {
           )}
         </>
       )}
-      {!(user.email && user.password) && (
+      {!(user.email && user.password && user.loggedIn) && (
         <>
           {fields.map((field, index) => (
             <Input
@@ -103,8 +107,12 @@ const Signup = ({ fields }) => {
               onConfirm={() => {
                 localStorage.setItem("auto-password", true)
                 setUser({ ...tempUser, password: "" })
-                clearTempUser()
-                setPage("login")
+                console.log({ tempUser })
+                create(`${apiUrl}/users`, tempUser).then(response => {
+                  console.log({ response })
+                  clearTempUser()
+                  setPage("login")
+                })
               }}
               onDeny={() => {
                 setUser(tempUser)

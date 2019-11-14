@@ -2,6 +2,8 @@ import React, { useState, useRef } from "react"
 import { useUser } from "../../contexts/UserContext"
 import { Em, Button, Wrapper, ErrorMessage, FieldHint } from "./common"
 import Form from "../ui/Form"
+import { get } from "../api/api"
+import { apiUrl } from "../../constants/urls"
 
 const checkValidValue = (user, tempUser, value) =>
   tempUser[value] === user[value] ||
@@ -61,20 +63,34 @@ const Login = ({ fields }) => {
               const validForm = loginForm.current.validate()
 
               if (!validForm) return
-              if (
-                checkValidValue(user, tempUser, "email") &&
-                checkValidValue(user, tempUser, "password")
-              ) {
-                Object.keys(user).forEach(key => {
-                  key !== "repeatPassword" &&
-                    localStorage.setItem(key, user[key])
-                })
-                localStorage.setItem("loggedIn", true)
-                setUser({ ...user, loggedIn: true })
-                setPage("wiki")
-                return
-              }
-              setInvalidEntry(true)
+              get(`${apiUrl}/users`, "Unauthorized").then(users => {
+                if (users.error) return
+                console.log({ users })
+                console.log({ tempUser })
+                const exists = users.find(
+                  u =>
+                    (u.email === tempUser.email &&
+                      u.password === tempUser.password) ||
+                    (u.email === localStorage.getItem("email") &&
+                      u.password === localStorage.getItem("password"))
+                )
+                console.log({ exists })
+                if (
+                  exists
+                  // checkValidValue(user, tempUser, "email") &&
+                  // checkValidValue(user, tempUser, "password")
+                ) {
+                  Object.keys(user).forEach(key => {
+                    key !== "repeatPassword" &&
+                      localStorage.setItem(key, user[key])
+                  })
+                  localStorage.setItem("loggedIn", true)
+                  setUser({ ...user, loggedIn: true })
+                  setPage("wiki")
+                  return
+                }
+                setInvalidEntry(true)
+              })
             }}
           >
             Log in
