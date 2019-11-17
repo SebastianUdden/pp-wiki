@@ -11,7 +11,7 @@ import {
 } from "./common"
 import { ERROR, ON_ERROR } from "../../constants/theme"
 import Modal from "../ui/Modal"
-import { create } from "../api/api"
+import { create, get } from "../api/api"
 import { apiUrl } from "../../constants/urls"
 
 const validateForm = inputRefs => {
@@ -22,6 +22,8 @@ const validateForm = inputRefs => {
 const Signup = ({ fields }) => {
   const [signedUp, setSignedUp] = useState(false)
   const [showConfirmRemoval, setShowConfirmRemoval] = useState(false)
+  const [showUsernameTaken, setShowUsernameTaken] = useState(false)
+  const [showEmailTaken, setShowEmailTaken] = useState(false)
   const [showMatchingPasswordError, setShowMatchingPasswordError] = useState(
     false
   )
@@ -83,6 +85,12 @@ const Signup = ({ fields }) => {
               Passwords are invalid or do not match...
             </ErrorMessage>
           )}
+          {showUsernameTaken && (
+            <ErrorMessage>Username is already taken...</ErrorMessage>
+          )}
+          {showEmailTaken && (
+            <ErrorMessage>Email is already taken...</ErrorMessage>
+          )}
           <Button
             type="submit"
             onClick={() => {
@@ -91,10 +99,22 @@ const Signup = ({ fields }) => {
               )
               const signUp = validateForm(inputRefs)
               if (signUp && tempUser.password === tempUser.repeatPassword) {
-                setSignedUp(signUp)
-                localStorage.setItem("email", tempUser.email)
-                localStorage.setItem("username", tempUser.username)
-                localStorage.setItem("password", tempUser.password)
+                get(`${apiUrl}/users`, "Unauthorized").then(users => {
+                  setShowUsernameTaken(
+                    tempUser.username !== "" &&
+                      users.some(user => user.username === tempUser.username)
+                  )
+                  setShowEmailTaken(
+                    users.some(user => user.email === tempUser.email)
+                  )
+                  if (showUsernameTaken || showEmailTaken) return
+                  create(`${apiUrl}/users`, tempUser).then(response => {
+                    localStorage.setItem("email", tempUser.email)
+                    localStorage.setItem("username", tempUser.username)
+                    localStorage.setItem("password", tempUser.password)
+                    setSignedUp(signUp)
+                  })
+                })
               }
             }}
           >
@@ -107,14 +127,11 @@ const Signup = ({ fields }) => {
               onConfirm={() => {
                 localStorage.setItem("auto-password", true)
                 setUser({ ...tempUser, password: "" })
-                console.log({ tempUser })
-                create(`${apiUrl}/users`, tempUser).then(response => {
-                  console.log({ response })
-                  clearTempUser()
-                  setPage("login")
-                })
+                clearTempUser()
+                setPage("login")
               }}
               onDeny={() => {
+                localStorage.setItem("auto-password", false)
                 setUser(tempUser)
                 clearTempUser()
                 setPage("login")

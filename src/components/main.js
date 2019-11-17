@@ -84,9 +84,9 @@ const SubNavigationLinkWrapper = styled.div`
 
 const Main = ({ searchValue, setSearchValue }) => {
   if (typeof window === "undefined") return <></>
-  const [useDb, setUseDb] = useState(false)
+  const [useDb, setUseDb] = useState(true)
   const [data, setData] = useState(MOCK_WIKI)
-  const { page, setPage, user, setUser } = useUser()
+  const { page, setPage, user, setUser, users, setUsers } = useUser()
   const [checked, setChecked] = useState(true)
   const [value, setValue] = useState("")
   const [showSearch, setShowSearch] = useState(false)
@@ -97,6 +97,13 @@ const Main = ({ searchValue, setSearchValue }) => {
   const [showOverflow, setShowOverflow] = useState(false)
 
   useEffect(() => {
+    get(`${apiUrl}/users`, "Unauthorized").then(dbUsers => {
+      if (dbUsers.error) return
+      setUsers(dbUsers)
+    })
+  }, [])
+
+  useEffect(() => {
     get(`${apiUrl}/wikis`).then(wikis => {
       if (wikis.error) return
       setData(
@@ -104,7 +111,8 @@ const Main = ({ searchValue, setSearchValue }) => {
           ? {
               id: "1234567897",
               title: "Wiki",
-              description: "Pillow wiki",
+              description:
+                "All information gathered for the Pillow project can be found here.",
               children: wikis,
             }
           : MOCK_WIKI
@@ -119,15 +127,14 @@ const Main = ({ searchValue, setSearchValue }) => {
       password: localStorage.getItem("password") || "",
       loggedIn: localStorage.getItem("loggedIn") === "true",
     })
-    get(`${apiUrl}/users`, "Unauthorized").then(users => {
-      if (users.error) return
-      const exists = users.find(
+    const exists =
+      users &&
+      users.find(
         u =>
           u.username === user.username ||
           u.username === localStorage.getItem("username")
       )
-      if (!exists) setUser({})
-    })
+    // if (!exists) setUser({})
   }, [page])
 
   return (
@@ -158,7 +165,7 @@ const Main = ({ searchValue, setSearchValue }) => {
               onClick={() => setUseDb(!useDb)}
               backgroundColor={MAIN_THEME.PRIMARY.color.background}
             />
-            <Label>Använd mock-data</Label>
+            <Label>Använd databas</Label>
           </Toggle>
           {data.children.map(child => (
             <React.Fragment key={child.id}>
@@ -169,6 +176,7 @@ const Main = ({ searchValue, setSearchValue }) => {
                 svg={insertPhoto}
                 title={child.title}
                 onClick={() => {
+                  setPage("wiki")
                   setHide(true)
                   setSelected(child.title)
                   setSearchValue(undefined)
@@ -185,6 +193,7 @@ const Main = ({ searchValue, setSearchValue }) => {
                       svg={insertPhoto}
                       title={subChild.title}
                       onClick={() => {
+                        setPage("wiki")
                         setHide(true)
                         setSelected(subChild.title)
                         setSearchValue(undefined)
@@ -214,6 +223,7 @@ const Main = ({ searchValue, setSearchValue }) => {
                   color={MAIN_THEME.PRIMARY.color.background}
                   onClick={() => {
                     if (!user.loggedIn) return
+                    setPage("wiki")
                     setSelected(undefined)
                     setSearchValue("")
                   }}
@@ -265,14 +275,16 @@ const Main = ({ searchValue, setSearchValue }) => {
         </AppBarTop>
         <Body>
           {page === "wiki" && (
-            <Wiki
-              data={data}
-              searchValue={searchValue}
-              setSearchValue={setSearchValue}
-              selected={selected}
-              setSelected={setSelected}
-              toggleStyle={checked}
-            />
+            <>
+              <Wiki
+                data={data}
+                searchValue={searchValue}
+                setSearchValue={setSearchValue}
+                selected={selected}
+                setSelected={setSelected}
+                toggleStyle={checked}
+              />
+            </>
           )}
           {page === "signup" && <Signup fields={SIGNUP_FIELDS} />}
           {page === "login" && <Login fields={LOGIN_FIELDS} />}
@@ -280,6 +292,7 @@ const Main = ({ searchValue, setSearchValue }) => {
         </Body>
       </Page>
       <Footer
+        page={page}
         items={FOOTER_MENU.filter(
           item => item.title !== "Wiki" || user.loggedIn
         ).map(item => {

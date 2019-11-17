@@ -2,6 +2,7 @@ import React, { useReducer, createContext, useContext } from "react"
 import userReducer from "../reducers/userReducer"
 import {
   SET_USER,
+  SET_USERS,
   CLEAR_USER,
   SET_PAGE,
   CLEAR_TEMP_USER,
@@ -10,11 +11,13 @@ import {
 
 const initialState = {
   user: {},
+  users: [],
   tempUser: {},
   page: "login",
   clearUser: () => {},
   clearTempUser: () => {},
   setUser: () => {},
+  setUsers: () => {},
   setTempUser: () => {},
   setPage: () => {},
 }
@@ -40,6 +43,11 @@ export const UserProvider = ({ children }) => {
       type: SET_USER,
       payload: user,
     })
+  const setUsers = users =>
+    dispatch({
+      type: SET_USERS,
+      payload: users,
+    })
   const setTempUser = (fieldName, fieldValue) =>
     dispatch({
       type: SET_TEMP_USER,
@@ -57,6 +65,7 @@ export const UserProvider = ({ children }) => {
       value={{
         ...state,
         setUser,
+        setUsers,
         setTempUser,
         clearUser,
         clearTempUser,

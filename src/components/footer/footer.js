@@ -5,6 +5,7 @@ import {
   BACKGROUND,
   BACKGROUND_ACTIVE,
   ON_BACKGROUND,
+  MAIN_THEME,
 } from "../../constants/theme"
 
 const Wrapper = styled.footer`
@@ -23,7 +24,8 @@ const ButtonContainer = styled.div`
 
 const Item = styled.button`
   border: none;
-  background-color: ${BACKGROUND};
+  background-color: ${p =>
+    p.active ? MAIN_THEME.PRIMARY_DARK.color.background : BACKGROUND};
   color: ${ON_BACKGROUND};
   width: 100%;
   text-transform: uppercase;
@@ -31,16 +33,21 @@ const Item = styled.button`
   outline: none;
   cursor: pointer;
   :hover {
-    background-color: ${BACKGROUND_ACTIVE};
+    background-color: ${p =>
+      p.active ? MAIN_THEME.PRIMARY.color.background : BACKGROUND_ACTIVE};
   }
 `
 
-const Footer = ({ items }) => {
+const Footer = ({ items, page }) => {
   return (
     <Wrapper>
       <ButtonContainer>
         {items.map(item => (
-          <Item key={item.title} onClick={() => item.onClick()}>
+          <Item
+            key={item.title}
+            active={item.title.toLowerCase() === page}
+            onClick={() => item.onClick()}
+          >
             {item.title}
           </Item>
         ))}

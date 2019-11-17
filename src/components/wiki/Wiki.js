@@ -1,16 +1,29 @@
 import React, { useState } from "react"
 import styled, { css } from "styled-components"
 import {
+  add,
+  block,
+  cross,
   Breadcrumbs,
   Chips,
   Heading,
   Table,
   ToggleSwitch,
+  MarkdownParser,
+  MarkdownEditor,
+  ContainedButton,
+  SVG,
 } from "project-pillow-components"
-import { DP_TYPES, MAIN_THEME } from "../../constants/theme"
+import {
+  DP_TYPES,
+  MAIN_THEME,
+  DP6,
+  ALTERNATE_THEME_COLORS,
+} from "../../constants/theme"
 import { Toggle, Label } from "../main"
 import { MEDIA_MIN_MEDIUM } from "../../constants/sizes"
-import Description from "./Description"
+import { update, create, remove } from "../api/api"
+import { apiUrl } from "../../constants/urls"
 
 const Wrapper = styled.div`
   /* max-height: ${p => (p.created ? 40000 : 0)}px;
@@ -30,18 +43,33 @@ const Wrapper = styled.div`
       }
     `};
 `
-const P = styled.p`
+
+const ToggleWrapper = styled.div`
+  margin: 0 0.6rem 0 0;
+`
+const FlexWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin: 0;
-  padding-bottom: 0.5rem;
 `
 
-const A = styled.a`
-  color: ${MAIN_THEME.PRIMARY.color.background};
-  font-weight: 800;
-  text-decoration: none;
-  :hover {
-    color: brown;
-  }
+const NewItem = styled.div``
+const H2 = styled.h2`
+  display: flex;
+  justify-content: space-between;
+  margin: 0.2rem 0.2rem 0.5rem;
+`
+
+const TitleInput = styled.input`
+  background-color: inherit;
+  color: ${MAIN_THEME.PRIMARY.color.foreground};
+  border: none;
+  outline: none;
+  width: 100%;
+  box-shadow: ${DP6};
+  padding: 0.5rem;
+  margin: 0 0 0.5rem 0;
 `
 
 const checkMatchingSearchData = (data, searchValue) => {
@@ -60,14 +88,6 @@ const checkMatchingSearchData = (data, searchValue) => {
   )
 }
 
-// const includesSearchQueries = (searchQueries, elements) => {
-//   return searchQueries.every(searchQuery =>
-//     elements.some(element =>
-//       element.toLowerCase().includes(searchQuery.toLowerCase())
-//     )
-//   )
-// }
-
 const checkMatchingSelectionData = (data, selected) => {
   if (!data || !selected) return false
   return data.title.toLowerCase() === selected.toLowerCase()
@@ -84,6 +104,13 @@ const Wiki = ({
   level,
   crumbs = [],
 }) => {
+  const [title, setTitle] = useState(data.title)
+  const [description, setDescription] = useState(data.description)
+  const [newTitle, setNewTitle] = useState("")
+  const [newDescription, setNewDescription] = useState("")
+  const [showCreate, setShowCreate] = useState(false)
+  const [showDelete, setShowDelete] = useState(false)
+  const [showEditor, setShowEditor] = useState(false)
   const isSelectedMatch = checkMatchingSelectionData(data, selected)
   const isSearchMatch = !selected && checkMatchingSearchData(data, searchValue)
   const lvl = level
@@ -94,21 +121,96 @@ const Wiki = ({
   const [showChildren, setShowChildren] = useState(data.showChildren)
   const [created, setCreated] = useState(false)
   const newCrumbs = [...crumbs, data.title]
-  //   useEffect(() => {
-  //     setTimeout(() => {
-  //       setCreated(true)
-  //     }, 100)
-  //   }, [])
 
   return isSelectedMatch || isSearchMatch || parentIsMatch ? (
     <Wrapper toggleStyle={toggleStyle} created={created}>
       {data && (
         <>
+          {showCreate && (
+            <>
+              <NewItem>
+                <H2>
+                  New entry{" "}
+                  <SVG
+                    {...cross}
+                    size={18}
+                    onClick={() => setShowCreate(false)}
+                    color="white"
+                  />
+                </H2>
+                <TitleInput
+                  placeholder="Title"
+                  onChange={e => setNewTitle(e.target.value)}
+                />
+                <MarkdownEditor
+                  markdown={newDescription}
+                  setMarkdown={setNewDescription}
+                />
+              </NewItem>
+              {newTitle !== "" && newDescription !== "" && (
+                <ContainedButton
+                  onClick={() => {
+                    create(
+                      `${apiUrl}/wikis`,
+                      { title: newTitle, description: newDescription },
+                      "Unauthorized"
+                    ).then(response => {
+                      console.log({ response })
+                    })
+                  }}
+                >
+                  Create
+                </ContainedButton>
+              )}
+            </>
+          )}
           <Heading
             level={lvl}
             primaryColor={MAIN_THEME.PRIMARY.color.background}
           >
-            {data.title}
+            <FlexWrapper>
+              {showEditor ? (
+                <TitleInput
+                  placeholder="Title"
+                  value={title}
+                  onChange={e => setTitle(e.target.value)}
+                />
+              ) : (
+                data.title
+              )}
+              <FlexWrapper>
+                {lvl < 3 && !showCreate && (
+                  <SVG
+                    {...add}
+                    onClick={() => setShowCreate(true)}
+                    size={34}
+                    color="white"
+                  />
+                )}
+                <ToggleWrapper>
+                  <ToggleSwitch
+                    backgroundColor={MAIN_THEME.PRIMARY.color.background}
+                    checked={showEditor}
+                    onClick={() => setShowEditor(!showEditor)}
+                  />
+                </ToggleWrapper>
+                {showDelete ? (
+                  <SVG
+                    {...block}
+                    size={28}
+                    onClick={() => setShowDelete(false)}
+                    color="white"
+                  />
+                ) : (
+                  <SVG
+                    {...cross}
+                    size={18}
+                    onClick={() => setShowDelete(true)}
+                    color="white"
+                  />
+                )}
+              </FlexWrapper>
+            </FlexWrapper>
           </Heading>
           {newCrumbs.length > 1 && (
             <Breadcrumbs
@@ -123,14 +225,33 @@ const Wiki = ({
               onChange={value => value[0] && setSearchValue(value[0])}
             />
           )}
-          {data.description && (
-            <Description description={data.description} summary={false} />
+          {description && (
+            <>
+              {showEditor ? (
+                <MarkdownEditor
+                  markdown={description}
+                  setMarkdown={setDescription}
+                />
+              ) : (
+                <MarkdownParser markdown={description} />
+              )}
+            </>
           )}
-          {/* {data.description && <P>{data.description}</P>} */}
-          {data.link && (
-            <A href={data.link.href} target="_blank">
-              {data.link.title}
-            </A>
+          {description !== data.description && !showDelete && (
+            <ContainedButton
+              onClick={() => {
+                const { _id, ...dataProps } = data
+                update(
+                  `${apiUrl}/wikis/${_id}`,
+                  { ...dataProps, description },
+                  "Unauthorized"
+                ).then(response => {
+                  console.log({ response })
+                })
+              }}
+            >
+              Update
+            </ContainedButton>
           )}
           {data.table && (
             <Table
@@ -141,6 +262,29 @@ const Wiki = ({
               backgroundColor="#222222"
               alternateColor="#888888"
             />
+          )}
+          {data && showDelete && (
+            <>
+              <ContainedButton
+                foregroundColor={MAIN_THEME.BLACK.color.foreground}
+                onClick={() => setShowDelete(false)}
+              >
+                Cancel
+              </ContainedButton>
+              <ContainedButton
+                backgroundColor={ALTERNATE_THEME_COLORS.ERROR_TEXT_COLOR}
+                foregroundColor={MAIN_THEME.BLACK.color.foreground}
+                onClick={() => {
+                  remove(`${apiUrl}/wikis/${data._id}`, "Unauthorized").then(
+                    response => {
+                      console.log({ response })
+                    }
+                  )
+                }}
+              >
+                Delete
+              </ContainedButton>
+            </>
           )}
           {data.children && data.children.length > 0 && (
             <Breadcrumbs
