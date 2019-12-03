@@ -1,5 +1,9 @@
 export const FOOTER_MENU = [
   {
+    title: "Home",
+    page: "home",
+  },
+  {
     title: "Wiki",
     page: "wiki",
   },

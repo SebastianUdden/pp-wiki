@@ -1,5 +1,5 @@
 const pe = {
-  id: "1234567890",
+  _id: "3.3.2",
   title: "P/E",
   secondaryText: "Price-to-earnings",
   description: `P/E är en förkortning för **price/earnings** och är ett av de vanligaste nyckeltalen som används för att se om en aktie är *köpvärd* eller inte. Price står för aktiens pris och earnings står för bolagets vinst. 
@@ -14,7 +14,7 @@ const pe = {
   },
 }
 const ps = {
-  id: "1234567891",
+  _id: "3.3.1",
   title: "P/S",
   secondaryText: "Price-to-sales",
   description: "Ipsum lorum hipster cake on dwarfs",
@@ -26,12 +26,12 @@ const ps = {
 }
 
 const värdering = {
-  id: "1234567899",
+  _id: "3.3",
   title: "Värdering",
   description: "Definitioner av värdering",
   tags: ["värdering", "nyckeltal"],
   showChildren: true,
-  children: [ps, pe],
+  children: ["3.3.1", "3.3.2"],
   table: {
     headings: [
       { title: "Nyckeltal", alignRight: false },
@@ -49,7 +49,7 @@ const värdering = {
 }
 
 const likviditet = {
-  id: "1234567891238",
+  _id: "3.2",
   title: "Likviditet",
   description: "Definitioner av likviditet",
   tags: ["likviditet", "nyckeltal"],
@@ -58,23 +58,23 @@ const likviditet = {
 }
 
 const finansiellaDefinitioner = {
-  id: "1234567892",
+  _id: "3.1",
   title: "Definitioner",
   description: "Definitioner av finansiella termer",
   tags: ["finansiell analys", "nyckeltal"],
 }
 
 const finansiellAnalys = {
-  id: "1234567893",
+  _id: "3",
   title: "Finansiell analys",
   description: "Beskrivning av finansiell analys",
-  children: [finansiellaDefinitioner, värdering, likviditet],
+  children: ["3.1", "3.2", "3.3"],
 }
 
 /////////////////////////////////////////////////////////
 
 const jsBasics = {
-  id: "8234567895",
+  _id: "2.3.1",
   title: "Grunder",
   secondaryText: "",
   description:
@@ -83,16 +83,16 @@ const jsBasics = {
 }
 
 const javaScript = {
-  id: "2234567895",
+  _id: "2.3",
   title: "JavaScript",
   secondaryText: "Hanterar logik för webbsidor",
   description:
     "JavaScript räknar ut och hämtar de delar som behövs för struktur (HTML) och sätter in den design (CSS) som behövs på rätt ställen.",
-  children: [jsBasics],
+  children: ["2.3.1"],
 }
 
 const headings = {
-  id: "7244567895",
+  _id: "2.2.1.1",
   title: "Headings",
   secondaryText: "",
   description:
@@ -101,25 +101,25 @@ const headings = {
 }
 
 const htmlElements = {
-  id: "7234567895",
+  _id: "2.2.1",
   title: "HTML Elements",
   secondaryText: "",
   description:
     "HTML-element [test](https://www.google.com) skrivs ut i två olika format, antingen <ElementTyp>Innehåll</ElementTyp> eller <ElementTyp />. Den första används när ett element ska ha ett innehåll (children), det andra används för element som antingen bara har en styling (med CSS) eller när de är dynamiska element (ex. <input /> för att användarens ska skriva in ny text). Det finns exempelvis rubriker av olika storlek (<h1>, <h2> ... <h6>), paragrafer (<p>), radbrytningar (<br>) och listor (<ul>, <ol>, <li>).",
-  children: [headings],
+  children: ["2.2.1.1"],
 }
 
 const html = {
-  id: "3234567895",
+  _id: "2.2",
   title: "HTML",
   secondaryText: "Hanterar struktur för webbsidor",
   description:
     "HTML bygger upp stommen för en webbsida, det är i grunden gjort för text-struktur och har många likheter med hur exempelvis ett Word-dokument är uppbyggt. Alla html-element är i grunden rektanglar, som en liknelse kan vi föreställa oss ett antal tavlor i olika storlekar som sätts tätt ovanpå varandra för att pryda en vägg. Tavlorna kan ha olika bredd baserat på ex. textinnehåll men de placeras alltid ovanpå varandra om inte annat är definierat.",
-  children: [htmlElements],
+  children: ["2.2.1"],
 }
 
 const cssBoxModel = {
-  id: "5234567895",
+  _id: "2.1.2",
   title: "Box Model",
   secondaryText: "",
   description:
@@ -128,7 +128,7 @@ const cssBoxModel = {
 }
 
 const cssColors = {
-  id: "6234567895",
+  _id: "2.1.1",
   title: "Colors",
   secondaryText: "",
   description:
@@ -137,44 +137,54 @@ const cssColors = {
 }
 
 const css = {
-  id: "4234567895",
+  _id: "2.1",
   title: "CSS",
   secondaryText: "Hanterar design för webbsidor",
   description:
     "CSS målar upp utseendet för en webbsida, det tar hand om saker som färger (color, background-color), yttre avstånd (margin), inre avstånd (padding) och linjer (border).",
-  children: [cssBoxModel, cssColors],
+  children: ["2.1.2", "2.1.1"],
 }
 
 const utveckling = {
-  id: "1234567895",
+  _id: "2",
   title: "Utveckling",
   secondaryText: "Förklaring av utvecklingsterminologi",
   description:
     "Den moderna webben är i sitt fundament uppbyggt kring tre språk som arbetar tillsammans. De språken är JavaScript, HTML och CSS. För att enklare förklara koncepten kan vi ha analogier till de olika språken. JavaScript bygger logiken för sidan och kan liknas vid en robot som ska sätta upp tavlor på en vägg. HTML är strukturen för sidan och kan liknas vid de spikar och ramar som roboten använder för tavlorna. CSS sköter design och kan därför liknas vid målarfärg och penslar som roboten använder för färglägga tavlorna.",
-  children: [javaScript, html, css],
+  children: ["2.3", "2.2", "2.1"],
 }
 
 /////////////////////////////////////////////////////////
 
 const strategier = {
-  id: "1234567896",
+  _id: "1",
   title: "Strategier",
   description: "Beskrivning av strategier",
 }
+export const MOCK_WIKI = {
+  _id: "0",
+  topNode: true,
+  title: "Wiki",
+  description: "Pillow wiki",
+  children: ["1", "2", "3"],
+}
 
 export const FLAT_DATA = [
+  css,
+  cssColors,
+  cssBoxModel,
+  html,
+  htmlElements,
+  javaScript,
+  jsBasics,
+  headings,
   ps,
   pe,
   värdering,
   finansiellaDefinitioner,
   finansiellAnalys,
-  javaScript,
   utveckling,
   strategier,
+  likviditet,
+  MOCK_WIKI,
 ]
-export const MOCK_WIKI = {
-  id: "1234567897",
-  title: "Wiki",
-  description: "Pillow wiki",
-  children: [finansiellAnalys, utveckling, strategier],
-}

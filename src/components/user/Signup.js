@@ -44,7 +44,7 @@ const Signup = ({ fields }) => {
         <>
           <FieldHint>
             You are already signed up as <Em>{user.username || user.email}</Em>,
-            would you like remove the user?
+            would you like to remove the user?
           </FieldHint>{" "}
           {!showConfirmRemoval && (
             <Button onClick={() => setShowConfirmRemoval(true)}>

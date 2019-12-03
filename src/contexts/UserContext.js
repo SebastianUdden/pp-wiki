@@ -13,7 +13,7 @@ const initialState = {
   user: {},
   users: [],
   tempUser: {},
-  page: "login",
+  page: "home",
   clearUser: () => {},
   clearTempUser: () => {},
   setUser: () => {},

@@ -1,0 +1,12 @@
+ToDos
+
+- Create children for a specific data point
+- Delete children for a specific data point
+- / doesn't work for headings (maybe text as well)
+- Local image upload would be nice
+- Numbered/bullet-list issue
+- Change image size (centered image as default, select image position?)
+- Structured hierarchy
+- Description start page
+- User feedback CRUD (save local variables)
+- Spacing for mobile paragraphs is not enough (increase by 0.5rem)

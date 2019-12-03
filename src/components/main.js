@@ -18,17 +18,18 @@ import {
   ToggleSwitch,
 } from "project-pillow-components"
 
+import Home from "./home/Home"
 import Signup from "./user/Signup"
 import Login from "./user/Login"
 import Settings from "./user/Settings"
 import { LOGIN_FIELDS, SIGNUP_FIELDS } from "../constants/fields"
 
 import Wiki from "./wiki/Wiki"
-import { MOCK_WIKI } from "./wiki/wiki-mocks"
 import { DP6, MAIN_THEME } from "../constants/theme"
 import { DEFAULT_FONT } from "../constants/font"
 import { MEDIA_MAX_MEDIUM, MEDIA_MIN_MEDIUM } from "../constants/sizes"
 import { get } from "./api/api"
+import Spinner from "./wiki/Spinner"
 
 const Page = styled.div`
   padding: 0;
@@ -82,10 +83,39 @@ const SubNavigationLinkWrapper = styled.div`
   margin-left: 2rem;
 `
 
+const getNodeChildren = (node, dataArray = []) => {
+  return node && node.children
+    ? node.children.map(child => {
+        const treeNode = dataArray.find(
+          data => data._id === child || data._id === child._id
+        )
+        if (!treeNode) return
+        return {
+          ...treeNode,
+          children: getNodeChildren(treeNode, dataArray),
+        }
+      })
+    : []
+}
+
+const createDataTree = dataArray => {
+  if (!dataArray) return {}
+  const topNode = dataArray.find(data => data.topNode)
+  if (!topNode) return {}
+  if (!topNode.children) return topNode
+
+  const dataTree = {
+    ...topNode,
+    children: getNodeChildren(topNode, dataArray),
+  }
+
+  return dataTree
+}
+
 const Main = ({ searchValue, setSearchValue }) => {
   if (typeof window === "undefined") return <></>
-  const [useDb, setUseDb] = useState(true)
-  const [data, setData] = useState(MOCK_WIKI)
+  const [dataArray, setDataArray] = useState([])
+  const [data, setData] = useState(undefined)
   const { page, setPage, user, setUser, users, setUsers } = useUser()
   const [checked, setChecked] = useState(true)
   const [value, setValue] = useState("")
@@ -93,8 +123,6 @@ const Main = ({ searchValue, setSearchValue }) => {
 
   const [selected, setSelected] = useState("")
   const [hide, setHide] = useState(true)
-
-  const [showOverflow, setShowOverflow] = useState(false)
 
   useEffect(() => {
     get(`${apiUrl}/users`, "Unauthorized").then(dbUsers => {
@@ -104,21 +132,17 @@ const Main = ({ searchValue, setSearchValue }) => {
   }, [])
 
   useEffect(() => {
+    if (!dataArray || !dataArray.length) return
+    console.log({ dataArray })
+    setData(createDataTree(dataArray))
+  }, [dataArray])
+
+  useEffect(() => {
     get(`${apiUrl}/wikis`).then(wikis => {
       if (wikis.error) return
-      setData(
-        useDb
-          ? {
-              id: "1234567897",
-              title: "Wiki",
-              description:
-                "All information gathered for the Pillow project can be found here.",
-              children: wikis,
-            }
-          : MOCK_WIKI
-      )
+      setDataArray(wikis)
     })
-  }, [useDb])
+  }, [])
 
   useEffect(() => {
     setUser({
@@ -134,7 +158,6 @@ const Main = ({ searchValue, setSearchValue }) => {
           u.username === user.username ||
           u.username === localStorage.getItem("username")
       )
-    // if (!exists) setUser({})
   }, [page])
 
   return (
@@ -157,53 +180,47 @@ const Main = ({ searchValue, setSearchValue }) => {
               setHide(true)
             }}
           >
-            {data.title}
+            {data && data.title}
           </H2>
-          <Toggle>
-            <ToggleSwitch
-              checked={useDb}
-              onClick={() => setUseDb(!useDb)}
-              backgroundColor={MAIN_THEME.PRIMARY.color.background}
-            />
-            <Label>Använd databas</Label>
-          </Toggle>
-          {data.children.map(child => (
-            <React.Fragment key={child.id}>
-              <NavigationLink
-                backgroundColor={MAIN_THEME.PRIMARY.color.background}
-                colorHover={MAIN_THEME.PRIMARY.color.background}
-                color={MAIN_THEME.WHITE.color.foreground}
-                svg={insertPhoto}
-                title={child.title}
-                onClick={() => {
-                  setPage("wiki")
-                  setHide(true)
-                  setSelected(child.title)
-                  setSearchValue(undefined)
-                }}
-                selected={selected === child.id}
-              />
-              {child.children &&
-                child.children.map(subChild => (
-                  <SubNavigationLinkWrapper key={subChild.id}>
-                    <NavigationLink
-                      backgroundColor={MAIN_THEME.PRIMARY.color.background}
-                      colorHover={MAIN_THEME.PRIMARY.color.background}
-                      color={MAIN_THEME.WHITE.color.foreground}
-                      svg={insertPhoto}
-                      title={subChild.title}
-                      onClick={() => {
-                        setPage("wiki")
-                        setHide(true)
-                        setSelected(subChild.title)
-                        setSearchValue(undefined)
-                      }}
-                      selected={selected === subChild.id}
-                    />
-                  </SubNavigationLinkWrapper>
-                ))}
-            </React.Fragment>
-          ))}
+          {data &&
+            data.children &&
+            data.children.map(child => (
+              <React.Fragment key={child._id}>
+                <NavigationLink
+                  backgroundColor={MAIN_THEME.PRIMARY.color.background}
+                  colorHover={MAIN_THEME.PRIMARY.color.background}
+                  color={MAIN_THEME.WHITE.color.foreground}
+                  svg={insertPhoto}
+                  title={child.title}
+                  onClick={() => {
+                    setPage("wiki")
+                    setHide(true)
+                    setSelected(child.title)
+                    setSearchValue(undefined)
+                  }}
+                  selected={selected === child._id}
+                />
+                {child.children &&
+                  child.children.map(subChild => (
+                    <SubNavigationLinkWrapper key={subChild._id}>
+                      <NavigationLink
+                        backgroundColor={MAIN_THEME.PRIMARY.color.background}
+                        colorHover={MAIN_THEME.PRIMARY.color.background}
+                        color={MAIN_THEME.WHITE.color.foreground}
+                        svg={insertPhoto}
+                        title={subChild.title}
+                        onClick={() => {
+                          setPage("wiki")
+                          setHide(true)
+                          setSelected(subChild.title)
+                          setSearchValue(undefined)
+                        }}
+                        selected={selected === subChild._id}
+                      />
+                    </SubNavigationLinkWrapper>
+                  ))}
+              </React.Fragment>
+            ))}
         </NavigationDrawer>
         <AppBarTop>
           {!showSearch && (
@@ -274,9 +291,12 @@ const Main = ({ searchValue, setSearchValue }) => {
           )}
         </AppBarTop>
         <Body>
-          {page === "wiki" && (
-            <>
+          {page === "home" && <Home />}
+          {page === "wiki" &&
+            (data ? (
               <Wiki
+                dataArray={dataArray}
+                setDataArray={setDataArray}
                 data={data}
                 searchValue={searchValue}
                 setSearchValue={setSearchValue}
@@ -284,8 +304,9 @@ const Main = ({ searchValue, setSearchValue }) => {
                 setSelected={setSelected}
                 toggleStyle={checked}
               />
-            </>
-          )}
+            ) : (
+              <Spinner />
+            ))}
           {page === "signup" && <Signup fields={SIGNUP_FIELDS} />}
           {page === "login" && <Login fields={LOGIN_FIELDS} />}
           {page === "settings" && <Settings />}

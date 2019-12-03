@@ -1,29 +1,26 @@
 import React, { useState } from "react"
 import styled, { css } from "styled-components"
 import {
-  add,
-  block,
-  cross,
   Breadcrumbs,
   Chips,
-  Heading,
   Table,
   ToggleSwitch,
   MarkdownParser,
   MarkdownEditor,
   ContainedButton,
-  SVG,
 } from "project-pillow-components"
 import {
   DP_TYPES,
   MAIN_THEME,
-  DP6,
   ALTERNATE_THEME_COLORS,
 } from "../../constants/theme"
 import { Toggle, Label } from "../main"
 import { MEDIA_MIN_MEDIUM } from "../../constants/sizes"
-import { update, create, remove } from "../api/api"
+import { update, remove } from "../api/api"
 import { apiUrl } from "../../constants/urls"
+import NewItem from "./NewItem"
+import WikiHeading from "./WikiHeading"
+import NewChildren from "./NewChildren"
 
 const Wrapper = styled.div`
   /* max-height: ${p => (p.created ? 40000 : 0)}px;
@@ -43,33 +40,11 @@ const Wrapper = styled.div`
       }
     `};
 `
-
-const ToggleWrapper = styled.div`
-  margin: 0 0.6rem 0 0;
-`
 const FlexWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin: 0;
-`
-
-const NewItem = styled.div``
-const H2 = styled.h2`
-  display: flex;
-  justify-content: space-between;
-  margin: 0.2rem 0.2rem 0.5rem;
-`
-
-const TitleInput = styled.input`
-  background-color: inherit;
-  color: ${MAIN_THEME.PRIMARY.color.foreground};
-  border: none;
-  outline: none;
-  width: 100%;
-  box-shadow: ${DP6};
-  padding: 0.5rem;
-  margin: 0 0 0.5rem 0;
 `
 
 const checkMatchingSearchData = (data, searchValue) => {
@@ -90,10 +65,12 @@ const checkMatchingSearchData = (data, searchValue) => {
 
 const checkMatchingSelectionData = (data, selected) => {
   if (!data || !selected) return false
-  return data.title.toLowerCase() === selected.toLowerCase()
+  return data.title && data.title.toLowerCase() === selected.toLowerCase()
 }
 
 const Wiki = ({
+  dataArray,
+  setDataArray,
   searchValue,
   setSearchValue,
   selected,
@@ -106,152 +83,70 @@ const Wiki = ({
 }) => {
   const [title, setTitle] = useState(data.title)
   const [description, setDescription] = useState(data.description)
-  const [newTitle, setNewTitle] = useState("")
-  const [newDescription, setNewDescription] = useState("")
+  const [children, setChildren] = useState(data.children)
+  const [tags, setTags] = useState(data.tags)
   const [showCreate, setShowCreate] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
   const [showEditor, setShowEditor] = useState(false)
+  const [newCrumbs, setNewCrumbs] = useState([
+    ...crumbs,
+    { _id: data._id, title: data.title },
+  ])
+  const [showChildrenDropdown, setShowChildrenDropdown] = useState(false)
   const isSelectedMatch = checkMatchingSelectionData(data, selected)
-  const isSearchMatch = !selected && checkMatchingSearchData(data, searchValue)
+  const isSearchMatch =
+    !selected && checkMatchingSearchData({ ...data, tags }, searchValue)
   const lvl = level
     ? level + 1
     : isSelectedMatch || isSearchMatch
     ? 2
     : undefined
   const [showChildren, setShowChildren] = useState(data.showChildren)
-  const [created, setCreated] = useState(false)
-  const newCrumbs = [...crumbs, data.title]
+  const [created] = useState(false)
 
   return isSelectedMatch || isSearchMatch || parentIsMatch ? (
     <Wrapper toggleStyle={toggleStyle} created={created}>
       {data && (
         <>
-          {showCreate && (
-            <>
-              <NewItem>
-                <H2>
-                  New entry{" "}
-                  <SVG
-                    {...cross}
-                    size={18}
-                    onClick={() => setShowCreate(false)}
-                    color="white"
-                  />
-                </H2>
-                <TitleInput
-                  placeholder="Title"
-                  onChange={e => setNewTitle(e.target.value)}
-                />
-                <MarkdownEditor
-                  markdown={newDescription}
-                  setMarkdown={setNewDescription}
-                />
-              </NewItem>
-              {newTitle !== "" && newDescription !== "" && (
-                <ContainedButton
-                  onClick={() => {
-                    create(
-                      `${apiUrl}/wikis`,
-                      { title: newTitle, description: newDescription },
-                      "Unauthorized"
-                    ).then(response => {
-                      console.log({ response })
-                    })
-                  }}
-                >
-                  Create
-                </ContainedButton>
-              )}
-            </>
-          )}
-          <Heading
-            level={lvl}
-            primaryColor={MAIN_THEME.PRIMARY.color.background}
-          >
-            <FlexWrapper>
-              {showEditor ? (
-                <TitleInput
-                  placeholder="Title"
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                />
-              ) : (
-                data.title
-              )}
-              <FlexWrapper>
-                {lvl < 3 && !showCreate && (
-                  <SVG
-                    {...add}
-                    onClick={() => setShowCreate(true)}
-                    size={34}
-                    color="white"
-                  />
-                )}
-                <ToggleWrapper>
-                  <ToggleSwitch
-                    backgroundColor={MAIN_THEME.PRIMARY.color.background}
-                    checked={showEditor}
-                    onClick={() => setShowEditor(!showEditor)}
-                  />
-                </ToggleWrapper>
-                {showDelete ? (
-                  <SVG
-                    {...block}
-                    size={28}
-                    onClick={() => setShowDelete(false)}
-                    color="white"
-                  />
-                ) : (
-                  <SVG
-                    {...cross}
-                    size={18}
-                    onClick={() => setShowDelete(true)}
-                    color="white"
-                  />
-                )}
-              </FlexWrapper>
-            </FlexWrapper>
-          </Heading>
-          {newCrumbs.length > 1 && (
+          {showCreate && <NewItem onHide={() => setShowCreate(false)} />}
+          <WikiHeading
+            title={title || data.title}
+            setTitle={setTitle}
+            lvl={lvl}
+            showCreate={showCreate}
+            setShowCreate={setShowCreate}
+            showDelete={showDelete}
+            setShowDelete={setShowDelete}
+            showEditor={showEditor}
+            setShowEditor={setShowEditor}
+          />
+          {newCrumbs.length > 0 && (
             <Breadcrumbs
               crumbs={newCrumbs}
-              setSelected={setSelected}
+              onChange={value => setSelected(value.title)}
               size="medium"
             />
           )}
-          {data.tags && (
+          {tags && (
             <Chips
-              chips={data.tags.map(t => ({ title: t }))}
-              onChange={value => value[0] && setSearchValue(value[0])}
+              chips={tags.map(t => ({
+                title: `${t}${showEditor ? " x" : ""}`,
+              }))}
+              onChange={value => {
+                showEditor
+                  ? setTags(tags.filter(t => t !== value[0]))
+                  : value[0] && setSearchValue(value[0])
+              }}
             />
           )}
-          {description && (
-            <>
-              {showEditor ? (
-                <MarkdownEditor
-                  markdown={description}
-                  setMarkdown={setDescription}
-                />
-              ) : (
-                <MarkdownParser markdown={description} />
-              )}
-            </>
+          {description && !showEditor && (
+            <MarkdownParser markdown={description} />
           )}
-          {description !== data.description && !showDelete && (
-            <ContainedButton
-              onClick={() => {
-                const { _id, ...dataProps } = data
-                update(
-                  `${apiUrl}/wikis/${_id}`,
-                  { ...dataProps, description },
-                  "Unauthorized"
-                ).then(response => {
-                  console.log({ response })
-                })
-              }}
-            >
-              Update
-            </ContainedButton>
+          {showEditor && (
+            <MarkdownEditor
+              markdown={description}
+              setMarkdown={setDescription}
+            />
           )}
           {data.table && (
             <Table
@@ -286,29 +181,90 @@ const Wiki = ({
               </ContainedButton>
             </>
           )}
-          {data.children && data.children.length > 0 && (
-            <Breadcrumbs
-              crumbs={data.children.map(child => child.title)}
-              setSelected={setSelected}
-              size="medium"
+          <FlexWrapper>
+            {children && children.length > 0 && (
+              <Breadcrumbs
+                crumbs={children.map(c => ({
+                  _id: c._id,
+                  title: `${c.title}${showEditor ? " x" : ""}`,
+                  showDelete: showEditor,
+                }))}
+                onChange={value => {
+                  showEditor
+                    ? setChildren(children.filter(c => c._id !== value._id))
+                    : setSelected(value.title)
+                }}
+                size="medium"
+              />
+            )}
+          </FlexWrapper>
+          {showEditor && (
+            <NewChildren
+              data={data}
+              dataArray={dataArray}
+              setDataArray={setDataArray}
+              children={children}
+              setChildren={setChildren}
+              newCrumbs={newCrumbs}
             />
           )}
-          {data.children &&
-            data.children.length > 0 &&
-            (searchValue !== "" || selected) && (
-              <Toggle>
-                <ToggleSwitch
+          {!showDelete &&
+            (title !== data.title ||
+              description !== data.description ||
+              tags !== data.tags ||
+              children !== data.children) && (
+              <>
+                <ContainedButton
+                  onClick={() => {
+                    setTitle(data.title)
+                    setDescription(data.description)
+                    setChildren(data.children)
+                    setShowEditor(false)
+                  }}
+                >
+                  Cancel
+                </ContainedButton>
+                <ContainedButton
                   backgroundColor={MAIN_THEME.PRIMARY.color.background}
-                  checked={showChildren}
-                  onClick={() => setShowChildren(!showChildren)}
-                />
-                <Label>Visa mer</Label>
-              </Toggle>
+                  onClick={() => {
+                    const { _id, ...dataProps } = data
+                    const updateData = {
+                      ...dataProps,
+                      title: title || data.title,
+                      description: description || data.description,
+                      tags: tags || data.tags,
+                      children: children ? children.map(c => c._id) : [],
+                    }
+                    update(
+                      `${apiUrl}/wikis/${_id}`,
+                      updateData,
+                      "Unauthorized"
+                    ).then(response => {
+                      console.log({ response })
+                      setShowEditor(false)
+                    })
+                  }}
+                >
+                  Update
+                </ContainedButton>
+              </>
             )}
-          {data.children &&
-            data.children.map(child => (
+          {children && children.length > 0 && (searchValue !== "" || selected) && (
+            <Toggle>
+              <ToggleSwitch
+                backgroundColor={MAIN_THEME.PRIMARY.color.background}
+                checked={showChildren}
+                onClick={() => setShowChildren(!showChildren)}
+              />
+              <Label>Visa mer</Label>
+            </Toggle>
+          )}
+          {children &&
+            children.map(child => (
               <Wiki
-                key={child.id}
+                key={child._id}
+                dataArray={dataArray}
+                setDataArray={setDataArray}
                 toggleStyle={toggleStyle}
                 data={child}
                 searchValue={searchValue}
@@ -323,10 +279,12 @@ const Wiki = ({
         </>
       )}
     </Wrapper>
-  ) : data.children ? (
-    data.children.map(child => (
+  ) : children ? (
+    children.map(child => (
       <Wiki
-        key={child.id}
+        key={child._id}
+        dataArray={dataArray}
+        setDataArray={setDataArray}
         toggleStyle={toggleStyle}
         data={child}
         searchValue={searchValue}

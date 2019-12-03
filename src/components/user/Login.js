@@ -27,7 +27,7 @@ const Login = ({ fields }) => {
         <>
           <FieldHint>
             You are already logged in as <Em>{user.username || user.email}</Em>,
-            would you like log out?
+            would you like to log out?
           </FieldHint>
           <Button
             onClick={() => {
