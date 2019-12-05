@@ -22,7 +22,7 @@ const Wrapper = styled.div`
   background: ${BACKGROUND};
 `
 
-const Layout = ({ searchValue, setSearchValue, children }) => {
+const Layout = ({ children }) => {
   const data = useStaticQuery(graphql`
     query SiteTitleQuery {
       site {

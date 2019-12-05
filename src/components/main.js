@@ -6,18 +6,6 @@ import SEO from "./seo"
 import Footer from "./footer/footer"
 import { FOOTER_MENU } from "../constants/menus"
 
-import {
-  AppBarTop,
-  Search,
-  ActionItem,
-  menu,
-  search,
-  insertPhoto,
-  NavigationDrawer,
-  NavigationLink,
-  ToggleSwitch,
-} from "project-pillow-components"
-
 import Home from "./home/Home"
 import Signup from "./user/Signup"
 import Login from "./user/Login"
@@ -25,11 +13,11 @@ import Settings from "./user/Settings"
 import { LOGIN_FIELDS, SIGNUP_FIELDS } from "../constants/fields"
 
 import Wiki from "./wiki/Wiki"
-import { DP6, MAIN_THEME } from "../constants/theme"
-import { DEFAULT_FONT } from "../constants/font"
-import { MEDIA_MAX_MEDIUM, MEDIA_MIN_MEDIUM } from "../constants/sizes"
+import { MEDIA_MIN_MEDIUM } from "../constants/sizes"
 import { get } from "./api/api"
 import Spinner from "./wiki/Spinner"
+import SideMenu from "./sideMenu/SideMenu"
+import TopMenu from "./topMenu/TopMenu"
 
 const Page = styled.div`
   padding: 0;
@@ -51,36 +39,6 @@ export const Toggle = styled.div`
 `
 export const Label = styled.label`
   margin-left: 0.5rem;
-`
-const InnerWrapper = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-const Title = styled.h1`
-  font-family: ${DEFAULT_FONT.family};
-  font-size: ${DEFAULT_FONT.largeSize};
-  margin: ${p => (p.large ? "2.5rem" : 0)} 0 0 0.2rem;
-  padding: 0;
-  cursor: pointer;
-  ${MEDIA_MAX_MEDIUM} {
-    margin: ${p => (p.large ? "2.5rem" : 0)} 0 0 0.2rem;
-  }
-  :hover {
-    color: ${p => p.color};
-  }
-`
-
-const H2 = styled.h2`
-  margin-bottom: 2rem;
-  cursor: pointer;
-  :hover {
-    color: ${p => p.color};
-  }
-`
-
-const SubNavigationLinkWrapper = styled.div`
-  margin-left: 2rem;
 `
 
 const getNodeChildren = (node, dataArray = []) => {
@@ -112,16 +70,15 @@ const createDataTree = dataArray => {
   return dataTree
 }
 
-const Main = ({ searchValue, setSearchValue }) => {
+const Main = () => {
   if (typeof window === "undefined") return <></>
   const [dataArray, setDataArray] = useState([])
   const [data, setData] = useState(undefined)
   const { page, setPage, user, setUser, users, setUsers } = useUser()
-  const [checked, setChecked] = useState(true)
-  const [value, setValue] = useState("")
-  const [showSearch, setShowSearch] = useState(false)
+  const [toggleStyle, setToggleStyle] = useState(true)
 
   const [selected, setSelected] = useState("")
+  const [searchValue, setSearchValue] = useState("")
   const [hide, setHide] = useState(true)
 
   useEffect(() => {
@@ -133,9 +90,10 @@ const Main = ({ searchValue, setSearchValue }) => {
 
   useEffect(() => {
     if (!dataArray || !dataArray.length) return
+    if (page !== "wiki") return
     console.log({ dataArray })
     setData(createDataTree(dataArray))
-  }, [dataArray])
+  }, [dataArray, page])
 
   useEffect(() => {
     get(`${apiUrl}/wikis`).then(wikis => {
@@ -164,132 +122,23 @@ const Main = ({ searchValue, setSearchValue }) => {
     <>
       <SEO title="Home" />
       <Page>
-        <NavigationDrawer
-          boxShadow={DP6}
-          color={MAIN_THEME.WHITE.color.foreground}
-          backgroundColor={MAIN_THEME.WHITE.color.background}
-          onHide={() => setHide(true)}
+        <SideMenu
           hide={hide}
-          buttonElementId="hamburger-menu"
-        >
-          <H2
-            color={MAIN_THEME.PRIMARY.color.background}
-            onClick={() => {
-              setSelected(undefined)
-              setSearchValue("")
-              setHide(true)
-            }}
-          >
-            {data && data.title}
-          </H2>
-          {data &&
-            data.children &&
-            data.children.map(child => (
-              <React.Fragment key={child._id}>
-                <NavigationLink
-                  backgroundColor={MAIN_THEME.PRIMARY.color.background}
-                  colorHover={MAIN_THEME.PRIMARY.color.background}
-                  color={MAIN_THEME.WHITE.color.foreground}
-                  svg={insertPhoto}
-                  title={child.title}
-                  onClick={() => {
-                    setPage("wiki")
-                    setHide(true)
-                    setSelected(child.title)
-                    setSearchValue(undefined)
-                  }}
-                  selected={selected === child._id}
-                />
-                {child.children &&
-                  child.children.map(subChild => (
-                    <SubNavigationLinkWrapper key={subChild._id}>
-                      <NavigationLink
-                        backgroundColor={MAIN_THEME.PRIMARY.color.background}
-                        colorHover={MAIN_THEME.PRIMARY.color.background}
-                        color={MAIN_THEME.WHITE.color.foreground}
-                        svg={insertPhoto}
-                        title={subChild.title}
-                        onClick={() => {
-                          setPage("wiki")
-                          setHide(true)
-                          setSelected(subChild.title)
-                          setSearchValue(undefined)
-                        }}
-                        selected={selected === subChild._id}
-                      />
-                    </SubNavigationLinkWrapper>
-                  ))}
-              </React.Fragment>
-            ))}
-        </NavigationDrawer>
-        <AppBarTop>
-          {!showSearch && (
-            <>
-              <InnerWrapper>
-                <ActionItem
-                  id="hamburger-menu"
-                  colorHover={MAIN_THEME.PRIMARY.color.background}
-                  svg={menu}
-                  onClick={() => {
-                    if (!user.loggedIn) return
-                    setHide(false)
-                  }}
-                  padding="1rem"
-                />
-                <Title
-                  color={MAIN_THEME.PRIMARY.color.background}
-                  onClick={() => {
-                    if (!user.loggedIn) return
-                    setPage("wiki")
-                    setSelected(undefined)
-                    setSearchValue("")
-                  }}
-                >
-                  Wiki
-                </Title>
-              </InnerWrapper>
-              <InnerWrapper>
-                <Toggle>
-                  <ToggleSwitch
-                    checked={checked}
-                    onClick={() => setChecked(!checked)}
-                    backgroundColor={MAIN_THEME.PRIMARY.color.background}
-                  />
-                  <Label>Byt tema</Label>
-                </Toggle>
-                <ActionItem
-                  svg={search}
-                  onClick={() => {
-                    setShowSearch(true)
-                    setTimeout(
-                      () => document.getElementById("Search").focus(),
-                      200
-                    )
-                  }}
-                  padding="1rem"
-                />
-              </InnerWrapper>
-            </>
-          )}
-          {showSearch && (
-            <Search
-              value={value}
-              previousSearchValue="Development"
-              onChange={e => setValue(e.target.value)}
-              onBack={() => {
-                setShowSearch(false)
-                setValue("")
-                setSearchValue("")
-              }}
-              onClose={() => setShowSearch(false)}
-              onSubmit={value => {
-                setSelected(undefined)
-                setSearchValue(value)
-              }}
-              padding="1rem"
-            />
-          )}
-        </AppBarTop>
+          onHide={() => setHide(true)}
+          setPage={setPage}
+          selected={selected}
+          setSelected={setSelected}
+          setSearchValue={setSearchValue}
+          data={data}
+        />
+        <TopMenu
+          setHide={setHide}
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          setSelected={setSelected}
+          toggleStyle={toggleStyle}
+          onToggleStyle={() => setToggleStyle(!toggleStyle)}
+        />
         <Body>
           {page === "home" && <Home />}
           {page === "wiki" &&
@@ -302,7 +151,7 @@ const Main = ({ searchValue, setSearchValue }) => {
                 setSearchValue={setSearchValue}
                 selected={selected}
                 setSelected={setSelected}
-                toggleStyle={checked}
+                toggleStyle={toggleStyle}
               />
             ) : (
               <Spinner />

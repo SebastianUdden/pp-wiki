@@ -23,8 +23,6 @@ import WikiHeading from "./WikiHeading"
 import NewChildren from "./NewChildren"
 
 const Wrapper = styled.div`
-  /* max-height: ${p => (p.created ? 40000 : 0)}px;
-  transition: max-height 10s ease; */
   width: 100%;
   overflow: hidden;
   margin: 0.5rem 0;
@@ -45,6 +43,11 @@ const FlexWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   margin: 0;
+`
+
+const ButtonWrapper = styled.div`
+  display: inline-block;
+  margin: 0.5rem 0;
 `
 
 const checkMatchingSearchData = (data, searchValue) => {
@@ -82,17 +85,16 @@ const Wiki = ({
   crumbs = [],
 }) => {
   const [title, setTitle] = useState(data.title)
-  const [description, setDescription] = useState(data.description)
+  const [description, setDescription] = useState(
+    typeof data.description === "string"
+      ? { meta: { justifyContent: "flex-start" }, body: data.description }
+      : data.description
+  )
   const [children, setChildren] = useState(data.children)
   const [tags, setTags] = useState(data.tags)
   const [showCreate, setShowCreate] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
   const [showEditor, setShowEditor] = useState(false)
-  const [newCrumbs, setNewCrumbs] = useState([
-    ...crumbs,
-    { _id: data._id, title: data.title },
-  ])
-  const [showChildrenDropdown, setShowChildrenDropdown] = useState(false)
   const isSelectedMatch = checkMatchingSelectionData(data, selected)
   const isSearchMatch =
     !selected && checkMatchingSearchData({ ...data, tags }, searchValue)
@@ -102,13 +104,14 @@ const Wiki = ({
     ? 2
     : undefined
   const [showChildren, setShowChildren] = useState(data.showChildren)
-  const [created] = useState(false)
+  const newCrumbs = [...crumbs, { _id: data._id, title: data.title }]
 
   return isSelectedMatch || isSearchMatch || parentIsMatch ? (
-    <Wrapper toggleStyle={toggleStyle} created={created}>
+    <Wrapper toggleStyle={toggleStyle}>
       {data && (
         <>
           {showCreate && <NewItem onHide={() => setShowCreate(false)} />}
+          {title !== data.title && <span>Diff</span>}
           <WikiHeading
             title={title || data.title}
             setTitle={setTitle}
@@ -127,10 +130,12 @@ const Wiki = ({
               size="medium"
             />
           )}
+          {tags !== data.tags && <span>Diff</span>}
           {tags && (
             <Chips
               chips={tags.map(t => ({
-                title: `${t}${showEditor ? " x" : ""}`,
+                title: t,
+                showRemove: showEditor,
               }))}
               onChange={value => {
                 showEditor
@@ -139,6 +144,7 @@ const Wiki = ({
               }}
             />
           )}
+          {description !== data.description && <span>Diff</span>}
           {description && !showEditor && (
             <MarkdownParser markdown={description} />
           )}
@@ -160,27 +166,32 @@ const Wiki = ({
           )}
           {data && showDelete && (
             <>
-              <ContainedButton
-                foregroundColor={MAIN_THEME.BLACK.color.foreground}
-                onClick={() => setShowDelete(false)}
-              >
-                Cancel
-              </ContainedButton>
-              <ContainedButton
-                backgroundColor={ALTERNATE_THEME_COLORS.ERROR_TEXT_COLOR}
-                foregroundColor={MAIN_THEME.BLACK.color.foreground}
-                onClick={() => {
-                  remove(`${apiUrl}/wikis/${data._id}`, "Unauthorized").then(
-                    response => {
-                      console.log({ response })
-                    }
-                  )
-                }}
-              >
-                Delete
-              </ContainedButton>
+              <ButtonWrapper>
+                <ContainedButton
+                  foregroundColor={MAIN_THEME.BLACK.color.foreground}
+                  onClick={() => setShowDelete(false)}
+                >
+                  Cancel
+                </ContainedButton>
+              </ButtonWrapper>
+              <ButtonWrapper>
+                <ContainedButton
+                  backgroundColor={ALTERNATE_THEME_COLORS.ERROR_TEXT_COLOR}
+                  foregroundColor={MAIN_THEME.BLACK.color.foreground}
+                  onClick={() => {
+                    remove(`${apiUrl}/wikis/${data._id}`, "Unauthorized").then(
+                      response => {
+                        console.log({ response })
+                      }
+                    )
+                  }}
+                >
+                  Delete
+                </ContainedButton>
+              </ButtonWrapper>
             </>
           )}
+          {children !== data.children && <span>Diff</span>}
           <FlexWrapper>
             {children && children.length > 0 && (
               <Breadcrumbs
@@ -214,39 +225,43 @@ const Wiki = ({
               tags !== data.tags ||
               children !== data.children) && (
               <>
-                <ContainedButton
-                  onClick={() => {
-                    setTitle(data.title)
-                    setDescription(data.description)
-                    setChildren(data.children)
-                    setShowEditor(false)
-                  }}
-                >
-                  Cancel
-                </ContainedButton>
-                <ContainedButton
-                  backgroundColor={MAIN_THEME.PRIMARY.color.background}
-                  onClick={() => {
-                    const { _id, ...dataProps } = data
-                    const updateData = {
-                      ...dataProps,
-                      title: title || data.title,
-                      description: description || data.description,
-                      tags: tags || data.tags,
-                      children: children ? children.map(c => c._id) : [],
-                    }
-                    update(
-                      `${apiUrl}/wikis/${_id}`,
-                      updateData,
-                      "Unauthorized"
-                    ).then(response => {
-                      console.log({ response })
+                <ButtonWrapper>
+                  <ContainedButton
+                    onClick={() => {
+                      setTitle(data.title)
+                      setDescription(data.description)
+                      setChildren(data.children)
                       setShowEditor(false)
-                    })
-                  }}
-                >
-                  Update
-                </ContainedButton>
+                    }}
+                  >
+                    Cancel
+                  </ContainedButton>
+                </ButtonWrapper>
+                <ButtonWrapper>
+                  <ContainedButton
+                    backgroundColor={MAIN_THEME.PRIMARY.color.background}
+                    onClick={() => {
+                      const { _id, ...dataProps } = data
+                      const updateData = {
+                        ...dataProps,
+                        title: title || data.title,
+                        description: description || data.description,
+                        tags: tags || data.tags,
+                        children: children ? children.map(c => c._id) : [],
+                      }
+                      update(
+                        `${apiUrl}/wikis/${_id}`,
+                        updateData,
+                        "Unauthorized"
+                      ).then(response => {
+                        console.log({ response })
+                        setShowEditor(false)
+                      })
+                    }}
+                  >
+                    Update
+                  </ContainedButton>
+                </ButtonWrapper>
               </>
             )}
           {children && children.length > 0 && (searchValue !== "" || selected) && (

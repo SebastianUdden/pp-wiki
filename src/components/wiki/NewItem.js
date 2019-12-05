@@ -12,7 +12,10 @@ import { TitleInput, H2 } from "./utils"
 
 const NewItem = ({ onHide }) => {
   const [newTitle, setNewTitle] = useState("")
-  const [newDescription, setNewDescription] = useState("")
+  const [newDescription, setNewDescription] = useState({
+    meta: { justifyContent: "flex-start" },
+    body: "",
+  })
 
   return (
     <>

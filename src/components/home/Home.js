@@ -20,6 +20,10 @@ const H1 = styled.h1`
 const P = styled.p`
   opacity: ${HIGH_EMPHASIS};
 `
+const A = styled.a`
+  text-decoration: none;
+  color: orange;
+`
 const Em = styled.em`
   color: ${PRIMARY};
   font-style: normal;
@@ -51,8 +55,15 @@ const Home = () => {
       </H1>
       <P>
         I'm the Pillow Wiki, fill me with all your <Em>crunchy data</Em> and{" "}
-        <Em>wisdom</Em> from inside that beautiful brain of yours. Join me and
-        your friendly collaborators on this journey to build a{" "}
+        <Em>wisdom</Em> from inside that beautiful brain of yours. Tips on how
+        to structure your information can be found{" "}
+        <A
+          href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet"
+          target="_blank"
+        >
+          here
+        </A>
+        ! Join me and your friendly collaborators on this journey to build a{" "}
         <Em>mega hive mind</Em> and we'll <Em>win the future!</Em> In fact, I'm
         positive this will be a{" "}
         <Em>
