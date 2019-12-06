@@ -58,7 +58,9 @@ const checkMatchingSearchData = (data, searchValue) => {
     (data.secondaryText &&
       data.secondaryText.toLowerCase().includes(searchValue.toLowerCase())) ||
     (data.description &&
-      data.description.toLowerCase().includes(searchValue.toLowerCase())) ||
+      data.description.body
+        .toLowerCase()
+        .includes(searchValue.toLowerCase())) ||
     (data.tags &&
       data.tags.some(tag =>
         tag.toLowerCase().includes(searchValue.toLowerCase())
@@ -74,6 +76,7 @@ const checkMatchingSelectionData = (data, selected) => {
 const Wiki = ({
   dataArray,
   setDataArray,
+  onFoundMatch,
   searchValue,
   setSearchValue,
   selected,
@@ -105,8 +108,14 @@ const Wiki = ({
     : undefined
   const [showChildren, setShowChildren] = useState(data.showChildren)
   const newCrumbs = [...crumbs, { _id: data._id, title: data.title }]
+  const highlight = selected ? selected : searchValue ? searchValue : undefined
+  const isMatch = isSelectedMatch || isSearchMatch || parentIsMatch
 
-  return isSelectedMatch || isSearchMatch || parentIsMatch ? (
+  if (isMatch) {
+    onFoundMatch(true)
+  }
+
+  return isMatch ? (
     <Wrapper toggleStyle={toggleStyle}>
       {data && (
         <>
@@ -115,6 +124,7 @@ const Wiki = ({
           <WikiHeading
             title={title || data.title}
             setTitle={setTitle}
+            highlight={highlight}
             lvl={lvl}
             showCreate={showCreate}
             setShowCreate={setShowCreate}
@@ -146,7 +156,7 @@ const Wiki = ({
           )}
           {description !== data.description && <span>Diff</span>}
           {description && !showEditor && (
-            <MarkdownParser markdown={description} />
+            <MarkdownParser markdown={description} highlight={highlight} />
           )}
           {showEditor && (
             <MarkdownEditor
@@ -280,6 +290,7 @@ const Wiki = ({
                 key={child._id}
                 dataArray={dataArray}
                 setDataArray={setDataArray}
+                onFoundMatch={onFoundMatch}
                 toggleStyle={toggleStyle}
                 data={child}
                 searchValue={searchValue}
@@ -300,6 +311,7 @@ const Wiki = ({
         key={child._id}
         dataArray={dataArray}
         setDataArray={setDataArray}
+        onFoundMatch={onFoundMatch}
         toggleStyle={toggleStyle}
         data={child}
         searchValue={searchValue}
@@ -308,7 +320,6 @@ const Wiki = ({
         setSelected={setSelected}
         level={lvl}
         crumbs={newCrumbs}
-        // parentIsMatch={parentIsMatch || isMatch}
       />
     ))
   ) : null

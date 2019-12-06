@@ -9,8 +9,9 @@ Done
 - Spacing for mobile paragraphs is not enough (increase by 0.5rem)
 - / doesn't work for headings (maybe text as well)
 - Local image upload would be nice (use imgur for now)
+- Structured hierarchy
+- Updated side-menu
 
 ToDos
 
 - User feedback CRUD (save local variables)
-- Structured hierarchy

@@ -32,6 +32,11 @@ const Body = styled.div`
     padding: 0 2rem;
   }
 `
+
+const Span = styled.span`
+  color: orange;
+`
+
 export const Toggle = styled.div`
   display: flex;
   align-items: center;
@@ -74,6 +79,7 @@ const Main = () => {
   if (typeof window === "undefined") return <></>
   const [dataArray, setDataArray] = useState([])
   const [data, setData] = useState(undefined)
+  const [foundMatch, setFoundMatch] = useState(false)
   const { page, setPage, user, setUser, users, setUsers } = useUser()
   const [toggleStyle, setToggleStyle] = useState(true)
 
@@ -87,6 +93,10 @@ const Main = () => {
       setUsers(dbUsers)
     })
   }, [])
+
+  useEffect(() => {
+    setFoundMatch(false)
+  }, [searchValue])
 
   useEffect(() => {
     if (!dataArray || !dataArray.length) return
@@ -146,6 +156,7 @@ const Main = () => {
               <Wiki
                 dataArray={dataArray}
                 setDataArray={setDataArray}
+                onFoundMatch={() => setTimeout(() => setFoundMatch(true), 10)}
                 data={data}
                 searchValue={searchValue}
                 setSearchValue={setSearchValue}
@@ -156,6 +167,11 @@ const Main = () => {
             ) : (
               <Spinner />
             ))}
+          {page === "wiki" && !foundMatch && data && (
+            <h2>
+              No matches found for <Span>{searchValue}</Span>...
+            </h2>
+          )}
           {page === "signup" && <Signup fields={SIGNUP_FIELDS} />}
           {page === "login" && <Login fields={LOGIN_FIELDS} />}
           {page === "settings" && <Settings />}

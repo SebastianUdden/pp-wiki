@@ -6,6 +6,7 @@ import {
   Heading,
   SVG,
   ToggleSwitch,
+  HighlightedText,
 } from "project-pillow-components"
 import { MAIN_THEME } from "../../constants/theme"
 import { TitleInput, FlexWrapper, ToggleWrapper } from "./utils"
@@ -13,6 +14,7 @@ import { TitleInput, FlexWrapper, ToggleWrapper } from "./utils"
 const WikiHeading = ({
   title,
   setTitle,
+  highlight,
   lvl,
   showCreate,
   setShowCreate,
@@ -31,7 +33,7 @@ const WikiHeading = ({
             onChange={e => setTitle(e.target.value)}
           />
         ) : (
-          title
+          <HighlightedText text={title} highlight={highlight} />
         )}
         <FlexWrapper>
           {lvl < 3 && !showCreate && (
