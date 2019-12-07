@@ -7,7 +7,7 @@ import ToggleDropdown from "./ToggleDropdown"
 const Wrapper = styled.div`
   margin: 0;
   margin-left: 0.4rem;
-  border-left: ${p => 12 - p.lvl}px solid black;
+  border-left: ${p => 8 - p.lvl}px solid black;
   ${p =>
     p.lastChild &&
     css`
@@ -16,8 +16,8 @@ const Wrapper = styled.div`
         to bottom,
         rgba(0, 0, 0, 0) 0,
         rgba(0, 0, 0, 1) 0,
-        rgba(0, 0, 0, 1) 1.38rem,
-        rgba(0, 0, 0, 0) 1.38rem
+        rgba(0, 0, 0, 1) 1.45rem,
+        rgba(0, 0, 0, 0) 1.45rem
       );
       border-image-slice: 0 0 0 1;
     `};
