@@ -21,6 +21,7 @@ import { apiUrl } from "../../constants/urls"
 import NewItem from "./NewItem"
 import WikiHeading from "./WikiHeading"
 import NewChildren from "./NewChildren"
+import Diff from "./Diff"
 
 const Wrapper = styled.div`
   width: 100%;
@@ -48,6 +49,15 @@ const FlexWrapper = styled.div`
 const ButtonWrapper = styled.div`
   display: inline-block;
   margin: 0.5rem 0;
+`
+
+const Section = styled.div`
+  display: grid;
+`
+
+const SectionItem = styled.div`
+  grid-column: 1;
+  grid-row: 1;
 `
 
 const checkMatchingSearchData = (data, searchValue) => {
@@ -120,19 +130,27 @@ const Wiki = ({
       {data && (
         <>
           {showCreate && <NewItem onHide={() => setShowCreate(false)} />}
-          {title !== data.title && <span>Diff</span>}
-          <WikiHeading
-            title={title || data.title}
-            setTitle={setTitle}
-            highlight={highlight}
-            lvl={lvl}
-            showCreate={showCreate}
-            setShowCreate={setShowCreate}
-            showDelete={showDelete}
-            setShowDelete={setShowDelete}
-            showEditor={showEditor}
-            setShowEditor={setShowEditor}
-          />
+          <Section>
+            {title !== data.title && (
+              <SectionItem>
+                <Diff color={MAIN_THEME.PRIMARY.color.background} />
+              </SectionItem>
+            )}
+            <SectionItem>
+              <WikiHeading
+                title={title || data.title}
+                setTitle={setTitle}
+                highlight={highlight}
+                lvl={lvl}
+                showCreate={showCreate}
+                setShowCreate={setShowCreate}
+                showDelete={showDelete}
+                setShowDelete={setShowDelete}
+                showEditor={showEditor}
+                setShowEditor={setShowEditor}
+              />
+            </SectionItem>
+          </Section>
           {newCrumbs.length > 0 && (
             <Breadcrumbs
               crumbs={newCrumbs}
@@ -140,30 +158,46 @@ const Wiki = ({
               size="medium"
             />
           )}
-          {tags !== data.tags && <span>Diff</span>}
-          {tags && (
-            <Chips
-              chips={tags.map(t => ({
-                title: t,
-                showRemove: showEditor,
-              }))}
-              onChange={value => {
-                showEditor
-                  ? setTags(tags.filter(t => t !== value[0]))
-                  : value[0] && setSearchValue(value[0])
-              }}
-            />
-          )}
-          {description !== data.description && <span>Diff</span>}
-          {description && !showEditor && (
-            <MarkdownParser markdown={description} highlight={highlight} />
-          )}
-          {showEditor && (
-            <MarkdownEditor
-              markdown={description}
-              setMarkdown={setDescription}
-            />
-          )}
+          <Section>
+            {tags !== data.tags && (
+              <SectionItem>
+                <Diff color={MAIN_THEME.PRIMARY.color.background} />
+              </SectionItem>
+            )}
+            {tags && (
+              <SectionItem>
+                <Chips
+                  chips={tags.map(t => ({
+                    title: t,
+                    showRemove: showEditor,
+                  }))}
+                  onChange={value => {
+                    showEditor
+                      ? setTags(tags.filter(t => t !== value[0]))
+                      : value[0] && setSearchValue(value[0])
+                  }}
+                />
+              </SectionItem>
+            )}
+          </Section>
+          <Section>
+            {description !== data.description && (
+              <SectionItem>
+                <Diff color={MAIN_THEME.PRIMARY.color.background} />
+              </SectionItem>
+            )}
+            <SectionItem>
+              {description && !showEditor && (
+                <MarkdownParser markdown={description} highlight={highlight} />
+              )}
+              {showEditor && (
+                <MarkdownEditor
+                  markdown={description}
+                  setMarkdown={setDescription}
+                />
+              )}
+            </SectionItem>
+          </Section>
           {data.table && (
             <Table
               headings={data.table.headings}
@@ -201,24 +235,32 @@ const Wiki = ({
               </ButtonWrapper>
             </>
           )}
-          {children !== data.children && <span>Diff</span>}
-          <FlexWrapper>
-            {children && children.length > 0 && (
-              <Breadcrumbs
-                crumbs={children.map(c => ({
-                  _id: c._id,
-                  title: `${c.title}${showEditor ? " x" : ""}`,
-                  showDelete: showEditor,
-                }))}
-                onChange={value => {
-                  showEditor
-                    ? setChildren(children.filter(c => c._id !== value._id))
-                    : setSelected(value.title)
-                }}
-                size="medium"
-              />
+          <Section>
+            {children !== data.children && (
+              <SectionItem>
+                <Diff color={MAIN_THEME.PRIMARY.color.background} />
+              </SectionItem>
             )}
-          </FlexWrapper>
+            <SectionItem>
+              <FlexWrapper>
+                {children && children.length > 0 && (
+                  <Breadcrumbs
+                    crumbs={children.map(c => ({
+                      _id: c._id,
+                      title: `${c.title}${showEditor ? " x" : ""}`,
+                      showDelete: showEditor,
+                    }))}
+                    onChange={value => {
+                      showEditor
+                        ? setChildren(children.filter(c => c._id !== value._id))
+                        : setSelected(value.title)
+                    }}
+                    size="medium"
+                  />
+                )}
+              </FlexWrapper>
+            </SectionItem>
+          </Section>
           {showEditor && (
             <NewChildren
               data={data}
