@@ -11,6 +11,7 @@ const Wrapper = styled.div`
   ${p =>
     p.lastChild &&
     css`
+      margin-top: -0.18rem;
       border-image: linear-gradient(
         to bottom,
         rgba(0, 0, 0, 0) 0,
@@ -18,12 +19,14 @@ const Wrapper = styled.div`
         rgba(0, 0, 0, 1) 1.38rem,
         rgba(0, 0, 0, 0) 1.38rem
       );
-      border-image-slice: 1;
+      border-image-slice: 0 0 0 1;
     `};
 `
 
 const InnerWrapper = styled.div`
   display: flex;
+  align-items: center;
+  max-height: 4rem;
 `
 
 const Line = styled.svg`

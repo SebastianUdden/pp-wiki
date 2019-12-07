@@ -35,6 +35,10 @@ const Span = styled.span`
 `
 
 const Button = styled.button`
+  outline: none;
+  border: none;
+  background-color: inherit;
+  padding: 0.5rem;
   cursor: pointer;
 `
 
