@@ -110,7 +110,8 @@ const Wiki = ({
   const [showEditor, setShowEditor] = useState(false)
   const isSelectedMatch = checkMatchingSelectionData(data, selected)
   const isSearchMatch =
-    !selected && checkMatchingSearchData({ ...data, tags }, searchValue)
+    !selected &&
+    checkMatchingSearchData({ ...data, description, tags }, searchValue)
   const lvl = level
     ? level + 1
     : isSelectedMatch || isSearchMatch
