@@ -77,6 +77,7 @@ const createDataTree = dataArray => {
 
 const Main = () => {
   if (typeof window === "undefined") return <></>
+  const [reload, setReload] = useState(false)
   const [dataArray, setDataArray] = useState([])
   const [data, setData] = useState(undefined)
   const [foundMatch, setFoundMatch] = useState(false)
@@ -111,7 +112,7 @@ const Main = () => {
       if (wikis.error) return
       setDataArray(wikis)
     })
-  }, [])
+  }, [reload])
 
   useEffect(() => {
     setUser({
@@ -142,6 +143,8 @@ const Main = () => {
           setSearchValue={setSearchValue}
           levelDepth={levelDepth}
           setLevelDepth={setLevelDepth}
+          reload={reload}
+          setReload={setReload}
           data={data}
         />
         <TopMenu

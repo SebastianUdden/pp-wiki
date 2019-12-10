@@ -3,6 +3,7 @@ import styled, { css } from "styled-components"
 import { insertPhoto, NavigationLink } from "project-pillow-components"
 import { MAIN_THEME } from "../../constants/theme"
 import ToggleDropdown from "./ToggleDropdown"
+import { useUser } from "../../contexts/UserContext"
 
 const ROOT_WIDTH = 12
 
@@ -41,7 +42,6 @@ const NavLink = ({
   lvl,
   showLevel,
   lastChild,
-  setPage,
   onHide,
   selected,
   setSelected,
@@ -50,8 +50,10 @@ const NavLink = ({
   setLevelDepth,
 }) => {
   const [showChildren, setShowChildren] = useState(false)
-  if (lvl > levelDepth) {
-    setLevelDepth(lvl)
+  const { setPage } = useUser()
+
+  if (lvl + 1 > levelDepth && child.children.length) {
+    setLevelDepth(lvl + 1)
   }
   useEffect(() => {
     setShowChildren(showLevel > lvl)

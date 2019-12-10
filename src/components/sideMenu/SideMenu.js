@@ -1,8 +1,9 @@
 import React, { useState } from "react"
 import styled from "styled-components"
 import { DP6, MAIN_THEME } from "../../constants/theme"
-import { NavigationDrawer } from "project-pillow-components"
+import { NavigationDrawer, SVG, refresh } from "project-pillow-components"
 import NavLink from "./NavLink"
+import { useUser } from "../../contexts/UserContext"
 
 const H2 = styled.h2`
   border-bottom: 1px solid black;
@@ -45,15 +46,18 @@ const Button = styled.button`
 const SideMenu = ({
   hide,
   onHide,
-  setPage,
   selected,
   setSelected,
   setSearchValue,
   levelDepth,
   setLevelDepth,
+  reload,
+  setReload,
   data,
 }) => {
   const [showLevel, setShowLevel] = useState(1)
+  const { setPage } = useUser()
+
   return (
     <NavigationDrawer
       boxShadow={DP6}
@@ -69,10 +73,19 @@ const SideMenu = ({
             setSelected(undefined)
             setSearchValue("")
             onHide()
+            setPage("wiki")
           }}
         >
           {data && data.title}
         </Span>
+        <SVG
+          onClick={() => {
+            setReload(!reload)
+            setPage("wiki")
+          }}
+          {...refresh}
+          color="black"
+        />
         <InnerWrapper>
           <div>
             <Button
@@ -100,7 +113,6 @@ const SideMenu = ({
             child={child}
             lastChild={index === data.children.length - 1}
             onHide={onHide}
-            setPage={setPage}
             selected={selected}
             setSelected={setSelected}
             setSearchValue={setSearchValue}
