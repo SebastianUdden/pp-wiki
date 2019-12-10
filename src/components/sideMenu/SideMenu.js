@@ -49,6 +49,8 @@ const SideMenu = ({
   selected,
   setSelected,
   setSearchValue,
+  levelDepth,
+  setLevelDepth,
   data,
 }) => {
   const [showLevel, setShowLevel] = useState(1)
@@ -73,7 +75,12 @@ const SideMenu = ({
         </Span>
         <InnerWrapper>
           <div>
-            <Button onClick={() => setShowLevel(showLevel + 1)}>+</Button>
+            <Button
+              onClick={() => setShowLevel(showLevel + 1)}
+              disabled={showLevel >= levelDepth}
+            >
+              +
+            </Button>
             <Button
               disabled={showLevel < 2}
               onClick={() => setShowLevel(showLevel - 1)}
@@ -97,6 +104,8 @@ const SideMenu = ({
             selected={selected}
             setSelected={setSelected}
             setSearchValue={setSearchValue}
+            levelDepth={levelDepth}
+            setLevelDepth={setLevelDepth}
           />
         ))}
     </NavigationDrawer>

@@ -4,10 +4,13 @@ import { insertPhoto, NavigationLink } from "project-pillow-components"
 import { MAIN_THEME } from "../../constants/theme"
 import ToggleDropdown from "./ToggleDropdown"
 
+const ROOT_WIDTH = 12
+
 const Wrapper = styled.div`
   margin: 0;
   margin-left: 0.4rem;
-  border-left: ${p => 8 - p.lvl}px solid black;
+  border-left: ${p => (p.lvl < ROOT_WIDTH - 1 ? ROOT_WIDTH - p.lvl : 1)}px solid
+    black;
   ${p =>
     p.lastChild &&
     css`
@@ -43,9 +46,13 @@ const NavLink = ({
   selected,
   setSelected,
   setSearchValue,
+  levelDepth,
+  setLevelDepth,
 }) => {
   const [showChildren, setShowChildren] = useState(false)
-
+  if (lvl > levelDepth) {
+    setLevelDepth(lvl)
+  }
   useEffect(() => {
     setShowChildren(showLevel > lvl)
   }, [showLevel])
@@ -59,7 +66,7 @@ const NavLink = ({
             x2="100%"
             y2="50%"
             stroke="black"
-            strokeWidth="10rem"
+            strokeWidth={`${lvl < ROOT_WIDTH - 1 ? ROOT_WIDTH - lvl : 1}rem`}
           />
         </Line>
         <NavigationLink
@@ -96,6 +103,8 @@ const NavLink = ({
             selected={selected}
             setSelected={setSelected}
             setSearchValue={setSearchValue}
+            levelDepth={levelDepth}
+            setLevelDepth={setLevelDepth}
           />
         ))}
     </Wrapper>

@@ -82,6 +82,7 @@ const Main = () => {
   const [foundMatch, setFoundMatch] = useState(false)
   const { page, setPage, user, setUser, users, setUsers } = useUser()
   const [toggleStyle, setToggleStyle] = useState(true)
+  const [levelDepth, setLevelDepth] = useState(0)
 
   const [selected, setSelected] = useState("")
   const [searchValue, setSearchValue] = useState("")
@@ -139,6 +140,8 @@ const Main = () => {
           selected={selected}
           setSelected={setSelected}
           setSearchValue={setSearchValue}
+          levelDepth={levelDepth}
+          setLevelDepth={setLevelDepth}
           data={data}
         />
         <TopMenu
