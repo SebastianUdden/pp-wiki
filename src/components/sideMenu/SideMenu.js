@@ -4,6 +4,7 @@ import { DP6, MAIN_THEME } from "../../constants/theme"
 import { NavigationDrawer, SVG, refresh } from "project-pillow-components"
 import NavLink from "./NavLink"
 import { useUser } from "../../contexts/UserContext"
+import { useWiki } from "../../contexts/WikiContext"
 
 const H2 = styled.h2`
   border-bottom: 1px solid black;
@@ -53,10 +54,14 @@ const SideMenu = ({
   setLevelDepth,
   reload,
   setReload,
-  data,
+  data: dataProps,
 }) => {
   const [showLevel, setShowLevel] = useState(1)
+  const { wikiEntries } = useWiki()
   const { setPage } = useUser()
+  if (!dataProps) return null
+  const id = dataProps._id || dataProps
+  const data = wikiEntries.find(entry => entry._id === id)
 
   return (
     <NavigationDrawer
@@ -108,6 +113,7 @@ const SideMenu = ({
         data.children &&
         data.children.map((child, index) => (
           <NavLink
+            key={child}
             lvl={1}
             showLevel={showLevel}
             child={child}

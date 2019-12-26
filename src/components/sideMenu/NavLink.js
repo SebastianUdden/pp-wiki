@@ -4,6 +4,7 @@ import { insertPhoto, NavigationLink } from "project-pillow-components"
 import { MAIN_THEME } from "../../constants/theme"
 import ToggleDropdown from "./ToggleDropdown"
 import { useUser } from "../../contexts/UserContext"
+import { useWiki } from "../../contexts/WikiContext"
 
 const ROOT_WIDTH = 12
 
@@ -38,7 +39,7 @@ const Line = styled.svg`
 `
 
 const NavLink = ({
-  child,
+  child: childProps,
   lvl,
   showLevel,
   lastChild,
@@ -49,6 +50,11 @@ const NavLink = ({
   levelDepth,
   setLevelDepth,
 }) => {
+  if (!childProps) return null
+  const { wikiEntries } = useWiki()
+  const id = childProps._id || childProps
+  const child = wikiEntries.find(entry => entry._id === id)
+  if (!child) return null
   const [showChildren, setShowChildren] = useState(false)
   const { setPage } = useUser()
 

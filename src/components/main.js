@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 import { useUser } from "../contexts/UserContext"
+import { useWiki } from "../contexts/WikiContext"
 import { apiUrl } from "../constants/urls"
 import SEO from "./seo"
 import Footer from "./footer/footer"
@@ -18,6 +19,7 @@ import { get } from "./api/api"
 import Spinner from "./wiki/Spinner"
 import SideMenu from "./sideMenu/SideMenu"
 import TopMenu from "./topMenu/TopMenu"
+// import { FLAT_DATA } from "./wiki/wiki-mocks"
 
 const Page = styled.div`
   padding: 0;
@@ -46,30 +48,30 @@ export const Label = styled.label`
   margin-left: 0.5rem;
 `
 
-const getNodeChildren = (node, dataArray = []) => {
+const getNodeChildren = (node, wikiEntries = []) => {
   return node && node.children
     ? node.children.map(child => {
-        const treeNode = dataArray.find(
+        const treeNode = wikiEntries.find(
           data => data._id === child || data._id === child._id
         )
         if (!treeNode) return
         return {
           ...treeNode,
-          children: getNodeChildren(treeNode, dataArray),
+          children: getNodeChildren(treeNode, wikiEntries),
         }
       })
     : []
 }
 
-const createDataTree = dataArray => {
-  if (!dataArray) return {}
-  const topNode = dataArray.find(data => data.topNode)
+const createDataTree = wikiEntries => {
+  if (!wikiEntries) return {}
+  const topNode = wikiEntries.find(data => data.topNode)
   if (!topNode) return {}
   if (!topNode.children) return topNode
 
   const dataTree = {
     ...topNode,
-    children: getNodeChildren(topNode, dataArray),
+    // children: getNodeChildren(topNode, wikiEntries),
   }
 
   return dataTree
@@ -77,11 +79,12 @@ const createDataTree = dataArray => {
 
 const Main = () => {
   if (typeof window === "undefined") return <></>
+  const { wikiEntries, setWikiEntries } = useWiki()
+  const { page, setPage, user, setUser, users, setUsers } = useUser()
+
   const [reload, setReload] = useState(false)
-  const [dataArray, setDataArray] = useState([])
   const [data, setData] = useState(undefined)
   const [foundMatch, setFoundMatch] = useState(false)
-  const { page, setPage, user, setUser, users, setUsers } = useUser()
   const [toggleStyle, setToggleStyle] = useState(true)
   const [levelDepth, setLevelDepth] = useState(0)
 
@@ -101,16 +104,19 @@ const Main = () => {
   }, [searchValue])
 
   useEffect(() => {
-    if (!dataArray || !dataArray.length) return
+    if (!wikiEntries || !wikiEntries.length) return
     if (page !== "wiki") return
-    console.log({ dataArray })
-    setData(createDataTree(dataArray))
-  }, [dataArray, page])
+    console.log({ wikiEntries })
+    const dataTree = createDataTree(wikiEntries)
+    console.log({ dataTree })
+    setData(dataTree)
+  }, [wikiEntries, page])
 
   useEffect(() => {
-    get(`${apiUrl}/wikis`).then(wikis => {
-      if (wikis.error) return
-      setDataArray(wikis)
+    console.log("Reloading...")
+    get(`${apiUrl}/wikis`).then(entries => {
+      if (entries.error) return
+      setWikiEntries(entries)
     })
   }, [reload])
 
@@ -160,8 +166,6 @@ const Main = () => {
           {page === "wiki" &&
             (data ? (
               <Wiki
-                dataArray={dataArray}
-                setDataArray={setDataArray}
                 onFoundMatch={() => setTimeout(() => setFoundMatch(true), 10)}
                 data={data}
                 searchValue={searchValue}

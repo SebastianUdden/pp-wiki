@@ -1,17 +1,13 @@
 import React from "react"
 import { Dropdown } from "project-pillow-components"
+import { useWiki } from "../../contexts/WikiContext"
 
-const NewChildren = ({
-  data,
-  dataArray,
-  setDataArray,
-  children,
-  setChildren,
-  newCrumbs,
-}) => {
+const NewChildren = ({ data, children, setChildren, newCrumbs }) => {
+  const { wikiEntries, setWikiEntries } = useWiki()
+
   return (
     <Dropdown
-      options={dataArray
+      options={wikiEntries
         .filter(
           d =>
             d._id !== data._id &&
@@ -20,20 +16,19 @@ const NewChildren = ({
         )
         .map(c => ({ _id: c._id, title: c.title }))}
       onChange={value => {
-        const addId = dataArray.find(d => d.title === value)._id
-        const newDataArray = [
-          ...dataArray.filter(d => d._id !== data._id),
+        const addId = wikiEntries.find(d => d.title === value)._id
+        const newWikiEntries = [
+          ...wikiEntries.filter(d => d._id !== data._id),
           {
             ...data,
             children: [...(children ? children.map(c => c._id) : []), addId],
           },
         ]
         if (!newCrumbs.some(c => c._id === addId)) {
-          console.log("new values")
-          setDataArray(newDataArray)
+          setWikiEntries(newWikiEntries)
           setChildren([
             ...(children || []),
-            dataArray.find(d => d._id === addId),
+            wikiEntries.find(d => d._id === addId),
           ])
         }
       }}

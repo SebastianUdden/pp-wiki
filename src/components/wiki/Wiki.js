@@ -22,6 +22,7 @@ import NewItem from "./NewItem"
 import WikiHeading from "./WikiHeading"
 import NewChildren from "./NewChildren"
 import Diff from "./Diff"
+import { useWiki } from "../../contexts/WikiContext"
 
 const Wrapper = styled.div`
   width: 100%;
@@ -84,8 +85,6 @@ const checkMatchingSelectionData = (data, selected) => {
 }
 
 const Wiki = ({
-  dataArray,
-  setDataArray,
   onFoundMatch,
   searchValue,
   setSearchValue,
@@ -93,10 +92,15 @@ const Wiki = ({
   setSelected,
   parentIsMatch = false,
   toggleStyle = true,
-  data,
+  data: dataProps,
   level,
   crumbs = [],
 }) => {
+  const { wikiEntries, setWikiEntries } = useWiki()
+  const id = dataProps._id || dataProps
+  const data = wikiEntries.find(entry => entry._id === id)
+  if (!data) return null
+  const [hide, setHide] = useState(false)
   const [title, setTitle] = useState(data.title)
   const [description, setDescription] = useState(
     typeof data.description === "string"
@@ -126,6 +130,7 @@ const Wiki = ({
     onFoundMatch(true)
   }
 
+  if (hide) return null
   return isMatch ? (
     <Wrapper toggleStyle={toggleStyle}>
       {data && (
@@ -227,6 +232,16 @@ const Wiki = ({
                     remove(`${apiUrl}/wikis/${data._id}`, "Unauthorized").then(
                       response => {
                         console.log({ response })
+                        const newEntries = wikiEntries
+                          .filter(entry => entry._id !== data._id)
+                          .map(entry => ({
+                            ...entry,
+                            children:
+                              entry.children &&
+                              entry.children.filter(c => c !== data._id),
+                          }))
+                        setWikiEntries(newEntries)
+                        setHide(true)
                       }
                     )
                   }}
@@ -246,14 +261,18 @@ const Wiki = ({
               <FlexWrapper>
                 {children && children.length > 0 && (
                   <Breadcrumbs
-                    crumbs={children.map(c => ({
-                      _id: c._id,
-                      title: `${c.title}${showEditor ? " x" : ""}`,
-                      showDelete: showEditor,
-                    }))}
+                    crumbs={children.map(c => {
+                      const entry = wikiEntries.find(entry => entry._id === c)
+                      const title = entry && entry.title
+                      return {
+                        _id: c,
+                        title: `${title}${showEditor ? " x" : ""}`,
+                        showDelete: showEditor,
+                      }
+                    })}
                     onChange={value => {
                       showEditor
-                        ? setChildren(children.filter(c => c._id !== value._id))
+                        ? setChildren(children.filter(c => c !== value._id))
                         : setSelected(value.title)
                     }}
                     size="medium"
@@ -265,8 +284,6 @@ const Wiki = ({
           {showEditor && (
             <NewChildren
               data={data}
-              dataArray={dataArray}
-              setDataArray={setDataArray}
               children={children}
               setChildren={setChildren}
               newCrumbs={newCrumbs}
@@ -308,6 +325,16 @@ const Wiki = ({
                         "Unauthorized"
                       ).then(response => {
                         console.log({ response })
+                        const index = wikiEntries.findIndex(
+                          entry => entry._id === data._id
+                        )
+                        const newWikiEntries = [...wikiEntries]
+                        newWikiEntries[index] = {
+                          _id,
+                          ...updateData,
+                        }
+                        console.log({ newWikiEntries })
+                        setWikiEntries(newWikiEntries)
                         setShowEditor(false)
                       })
                     }}
@@ -328,43 +355,43 @@ const Wiki = ({
             </Toggle>
           )}
           {children &&
-            children.map(child => (
-              <Wiki
-                key={child._id}
-                dataArray={dataArray}
-                setDataArray={setDataArray}
-                onFoundMatch={onFoundMatch}
-                toggleStyle={toggleStyle}
-                data={child}
-                searchValue={searchValue}
-                setSearchValue={setSearchValue}
-                selected={selected}
-                setSelected={setSelected}
-                parentIsMatch={showChildren}
-                level={lvl}
-                crumbs={newCrumbs}
-              />
-            ))}
+            children
+              .filter(c => c !== undefined)
+              .map(child => (
+                <Wiki
+                  key={child}
+                  onFoundMatch={onFoundMatch}
+                  toggleStyle={toggleStyle}
+                  data={child}
+                  searchValue={searchValue}
+                  setSearchValue={setSearchValue}
+                  selected={selected}
+                  setSelected={setSelected}
+                  parentIsMatch={showChildren}
+                  level={lvl}
+                  crumbs={newCrumbs}
+                />
+              ))}
         </>
       )}
     </Wrapper>
   ) : children ? (
-    children.map(child => (
-      <Wiki
-        key={child._id}
-        dataArray={dataArray}
-        setDataArray={setDataArray}
-        onFoundMatch={onFoundMatch}
-        toggleStyle={toggleStyle}
-        data={child}
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-        selected={selected}
-        setSelected={setSelected}
-        level={lvl}
-        crumbs={newCrumbs}
-      />
-    ))
+    children
+      .filter(c => c !== undefined)
+      .map(child => (
+        <Wiki
+          key={child}
+          onFoundMatch={onFoundMatch}
+          toggleStyle={toggleStyle}
+          data={child}
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          selected={selected}
+          setSelected={setSelected}
+          level={lvl}
+          crumbs={newCrumbs}
+        />
+      ))
   ) : null
 }
 
