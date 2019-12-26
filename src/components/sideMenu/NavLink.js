@@ -58,7 +58,7 @@ const NavLink = ({
   const [showChildren, setShowChildren] = useState(false)
   const { setPage } = useUser()
 
-  if (lvl + 1 > levelDepth && child.children.length) {
+  if (lvl + 1 > levelDepth && child.children && child.children.length) {
     setLevelDepth(lvl + 1)
   }
   useEffect(() => {
@@ -91,7 +91,7 @@ const NavLink = ({
           }}
           selected={selected === child._id}
         />
-        {child.children.length ? (
+        {child.children && child.children.length ? (
           <ToggleDropdown
             showChildren={showChildren}
             onClick={() => setShowChildren(!showChildren)}
@@ -105,7 +105,7 @@ const NavLink = ({
             child={subChild}
             lvl={lvl + 1}
             showLevel={showLevel}
-            lastChild={index === child.children.length - 1}
+            lastChild={child.children && index === child.children.length - 1}
             setPage={setPage}
             onHide={onHide}
             selected={selected}
