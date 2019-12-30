@@ -97,7 +97,7 @@ const Wiki = ({
   crumbs = [],
 }) => {
   const { wikiEntries, setWikiEntries } = useWiki()
-  const id = dataProps._id || dataProps
+  const id = (dataProps && dataProps._id) || dataProps
   const data = wikiEntries.find(entry => entry._id === id)
   if (!data) return null
   const [hide, setHide] = useState(false)
