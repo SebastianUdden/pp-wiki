@@ -25,3 +25,15 @@ export const H2 = styled.h2`
   justify-content: space-between;
   margin: 0.2rem 0.2rem 0.5rem;
 `
+
+export const arraysEqual = (arr1, arr2) => {
+  if (!arr1 && !arr2) return true
+  if (arr1 && !arr2) return false
+  if (!arr1 && arr2) return false
+  if (arr1.length !== arr2.length) return false
+  for (var i = arr1.length; i--; ) {
+    if (arr1[i] !== arr2[i]) return false
+  }
+
+  return true
+}

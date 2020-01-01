@@ -46,6 +46,7 @@ export const Toggle = styled.div`
 `
 export const Label = styled.label`
   margin-left: 0.5rem;
+  cursor: pointer;
 `
 
 const getNodeChildren = (node, wikiEntries = []) => {
@@ -87,10 +88,12 @@ const Main = () => {
   const [foundMatch, setFoundMatch] = useState(false)
   const [toggleStyle, setToggleStyle] = useState(true)
   const [levelDepth, setLevelDepth] = useState(0)
+  const [hide, setHide] = useState(true)
 
   const [selected, setSelected] = useState("")
   const [searchValue, setSearchValue] = useState("")
-  const [hide, setHide] = useState(true)
+  const [history, setHistory] = useState([])
+  const [historyIndex, setHistoryIndex] = useState(0)
 
   useEffect(() => {
     get(`${apiUrl}/users`, "Unauthorized").then(dbUsers => {
@@ -100,20 +103,23 @@ const Main = () => {
   }, [])
 
   useEffect(() => {
+    if (history[historyIndex] && !history[historyIndex].isSelected) {
+      setFoundMatch(false)
+    }
+  }, [historyIndex])
+
+  useEffect(() => {
     setFoundMatch(false)
   }, [searchValue])
 
   useEffect(() => {
     if (!wikiEntries || !wikiEntries.length) return
     if (page !== "wiki") return
-    console.log({ wikiEntries })
     const dataTree = createDataTree(wikiEntries)
-    console.log({ dataTree })
     setData(dataTree)
   }, [wikiEntries, page])
 
   useEffect(() => {
-    console.log("Reloading...")
     get(`${apiUrl}/wikis`).then(entries => {
       if (entries.error) return
       setWikiEntries(entries)
@@ -136,6 +142,17 @@ const Main = () => {
       )
   }, [page])
 
+  useEffect(() => {
+    const newHistory = history.slice(0, historyIndex + 1)
+    if (selected) {
+      setHistory([...newHistory, { isSelected: true, value: selected }])
+    }
+    if (searchValue) {
+      setHistory([...newHistory, { isSelected: false, value: searchValue }])
+    }
+    setHistoryIndex(newHistory.length)
+  }, [selected, searchValue])
+
   return (
     <>
       <SEO title="Home" />
@@ -147,6 +164,10 @@ const Main = () => {
           selected={selected}
           setSelected={setSelected}
           setSearchValue={setSearchValue}
+          history={history}
+          setHistory={setHistory}
+          historyIndex={historyIndex}
+          setHistoryIndex={setHistoryIndex}
           levelDepth={levelDepth}
           setLevelDepth={setLevelDepth}
           reload={reload}
@@ -158,6 +179,10 @@ const Main = () => {
           searchValue={searchValue}
           setSearchValue={setSearchValue}
           setSelected={setSelected}
+          history={history}
+          setHistory={setHistory}
+          historyIndex={historyIndex}
+          setHistoryIndex={setHistoryIndex}
           toggleStyle={toggleStyle}
           onToggleStyle={() => setToggleStyle(!toggleStyle)}
         />
@@ -166,12 +191,16 @@ const Main = () => {
           {page === "wiki" &&
             (data ? (
               <Wiki
-                onFoundMatch={() => setTimeout(() => setFoundMatch(true), 10)}
+                onFoundMatch={() => setTimeout(() => setFoundMatch(true), 1)}
                 data={data}
                 searchValue={searchValue}
                 setSearchValue={setSearchValue}
                 selected={selected}
                 setSelected={setSelected}
+                history={history}
+                setHistory={setHistory}
+                historyIndex={historyIndex}
+                setHistoryIndex={setHistoryIndex}
                 toggleStyle={toggleStyle}
               />
             ) : (
@@ -179,7 +208,13 @@ const Main = () => {
             ))}
           {page === "wiki" && !foundMatch && data && (
             <h2>
-              No matches found for <Span>{searchValue}</Span>...
+              No matches found for{" "}
+              <Span>
+                {history[historyIndex] &&
+                  !history[historyIndex].isSelected &&
+                  history[historyIndex].value}
+              </Span>
+              ...
             </h2>
           )}
           {page === "signup" && <Signup fields={SIGNUP_FIELDS} />}

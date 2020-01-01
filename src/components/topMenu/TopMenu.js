@@ -6,21 +6,35 @@ import {
   ActionItem,
   menu,
   search,
+  arrowBack,
   ToggleSwitch,
+  arrowForward,
 } from "project-pillow-components"
 import { MEDIA_MAX_MEDIUM } from "../../constants/sizes"
 import { DEFAULT_FONT } from "../../constants/font"
 import { MAIN_THEME } from "../../constants/theme"
 import { useUser } from "../../contexts/UserContext"
 
+const Query = styled.span`
+  margin: 0 0.5rem;
+  color: #666666;
+  ${MEDIA_MAX_MEDIUM} {
+    display: none;
+  }
+`
+
 const Toggle = styled.div`
   display: flex;
   align-items: center;
-  margin: 1rem 0;
+  margin: 0 0;
 `
 
 const Label = styled.label`
   margin-left: 0.5rem;
+  cursor: pointer;
+  ${MEDIA_MAX_MEDIUM} {
+    display: none;
+  }
 `
 
 const InnerWrapper = styled.div`
@@ -35,7 +49,7 @@ const Title = styled.h1`
   padding: 0;
   cursor: pointer;
   ${MEDIA_MAX_MEDIUM} {
-    margin: ${p => (p.large ? "2.5rem" : 0)} 0 0 0.2rem;
+    margin: 0 0 0 0.2rem;
   }
   :hover {
     color: ${p => p.color};
@@ -46,6 +60,9 @@ const TopMenu = ({
   setHide,
   setSearchValue,
   setSelected,
+  history,
+  historyIndex,
+  setHistoryIndex,
   toggleStyle,
   onToggleStyle,
 }) => {
@@ -65,14 +82,14 @@ const TopMenu = ({
                 if (!user.loggedIn) return
                 setHide(false)
               }}
-              padding="1rem"
+              padding={1}
             />
             <Title
               color={MAIN_THEME.PRIMARY.color.background}
               onClick={() => {
                 if (!user.loggedIn) return
                 setPage("wiki")
-                setSelected(undefined)
+                setSelected("")
                 setSearchValue("")
               }}
             >
@@ -80,13 +97,32 @@ const TopMenu = ({
             </Title>
           </InnerWrapper>
           <InnerWrapper>
+            <Query>
+              {history[historyIndex] && history[historyIndex].value}
+            </Query>
+            {historyIndex > 0 && (
+              <ActionItem
+                color="#666666"
+                svg={arrowBack}
+                onClick={() => setHistoryIndex(historyIndex - 1)}
+                padding={1}
+              />
+            )}
+            {historyIndex < history.length - 1 && (
+              <ActionItem
+                color="#666666"
+                svg={arrowForward}
+                onClick={() => setHistoryIndex(historyIndex + 1)}
+                padding={1}
+              />
+            )}
             <Toggle>
               <ToggleSwitch
                 checked={toggleStyle}
                 onClick={onToggleStyle}
                 backgroundColor={MAIN_THEME.PRIMARY.color.background}
               />
-              <Label>Byt tema</Label>
+              <Label onClick={onToggleStyle}>Byt tema</Label>
             </Toggle>
             <ActionItem
               svg={search}
@@ -94,7 +130,7 @@ const TopMenu = ({
                 setShowSearch(true)
                 setTimeout(() => document.getElementById("Search").focus(), 200)
               }}
-              padding="1rem"
+              padding={1}
             />
           </InnerWrapper>
         </>
@@ -111,7 +147,7 @@ const TopMenu = ({
           }}
           onClose={() => setShowSearch(false)}
           onSubmit={value => {
-            setSelected(undefined)
+            setSelected("")
             setSearchValue(value)
           }}
           padding="1rem"

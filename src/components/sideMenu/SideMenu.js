@@ -75,7 +75,7 @@ const SideMenu = ({
       <H2 color={MAIN_THEME.PRIMARY.color.background}>
         <Span
           onClick={() => {
-            setSelected(undefined)
+            setSelected("")
             setSearchValue("")
             onHide()
             setPage("wiki")

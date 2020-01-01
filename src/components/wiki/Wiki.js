@@ -23,6 +23,7 @@ import WikiHeading from "./WikiHeading"
 import NewChildren from "./NewChildren"
 import Diff from "./Diff"
 import { useWiki } from "../../contexts/WikiContext"
+import { arraysEqual } from "./utils"
 
 const Wrapper = styled.div`
   width: 100%;
@@ -84,12 +85,45 @@ const checkMatchingSelectionData = (data, selected) => {
   return data.title && data.title.toLowerCase() === selected.toLowerCase()
 }
 
+const checkForMatches = ({
+  currentValue,
+  isSelected,
+  data,
+  description,
+  level,
+  parentIsMatch,
+  tags,
+}) => {
+  const newSelected = currentValue && isSelected ? currentValue : ""
+  const newSearchValue = currentValue && !isSelected ? currentValue : ""
+  const isSelectedMatch = checkMatchingSelectionData(data, newSelected)
+  const isSearchMatch =
+    !isSelected &&
+    checkMatchingSearchData({ ...data, description, tags }, newSearchValue)
+  const lvl = level
+    ? level + 1
+    : isSelectedMatch || isSearchMatch
+    ? 2
+    : undefined
+  const highlight = newSelected || newSearchValue
+  const isMatch = isSelectedMatch || isSearchMatch || parentIsMatch
+  return {
+    lvl,
+    highlight,
+    isMatch,
+  }
+}
+
 const Wiki = ({
   onFoundMatch,
   searchValue,
   setSearchValue,
   selected,
   setSelected,
+  history,
+  setHistory,
+  historyIndex,
+  setHistoryIndex,
   parentIsMatch = false,
   toggleStyle = true,
   data: dataProps,
@@ -107,24 +141,29 @@ const Wiki = ({
       ? { meta: { justifyContent: "flex-start" }, body: data.description }
       : data.description
   )
-  const [children, setChildren] = useState(data.children)
+  const [children, setChildren] = useState(
+    data.children ? data.children.filter(Boolean) : []
+  )
   const [tags, setTags] = useState(data.tags)
   const [showCreate, setShowCreate] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
   const [showEditor, setShowEditor] = useState(false)
-  const isSelectedMatch = checkMatchingSelectionData(data, selected)
-  const isSearchMatch =
-    !selected &&
-    checkMatchingSearchData({ ...data, description, tags }, searchValue)
-  const lvl = level
-    ? level + 1
-    : isSelectedMatch || isSearchMatch
-    ? 2
-    : undefined
+  const currentValue = history[historyIndex] && history[historyIndex].value
+  const isSelected = history[historyIndex] && history[historyIndex].isSelected
+
+  const { lvl, highlight, isMatch } = checkForMatches({
+    currentValue,
+    isSelected,
+    data,
+    description,
+    level,
+    parentIsMatch,
+    tags,
+    searchValue,
+    selected,
+  })
   const [showChildren, setShowChildren] = useState(data.showChildren)
   const newCrumbs = [...crumbs, { _id: data._id, title: data.title }]
-  const highlight = selected ? selected : searchValue ? searchValue : undefined
-  const isMatch = isSelectedMatch || isSearchMatch || parentIsMatch
 
   if (isMatch) {
     onFoundMatch(true)
@@ -252,7 +291,7 @@ const Wiki = ({
             </>
           )}
           <Section>
-            {children !== data.children && (
+            {!arraysEqual(children, data.children) && (
               <SectionItem>
                 <Diff color={MAIN_THEME.PRIMARY.color.background} />
               </SectionItem>
@@ -293,7 +332,7 @@ const Wiki = ({
             (title !== data.title ||
               description !== data.description ||
               tags !== data.tags ||
-              children !== data.children) && (
+              !arraysEqual(children, data.children)) && (
               <>
                 <ButtonWrapper>
                   <ContainedButton
@@ -317,7 +356,7 @@ const Wiki = ({
                         title: title || data.title,
                         description: description || data.description,
                         tags: tags || data.tags,
-                        children: children ? children.map(c => c._id) : [],
+                        children: children ? children.filter(Boolean) : [],
                       }
                       update(
                         `${apiUrl}/wikis/${_id}`,
@@ -333,7 +372,6 @@ const Wiki = ({
                           _id,
                           ...updateData,
                         }
-                        console.log({ newWikiEntries })
                         setWikiEntries(newWikiEntries)
                         setShowEditor(false)
                       })
@@ -351,7 +389,9 @@ const Wiki = ({
                 checked={showChildren}
                 onClick={() => setShowChildren(!showChildren)}
               />
-              <Label>Visa mer</Label>
+              <Label onClick={() => setShowChildren(!showChildren)}>
+                Visa mer
+              </Label>
             </Toggle>
           )}
           {children &&
@@ -368,6 +408,10 @@ const Wiki = ({
                   selected={selected}
                   setSelected={setSelected}
                   parentIsMatch={showChildren}
+                  history={history}
+                  setHistory={setHistory}
+                  historyIndex={historyIndex}
+                  setHistoryIndex={setHistoryIndex}
                   level={lvl}
                   crumbs={newCrumbs}
                 />
@@ -388,6 +432,10 @@ const Wiki = ({
           setSearchValue={setSearchValue}
           selected={selected}
           setSelected={setSelected}
+          history={history}
+          setHistory={setHistory}
+          historyIndex={historyIndex}
+          setHistoryIndex={setHistoryIndex}
           level={lvl}
           crumbs={newCrumbs}
         />
