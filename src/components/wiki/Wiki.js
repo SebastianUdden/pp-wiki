@@ -142,7 +142,7 @@ const Wiki = ({
       : data.description
   )
   const [children, setChildren] = useState(
-    data.children ? data.children.filter(Boolean) : []
+    data.children ? data.children.filter(Boolean) : null
   )
   const [tags, setTags] = useState(data.tags)
   const [showCreate, setShowCreate] = useState(false)
@@ -327,6 +327,15 @@ const Wiki = ({
               setChildren={setChildren}
               newCrumbs={newCrumbs}
             />
+          )}
+          {title !== data.title && <span>Title DIFF</span>}
+          {description !== data.description && <span>Description DIFF</span>}
+          {tags !== data.tags && <span>Tags DIFF</span>}
+          {!arraysEqual(children, data.children) && (
+            <span>
+              Children DIFF: {JSON.stringify(children)} !=={" "}
+              {JSON.stringify(data.children)}
+            </span>
           )}
           {!showDelete &&
             (title !== data.title ||
