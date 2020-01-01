@@ -65,8 +65,6 @@ const Login = ({ fields }) => {
               if (!validForm) return
               get(`${apiUrl}/users`, "Unauthorized").then(users => {
                 if (users.error) return
-                console.log({ users })
-                console.log({ tempUser })
                 const exists = users.find(
                   u =>
                     (u.email === tempUser.email &&
@@ -74,7 +72,6 @@ const Login = ({ fields }) => {
                     (u.email === localStorage.getItem("email") &&
                       u.password === localStorage.getItem("password"))
                 )
-                console.log({ exists })
                 if (
                   exists
                   // checkValidValue(user, tempUser, "email") &&
