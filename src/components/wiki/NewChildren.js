@@ -18,7 +18,10 @@ const NewChildren = ({ data, children, setChildren, newCrumbs }) => {
             filterChildren(children, d) &&
             !newCrumbs.some(c => c && c._id === d._id)
         )
-        .map(c => ({ _id: c._id, title: c.title }))}
+        .map(c => ({ _id: c._id, title: c.title }))
+        .sort((a, b) =>
+          a.title.toUpperCase() > b.title.toUpperCase() ? 1 : -1
+        )}
       onChange={value => {
         const addId = wikiEntries.find(d => d.title === value)._id
         const newWikiEntries = [

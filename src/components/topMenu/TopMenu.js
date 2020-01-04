@@ -17,7 +17,7 @@ import { useUser } from "../../contexts/UserContext"
 
 const Query = styled.span`
   margin: 0 0.5rem;
-  color: #666666;
+  color: ${MAIN_THEME.WHITE.color.background};
   ${MEDIA_MAX_MEDIUM} {
     display: none;
   }
@@ -102,7 +102,7 @@ const TopMenu = ({
             </Query>
             {historyIndex > 0 && (
               <ActionItem
-                color="#666666"
+                color={MAIN_THEME.WHITE.color.background}
                 svg={arrowBack}
                 onClick={() => setHistoryIndex(historyIndex - 1)}
                 padding={1}
@@ -110,7 +110,7 @@ const TopMenu = ({
             )}
             {historyIndex < history.length - 1 && (
               <ActionItem
-                color="#666666"
+                color={MAIN_THEME.WHITE.color.background}
                 svg={arrowForward}
                 onClick={() => setHistoryIndex(historyIndex + 1)}
                 padding={1}
