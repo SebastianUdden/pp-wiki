@@ -20,6 +20,7 @@ const ErrorMessage = styled.p`
 const NewItem = ({ onHide, parent, setChildren }) => {
   const { wikiEntries, setWikiEntries } = useWiki()
   const [newTitle, setNewTitle] = useState("")
+  const [selected, setSelected] = useState(parent)
   const [showErrorMessage, setShowErrorMessage] = useState(false)
   const [newDescription, setNewDescription] = useState({
     meta: { justifyContent: "flex-start" },
@@ -43,17 +44,19 @@ const NewItem = ({ onHide, parent, setChildren }) => {
         <label>Select parent</label>
         <Dropdown
           label="Select parent"
-          selected={parent.title}
+          selected={selected.title}
           options={wikiEntries
             .map(c => ({ _id: c._id, title: c.title }))
             .sort((a, b) =>
               a.title.toUpperCase() > b.title.toUpperCase() ? 1 : -1
             )}
-          onChange={() => alert("test")}
+          onChange={value =>
+            setSelected(wikiEntries.find(d => d.title === value))
+          }
         />
         {showErrorMessage && <ErrorMessage>{showErrorMessage}</ErrorMessage>}
       </div>
-      {newTitle !== "" && newDescription !== "" && (
+      {newTitle !== "" && newDescription !== "" && selected && (
         <ContainedButton
           onClick={() => {
             const newItem = { title: newTitle, description: newDescription }
@@ -67,7 +70,7 @@ const NewItem = ({ onHide, parent, setChildren }) => {
                 }
                 setShowErrorMessage("")
                 const createdData = response.created
-                const { _id, ...dataProps } = parent
+                const { _id, ...dataProps } = selected
                 const newChildren = [
                   ...(dataProps.children || []),
                   response.created._id,
@@ -89,7 +92,7 @@ const NewItem = ({ onHide, parent, setChildren }) => {
                       response.error
                     )
                     setShowErrorMessage(
-                      `Item created successfully but update request for parent failed... Go to ${parent.title} and add this child manually in the editor.`
+                      `Item created successfully but update request for parent failed... Go to ${selected.title} and add this child manually in the editor.`
                     )
                     return
                   }
@@ -104,7 +107,7 @@ const NewItem = ({ onHide, parent, setChildren }) => {
                     ...updateData,
                   }
                   newWikiEntries[index] = updatedData
-                  setChildren(newChildren)
+                  parent.title === selected.title && setChildren(newChildren)
                   setWikiEntries(newWikiEntries)
                 })
               }
