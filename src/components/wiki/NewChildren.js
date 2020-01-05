@@ -7,7 +7,7 @@ const filterChildren = (children, d) => {
 }
 
 const NewChildren = ({ data, children, setChildren, newCrumbs }) => {
-  const { wikiEntries, setWikiEntries } = useWiki()
+  const { wikiEntries } = useWiki()
 
   return (
     <Dropdown
@@ -24,15 +24,8 @@ const NewChildren = ({ data, children, setChildren, newCrumbs }) => {
         )}
       onChange={value => {
         const addId = wikiEntries.find(d => d.title === value)._id
-        const newWikiEntries = [
-          ...wikiEntries.filter(d => d._id !== data._id),
-          {
-            ...data,
-            children: [...(children ? children.map(c => c._id) : []), addId],
-          },
-        ]
+
         if (!newCrumbs.some(c => c._id === addId)) {
-          setWikiEntries(newWikiEntries)
           setChildren([...(children || []), addId])
         }
       }}
@@ -41,3 +34,14 @@ const NewChildren = ({ data, children, setChildren, newCrumbs }) => {
 }
 
 export default NewChildren
+
+// const updateChildren = [...(children || []), addId]
+// const updateEntry = {
+//   ...data,
+//   children: updateChildren,
+// }
+// const newWikiEntries = [
+//   ...wikiEntries.filter(d => d._id !== data._id),
+//   updateEntry,
+// ]
+// setWikiEntries(newWikiEntries)

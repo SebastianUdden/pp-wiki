@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import styled, { css } from "styled-components"
 import {
   Breadcrumbs,
@@ -174,7 +174,13 @@ const Wiki = ({
     <Wrapper toggleStyle={toggleStyle}>
       {data && (
         <>
-          {showCreate && <NewItem onHide={() => setShowCreate(false)} />}
+          {showCreate && (
+            <NewItem
+              parent={data}
+              setChildren={setChildren}
+              onHide={() => setShowCreate(false)}
+            />
+          )}
           <Section>
             {title !== data.title && (
               <SectionItem>
@@ -271,6 +277,13 @@ const Wiki = ({
                     remove(`${apiUrl}/wikis/${data._id}`, "Unauthorized").then(
                       response => {
                         console.log({ response })
+                        if (response.error) {
+                          console.error(
+                            "Delete request failed with: ",
+                            response.error
+                          )
+                          return
+                        }
                         const newEntries = wikiEntries
                           .filter(entry => entry._id !== data._id)
                           .map(entry => ({
@@ -328,15 +341,9 @@ const Wiki = ({
               newCrumbs={newCrumbs}
             />
           )}
-          {title !== data.title && <span>Title DIFF</span>}
+          {/* {title !== data.title && <span>Title DIFF</span>}
           {description !== data.description && <span>Description DIFF</span>}
-          {tags !== data.tags && <span>Tags DIFF</span>}
-          {!arraysEqual(children, data.children) && (
-            <span>
-              Children DIFF: {JSON.stringify(children)} !=={" "}
-              {JSON.stringify(data.children)}
-            </span>
-          )}
+          {tags !== data.tags && <span>Tags DIFF</span>} */}
           {!showDelete &&
             (title !== data.title ||
               description !== data.description ||
@@ -373,6 +380,13 @@ const Wiki = ({
                         "Unauthorized"
                       ).then(response => {
                         console.log({ response })
+                        if (response.error) {
+                          console.error(
+                            "Update request failed with: ",
+                            response.error
+                          )
+                          return
+                        }
                         const index = wikiEntries.findIndex(
                           entry => entry._id === data._id
                         )
