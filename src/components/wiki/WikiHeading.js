@@ -46,6 +46,7 @@ const WikiHeading = ({
           )}
           <ToggleWrapper>
             <ToggleSwitch
+              size={30}
               backgroundColor={MAIN_THEME.PRIMARY.color.background}
               checked={showEditor}
               onClick={() => setShowEditor(!showEditor)}

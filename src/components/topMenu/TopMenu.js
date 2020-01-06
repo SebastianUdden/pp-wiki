@@ -118,6 +118,7 @@ const TopMenu = ({
             )}
             <Toggle>
               <ToggleSwitch
+                size={30}
                 checked={toggleStyle}
                 onClick={onToggleStyle}
                 backgroundColor={MAIN_THEME.PRIMARY.color.background}
