@@ -1,6 +1,7 @@
 /* eslint no-useless-escape: 0 */
 const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[0-9])(?=.*[!@#:;_\-\$%\^&\*])(?=.{8,})/
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[0-9])(?=.{8,})/
+// Special characters password regex: (?=.*[!@#:;_\-\$%\^&\*])
 
 export const SIGNUP_FIELDS = [
   {
@@ -26,10 +27,10 @@ export const SIGNUP_FIELDS = [
     placeholder: "Enter strong password...",
     required: true,
     validationErrorMessage:
-      "Weak password, strong passwords must be at least 8 letters and consist of alphabetical, numeric and special characters (!@#:_-%^&).",
+      "Weak password, strong passwords must be at least 8 letters and consist of alphabetical, numeric and special characters (a-z, 0-9).",
     validationRegex: PASSWORD_REGEX,
     fieldHelperText:
-      "Strong passwords should be at least 8 letters and consist of alphabetical, numeric and special characters (!@#:;_-%^&).",
+      "Strong passwords should be at least 8 letters and consist of alphabetical and numeric characters (a-z, 0-9).",
   },
   {
     fieldName: "repeatPassword",
