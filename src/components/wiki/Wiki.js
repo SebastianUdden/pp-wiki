@@ -14,7 +14,7 @@ import {
   MAIN_THEME,
   ALTERNATE_THEME_COLORS,
 } from "../../constants/theme"
-import { Toggle, Label } from "../main"
+import { Toggle } from "../main"
 import { MEDIA_MIN_MEDIUM } from "../../constants/sizes"
 import { update, remove } from "../api/api"
 import { apiUrl } from "../../constants/urls"
@@ -24,6 +24,11 @@ import NewChildren from "./NewChildren"
 import Diff from "./Diff"
 import { useWiki } from "../../contexts/WikiContext"
 import { arraysEqual } from "./utils"
+
+export const Label = styled.label`
+  margin-right: 0.2rem;
+  cursor: pointer;
+`
 
 const Wrapper = styled.div`
   width: 100%;
@@ -313,6 +318,7 @@ const Wiki = ({
               <FlexWrapper>
                 {children && children.length > 0 && (
                   <Breadcrumbs
+                    icon={false}
                     crumbs={children.map(c => {
                       const entry = wikiEntries.find(entry => entry._id === c)
                       const title = entry && entry.title
@@ -407,14 +413,15 @@ const Wiki = ({
             )}
           {children && children.length > 0 && (searchValue !== "" || selected) && (
             <Toggle>
+              <Label onClick={() => setShowChildren(!showChildren)}>
+                Visa mer
+              </Label>
               <ToggleSwitch
+                size={22}
                 backgroundColor={MAIN_THEME.PRIMARY.color.background}
                 checked={showChildren}
                 onClick={() => setShowChildren(!showChildren)}
               />
-              <Label onClick={() => setShowChildren(!showChildren)}>
-                Visa mer
-              </Label>
             </Toggle>
           )}
           {children &&
