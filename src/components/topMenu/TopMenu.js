@@ -142,12 +142,14 @@ const TopMenu = ({
           previousSearchValue="Development"
           onChange={e => setValue(e.target.value)}
           onBack={() => {
+            setPage("wiki")
             setShowSearch(false)
             setValue("")
             setSearchValue("")
           }}
           onClose={() => setShowSearch(false)}
           onSubmit={value => {
+            setPage("wiki")
             setSelected("")
             setSearchValue(value)
           }}
