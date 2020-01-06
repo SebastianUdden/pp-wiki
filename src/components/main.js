@@ -44,10 +44,6 @@ export const Toggle = styled.div`
   align-items: center;
   margin: 1rem 0;
 `
-export const Label = styled.label`
-  margin-left: 0.5rem;
-  cursor: pointer;
-`
 
 const getNodeChildren = (node, wikiEntries = []) => {
   return node && node.children
