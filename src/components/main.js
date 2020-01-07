@@ -27,11 +27,11 @@ const Page = styled.div`
   margin-bottom: 10vh;
 `
 const Body = styled.div`
-  padding: 0 0.5rem;
+  padding: 0 0.5rem 1rem;
   margin: 1rem auto;
   margin-bottom: 10vh;
   ${MEDIA_MIN_MEDIUM} {
-    padding: 0 2rem;
+    padding: 0 2rem 1rem;
   }
 `
 
@@ -215,18 +215,26 @@ const Main = () => {
           )}
           {page === "signup" && <Signup fields={SIGNUP_FIELDS} />}
           {page === "login" && <Login fields={LOGIN_FIELDS} />}
+          {page === "login" && user.loggedIn && (
+            <Signup fields={SIGNUP_FIELDS} />
+          )}
           {page === "settings" && <Settings />}
         </Body>
       </Page>
       <Footer
         page={page}
-        items={FOOTER_MENU.filter(
-          item => item.title !== "Wiki" || user.loggedIn
-        ).map(item => {
-          if (item.title === "Login" && user.username) {
+        items={FOOTER_MENU.filter(item => {
+          if (item.title === "Signup" && user.loggedIn) {
+            return false
+          }
+          if (item.title !== "Wiki" || user.loggedIn) {
+            return true
+          }
+        }).map(item => {
+          if (item.title === "Login" && user.loggedIn) {
             return {
               ...item,
-              title: user.username,
+              title: "Profile",
               onClick: () => setPage(item.page),
             }
           }

@@ -43,8 +43,8 @@ const Signup = ({ fields }) => {
       {user.email && user.password && user.loggedIn && (
         <>
           <FieldHint>
-            You are already signed up as <Em>{user.username || user.email}</Em>,
-            would you like to remove the user?
+            Would you like to remove your account for{" "}
+            <Em>{user.username || user.email}</Em>? This is irreversible.
           </FieldHint>{" "}
           {!showConfirmRemoval && (
             <Button onClick={() => setShowConfirmRemoval(true)}>
