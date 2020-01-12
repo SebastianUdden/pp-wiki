@@ -32,8 +32,9 @@ export const Label = styled.label`
 
 const Wrapper = styled.div`
   width: 100%;
+  max-width: 1200px;
   overflow: hidden;
-  margin: 0.5rem 0;
+  margin: 0.5rem auto;
 
   ${p =>
     p.toggleStyle &&
@@ -42,7 +43,7 @@ const Wrapper = styled.div`
       padding: 0.5rem;
       box-shadow: ${DP_TYPES.DP6};
       ${MEDIA_MIN_MEDIUM} {
-        padding: 1rem;
+        padding: 1.5rem 3rem;
       }
     `};
 `
@@ -210,7 +211,10 @@ const Wiki = ({
           {newCrumbs.length > 0 && (
             <Breadcrumbs
               crumbs={newCrumbs}
-              onChange={value => setSelected(value.title)}
+              onChange={value => {
+                setSelected(value.title)
+                setSearchValue("")
+              }}
               size="medium"
             />
           )}
@@ -329,9 +333,12 @@ const Wiki = ({
                       }
                     })}
                     onChange={value => {
-                      showEditor
-                        ? setChildren(children.filter(c => c !== value._id))
-                        : setSelected(value.title)
+                      if (showEditor) {
+                        setChildren(children.filter(c => c !== value._id))
+                      } else {
+                        setSelected(value.title)
+                        setSearchValue("")
+                      }
                     }}
                     size="medium"
                   />
