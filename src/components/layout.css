@@ -446,7 +446,33 @@ blockquote {
   padding-right: 0;
   padding-top: 0;
   margin-bottom: 1.45rem;
+  border-left: 0.3rem solid gray;
+  color: gray;
 }
+blockquote.info,
+blockquote.tip {
+  border-left: 0.3rem solid #00529bee;
+  color: #00529b;
+  background-color: #bde5f8ee;
+}
+blockquote.success {
+  border-left: 0.3rem solid #4f8a10ee;
+  color: #4f8a10;
+  background-color: #dff2bfee;
+}
+blockquote.warn,
+blockquote.warning {
+  border-left: 0.3rem solid #9f6000ee;
+  color: #9f6000;
+  background-color: #feefb3ee;
+}
+blockquote.error,
+blockquote.danger {
+  border-left: 0.3rem solid #d8000cee;
+  color: #d8000c;
+  background-color: #ffd2d2ee;
+}
+
 form {
   margin-left: 0;
   margin-right: 0;
