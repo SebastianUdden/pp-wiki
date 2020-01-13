@@ -86,7 +86,7 @@ const Main = () => {
   const [levelDepth, setLevelDepth] = useState(0)
   const [hide, setHide] = useState(true)
 
-  const [selected, setSelected] = useState("")
+  const [selected, setSelected] = useState("Wiki")
   const [searchValue, setSearchValue] = useState("")
   const [history, setHistory] = useState([])
   const [historyIndex, setHistoryIndex] = useState(0)
@@ -136,6 +136,7 @@ const Main = () => {
           u.username === user.username ||
           u.username === localStorage.getItem("username")
       )
+    // TODO: exists is not used
   }, [page])
 
   useEffect(() => {
