@@ -168,7 +168,9 @@ const Wiki = ({
     searchValue,
     selected,
   })
-  const [showChildren, setShowChildren] = useState(data.showChildren)
+  const [showChildren, setShowChildren] = useState(
+    title === "Wiki" || data.showChildren
+  )
   const newCrumbs = [...crumbs, { _id: data._id, title: data.title }]
 
   if (isMatch) {
@@ -248,7 +250,11 @@ const Wiki = ({
             )}
             <SectionItem>
               {description && !showEditor && (
-                <MarkdownParser markdown={description} highlight={highlight} />
+                <MarkdownParser
+                  markdown={description}
+                  highlight={highlight}
+                  primaryColor={MAIN_THEME.PRIMARY.color.background}
+                />
               )}
               {showEditor && (
                 <MarkdownEditor
