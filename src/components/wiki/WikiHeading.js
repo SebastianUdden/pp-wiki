@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import styled from "styled-components"
 import {
   add,
   block,
@@ -7,13 +8,41 @@ import {
   SVG,
   ToggleSwitch,
   HighlightedText,
+  cloudDone,
+  cloudUpload,
 } from "project-pillow-components"
 import { MAIN_THEME } from "../../constants/theme"
-import { TitleInput, FlexWrapper, ToggleWrapper } from "./utils"
+import { TitleInput, FlexWrapper } from "./utils"
+
+const DateWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+`
+
+const DateText = styled.span`
+  font-size: 12px;
+  color: ${p => p.color};
+  display: flex;
+  align-items: center;
+  :hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+`
+
+const SVGWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: 0.5rem;
+`
 
 const WikiHeading = ({
   title,
   setTitle,
+  createdAt,
+  updatedAt,
   highlight,
   lvl,
   showCreate,
@@ -24,8 +53,47 @@ const WikiHeading = ({
   setShowEditor,
 }) => {
   const [tempTitle, setTempTitle] = useState(title)
+  const [showCreatedAt, setShowCreatedAt] = useState(false)
+  const updatedAtString = updatedAt.toLocaleString()
   return (
     <Heading level={lvl} primaryColor={MAIN_THEME.PRIMARY.color.background}>
+      <DateWrapper>
+        {showCreatedAt ? (
+          <DateText
+            color={
+              createdAt < new Date().setHours(0, 0, 0, 0)
+                ? "#ffffff22"
+                : MAIN_THEME.PRIMARY.color.background
+            }
+            onClick={() => setShowCreatedAt(!showCreatedAt)}
+          >
+            {createdAt.toLocaleDateString()}&nbsp;
+            <SVG
+              {...cloudDone}
+              onClick={() => setShowCreate(true)}
+              size={12}
+              color="#ffffff88"
+            />
+          </DateText>
+        ) : (
+          <DateText
+            color={
+              updatedAt < new Date().setHours(0, 0, 0, 0)
+                ? "#ffffff22"
+                : MAIN_THEME.PRIMARY.color.background
+            }
+            onClick={() => setShowCreatedAt(!showCreatedAt)}
+          >
+            {updatedAtString.slice(0, updatedAtString.length - 3)}&nbsp;
+            <SVG
+              {...cloudUpload}
+              onClick={() => setShowCreate(true)}
+              size={12}
+              color="#ffffff88"
+            />
+          </DateText>
+        )}
+      </DateWrapper>
       <FlexWrapper>
         {showEditor ? (
           <TitleInput
@@ -42,38 +110,40 @@ const WikiHeading = ({
         ) : (
           <HighlightedText text={title} highlight={highlight} />
         )}
-        <FlexWrapper>
-          {lvl < 3 && !showCreate && (
-            <SVG
-              {...add}
-              onClick={() => setShowCreate(true)}
-              size={34}
-              color="white"
-            />
-          )}
-          <ToggleWrapper>
+        <FlexWrapper column alignment="flex-end">
+          <FlexWrapper>
+            {lvl < 3 && !showCreate && (
+              <SVG
+                {...add}
+                onClick={() => setShowCreate(true)}
+                size={27}
+                color="white"
+              />
+            )}
             <ToggleSwitch
-              size={30}
+              size={20}
               backgroundColor={MAIN_THEME.PRIMARY.color.background}
               checked={showEditor}
               onClick={() => setShowEditor(!showEditor)}
             />
-          </ToggleWrapper>
-          {showDelete ? (
-            <SVG
-              {...block}
-              size={2}
-              onClick={() => setShowDelete(false)}
-              color="white"
-            />
-          ) : (
-            <SVG
-              {...cross}
-              size={18}
-              onClick={() => setShowDelete(true)}
-              color="white"
-            />
-          )}
+            <SVGWrapper>
+              {showDelete ? (
+                <SVG
+                  {...block}
+                  size={20}
+                  onClick={() => setShowDelete(false)}
+                  color="white"
+                />
+              ) : (
+                <SVG
+                  {...cross}
+                  size={15}
+                  onClick={() => setShowDelete(true)}
+                  color="white"
+                />
+              )}
+            </SVGWrapper>
+          </FlexWrapper>
         </FlexWrapper>
       </FlexWrapper>
     </Heading>

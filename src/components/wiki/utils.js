@@ -13,12 +13,13 @@ export const TitleInput = styled.input`
 `
 export const FlexWrapper = styled.div`
   display: flex;
-  align-items: center;
+  align-items: ${p => p.alignment || "center"};
   justify-content: space-between;
+  flex-direction: ${p => (p.column ? "column" : "row")};
   margin: 0;
 `
 export const ToggleWrapper = styled.div`
-  margin: 0 0.6rem 0 0;
+  margin: ${p => p.margin || "0 0.6rem 0 0"};
 `
 export const H2 = styled.h2`
   display: flex;

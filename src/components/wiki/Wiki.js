@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import styled, { css } from "styled-components"
 import {
   Breadcrumbs,
@@ -141,6 +141,8 @@ const Wiki = ({
   const data = wikiEntries.find(entry => entry._id === id)
   if (!data) return null
   const [hide, setHide] = useState(false)
+  const createdAt = new Date(data.createdAt)
+  const updatedAt = new Date(data.updatedAt)
   const [title, setTitle] = useState(data.title)
   const [description, setDescription] = useState(
     typeof data.description === "string"
@@ -199,6 +201,8 @@ const Wiki = ({
               <WikiHeading
                 title={title || data.title}
                 setTitle={setTitle}
+                createdAt={createdAt}
+                updatedAt={updatedAt}
                 highlight={highlight}
                 lvl={lvl}
                 showCreate={showCreate}
