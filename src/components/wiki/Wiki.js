@@ -41,16 +41,37 @@ const Wrapper = styled.div`
   overflow: hidden;
   margin: 0.5rem auto;
 
-  ${p =>
-    p.toggleStyle &&
-    css`
-      background-color: #44444477;
-      padding: 0.5rem;
-      box-shadow: ${DP_TYPES.DP6};
-      ${MEDIA_MIN_MEDIUM} {
-        padding: 1.5rem 3rem;
-      }
-    `};
+  ${p => {
+    switch (p.theme) {
+      case "Grey":
+        return css`
+          background-color: #44444477;
+          padding: 0.5rem;
+          box-shadow: ${DP_TYPES.DP6};
+          ${MEDIA_MIN_MEDIUM} {
+            padding: 1.5rem 3rem;
+          }
+        `
+      case "Light":
+        return css`
+          background-color: #ffffff;
+          color: #000000;
+          p,
+          input,
+          li {
+            color: #000000;
+          }
+          div.crumbs button,
+          div.crumbs svg {
+            color: #666666;
+            font-size: large;
+          }
+          padding: 0.5rem;
+        `
+      default:
+        break
+    }
+  }}
 `
 const FlexWrapper = styled.div`
   display: flex;
@@ -136,7 +157,7 @@ const Wiki = ({
   historyIndex,
   setHistoryIndex,
   parentIsMatch = false,
-  toggleStyle = true,
+  theme = "grey",
   data: dataProps,
   level,
   crumbs = [],
@@ -188,7 +209,7 @@ const Wiki = ({
 
   if (hide) return null
   return isMatch ? (
-    <Wrapper toggleStyle={toggleStyle}>
+    <Wrapper theme={theme}>
       {data && (
         <>
           {showCreate && (
@@ -225,6 +246,7 @@ const Wiki = ({
           </Section>
           {newCrumbs.length > 0 && (
             <Breadcrumbs
+              className="crumbs"
               crumbs={newCrumbs}
               onChange={value => {
                 setSelected(value.title)
@@ -467,7 +489,7 @@ const Wiki = ({
                 <Wiki
                   key={child}
                   onFoundMatch={onFoundMatch}
-                  toggleStyle={toggleStyle}
+                  theme={theme}
                   data={child}
                   searchValue={searchValue}
                   setSearchValue={setSearchValue}
@@ -492,7 +514,7 @@ const Wiki = ({
         <Wiki
           key={child}
           onFoundMatch={onFoundMatch}
-          toggleStyle={toggleStyle}
+          theme={theme}
           data={child}
           searchValue={searchValue}
           setSearchValue={setSearchValue}

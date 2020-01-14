@@ -7,8 +7,8 @@ import {
   menu,
   search,
   arrowBack,
-  ToggleSwitch,
   arrowForward,
+  Dropdown,
 } from "project-pillow-components"
 import { MEDIA_MAX_MEDIUM } from "../../constants/sizes"
 import { DEFAULT_FONT } from "../../constants/font"
@@ -63,8 +63,8 @@ const TopMenu = ({
   history,
   historyIndex,
   setHistoryIndex,
-  toggleStyle,
-  onToggleStyle,
+  theme,
+  setTheme,
 }) => {
   const { setPage, user } = useUser()
   const [value, setValue] = useState("")
@@ -117,13 +117,24 @@ const TopMenu = ({
               />
             )}
             <Toggle>
-              <ToggleSwitch
+              <Dropdown
+                label="Select theme"
+                options={[
+                  { _id: "light", title: "Light" },
+                  { _id: "grey", title: "Grey" },
+                  { _id: "dark", title: "Dark" },
+                ]}
+                onChange={value => {
+                  setTheme(value)
+                }}
+                color="white"
+              />
+              {/* <ToggleSwitch
                 size={30}
                 checked={toggleStyle}
                 onClick={onToggleStyle}
                 backgroundColor={MAIN_THEME.PRIMARY.color.background}
-              />
-              <Label onClick={onToggleStyle}>Byt tema</Label>
+              /> */}
             </Toggle>
             <ActionItem
               svg={search}

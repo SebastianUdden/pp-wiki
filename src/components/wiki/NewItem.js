@@ -33,7 +33,8 @@ const NewItem = ({ onHide, parent, setChildren }) => {
     <>
       <div>
         <H2>
-          New entry <SVG {...cross} size={18} onClick={onHide} color="white" />
+          New entry{" "}
+          <SVG {...cross} size={18} onClick={onHide} color="#bbbbbb" />
         </H2>
         <TitleInput
           placeholder="Title"

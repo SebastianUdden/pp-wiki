@@ -81,7 +81,7 @@ const Main = () => {
   const [reload, setReload] = useState(false)
   const [data, setData] = useState(undefined)
   const [foundMatch, setFoundMatch] = useState(false)
-  const [toggleStyle, setToggleStyle] = useState(true)
+  const [theme, setTheme] = useState("Grey")
   const [levelDepth, setLevelDepth] = useState(0)
   const [hide, setHide] = useState(true)
 
@@ -172,8 +172,8 @@ const Main = () => {
           setHistory={setHistory}
           historyIndex={historyIndex}
           setHistoryIndex={setHistoryIndex}
-          toggleStyle={toggleStyle}
-          onToggleStyle={() => setToggleStyle(!toggleStyle)}
+          theme={theme}
+          setTheme={setTheme}
         />
         <Body>
           {page === "home" && <Home />}
@@ -190,7 +190,7 @@ const Main = () => {
                 setHistory={setHistory}
                 historyIndex={historyIndex}
                 setHistoryIndex={setHistoryIndex}
-                toggleStyle={toggleStyle}
+                theme={theme}
               />
             ) : (
               <Spinner />

@@ -64,7 +64,7 @@ const WikiHeading = ({
           <DateText
             color={
               createdAt < new Date().setHours(0, 0, 0, 0)
-                ? "#ffffff22"
+                ? "#444444"
                 : MAIN_THEME.PRIMARY.color.background
             }
             onClick={() => setShowCreatedAt(!showCreatedAt)}
@@ -74,7 +74,7 @@ const WikiHeading = ({
               {...cloudDone}
               onClick={() => setShowCreate(true)}
               size={12}
-              color="#ffffff88"
+              color="#bbbbbb"
             />
             &nbsp;
             {createdBy && createdBy.name}
@@ -83,7 +83,7 @@ const WikiHeading = ({
           <DateText
             color={
               updatedAt < new Date().setHours(0, 0, 0, 0)
-                ? "#ffffff22"
+                ? "#444444"
                 : MAIN_THEME.PRIMARY.color.background
             }
             onClick={() => setShowCreatedAt(!showCreatedAt)}
@@ -93,7 +93,7 @@ const WikiHeading = ({
               {...cloudUpload}
               onClick={() => setShowCreate(true)}
               size={12}
-              color="#ffffff88"
+              color="#bbbbbb"
             />
             &nbsp;
             {updatedBy && updatedBy.name}
@@ -123,7 +123,7 @@ const WikiHeading = ({
                 {...add}
                 onClick={() => setShowCreate(true)}
                 size={27}
-                color="white"
+                color="#bbbbbb"
               />
             )}
             <ToggleSwitch
@@ -138,14 +138,14 @@ const WikiHeading = ({
                   {...block}
                   size={20}
                   onClick={() => setShowDelete(false)}
-                  color="white"
+                  color="#bbbbbb"
                 />
               ) : (
                 <SVG
                   {...cross}
                   size={15}
                   onClick={() => setShowDelete(true)}
-                  color="white"
+                  color="#bbbbbb"
                 />
               )}
             </SVGWrapper>
