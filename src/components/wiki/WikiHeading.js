@@ -43,6 +43,8 @@ const WikiHeading = ({
   setTitle,
   createdAt,
   updatedAt,
+  createdBy,
+  updatedBy,
   highlight,
   lvl,
   showCreate,
@@ -54,11 +56,11 @@ const WikiHeading = ({
 }) => {
   const [tempTitle, setTempTitle] = useState(title)
   const [showCreatedAt, setShowCreatedAt] = useState(false)
-  const updatedAtString = updatedAt.toLocaleString()
+  const updatedAtString = updatedAt ? updatedAt.toLocaleString() : null
   return (
     <Heading level={lvl} primaryColor={MAIN_THEME.PRIMARY.color.background}>
       <DateWrapper>
-        {showCreatedAt ? (
+        {showCreatedAt || !updatedAt ? (
           <DateText
             color={
               createdAt < new Date().setHours(0, 0, 0, 0)
@@ -74,6 +76,8 @@ const WikiHeading = ({
               size={12}
               color="#ffffff88"
             />
+            &nbsp;
+            {createdBy && createdBy.name}
           </DateText>
         ) : (
           <DateText
@@ -91,6 +95,8 @@ const WikiHeading = ({
               size={12}
               color="#ffffff88"
             />
+            &nbsp;
+            {updatedBy && updatedBy.name}
           </DateText>
         )}
       </DateWrapper>

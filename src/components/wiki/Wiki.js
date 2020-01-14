@@ -23,11 +23,16 @@ import WikiHeading from "./WikiHeading"
 import NewChildren from "./NewChildren"
 import Diff from "./Diff"
 import { useWiki } from "../../contexts/WikiContext"
+import { useUser } from "../../contexts/UserContext"
 import { arraysEqual } from "./utils"
 
 export const Label = styled.label`
   margin-right: 0.2rem;
   cursor: pointer;
+`
+const ErrorMessage = styled.p`
+  color: red;
+  font-weight: 800;
 `
 
 const Wrapper = styled.div`
@@ -136,13 +141,15 @@ const Wiki = ({
   level,
   crumbs = [],
 }) => {
+  const { user } = useUser()
   const { wikiEntries, setWikiEntries } = useWiki()
   const id = (dataProps && dataProps._id) || dataProps
   const data = wikiEntries.find(entry => entry._id === id)
   if (!data) return null
+  const [errorMessage, setErrorMessage] = useState("")
   const [hide, setHide] = useState(false)
-  const createdAt = new Date(data.createdAt)
-  const updatedAt = new Date(data.updatedAt)
+  const createdAt = data.createdAt ? new Date(data.createdAt) : null
+  const updatedAt = data.updatedAt ? new Date(data.updatedAt) : null
   const [title, setTitle] = useState(data.title)
   const [description, setDescription] = useState(
     typeof data.description === "string"
@@ -203,6 +210,8 @@ const Wiki = ({
                 setTitle={setTitle}
                 createdAt={createdAt}
                 updatedAt={updatedAt}
+                createdBy={data.createdBy}
+                updatedBy={data.updatedBy}
                 highlight={highlight}
                 lvl={lvl}
                 showCreate={showCreate}
@@ -301,6 +310,9 @@ const Wiki = ({
                             "Delete request failed with: ",
                             response.error
                           )
+                          setErrorMessage(
+                            "Deletion of item failed, try again in a few seconds..."
+                          )
                           return
                         }
                         const newEntries = wikiEntries
@@ -312,6 +324,8 @@ const Wiki = ({
                               entry.children.filter(c => c !== data._id),
                           }))
                         setWikiEntries(newEntries)
+                        setSearchValue("")
+                        setSelected("Wiki")
                         setHide(true)
                       }
                     )
@@ -320,6 +334,7 @@ const Wiki = ({
                   Delete
                 </ContainedButton>
               </ButtonWrapper>
+              {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
             </>
           )}
           <Section>
@@ -364,9 +379,6 @@ const Wiki = ({
               newCrumbs={newCrumbs}
             />
           )}
-          {/* {title !== data.title && <span>Title DIFF</span>}
-          {description !== data.description && <span>Description DIFF</span>}
-          {tags !== data.tags && <span>Tags DIFF</span>} */}
           {!showDelete &&
             (title !== data.title ||
               description !== data.description ||
@@ -389,6 +401,7 @@ const Wiki = ({
                   <ContainedButton
                     backgroundColor={MAIN_THEME.PRIMARY.color.background}
                     onClick={() => {
+                      setErrorMessage("")
                       const { _id, ...dataProps } = data
                       const updateData = {
                         ...dataProps,
@@ -396,6 +409,7 @@ const Wiki = ({
                         description: description || data.description,
                         tags: tags || data.tags,
                         children: children ? children.filter(Boolean) : [],
+                        updatedBy: { name: user.username, email: user.email },
                       }
                       update(
                         `${apiUrl}/wikis/${_id}`,
@@ -408,6 +422,9 @@ const Wiki = ({
                             "Update request failed with: ",
                             response.error
                           )
+                          setErrorMessage(
+                            "Update failed, wait for a few seconds then try again..."
+                          )
                           return
                         }
                         const index = wikiEntries.findIndex(
@@ -417,6 +434,7 @@ const Wiki = ({
                         newWikiEntries[index] = {
                           _id,
                           ...updateData,
+                          updatedAt: new Date(),
                         }
                         setWikiEntries(newWikiEntries)
                         setShowEditor(false)
@@ -426,6 +444,7 @@ const Wiki = ({
                     Update
                   </ContainedButton>
                 </ButtonWrapper>
+                {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
               </>
             )}
           {children && children.length > 0 && (searchValue !== "" || selected) && (

@@ -11,6 +11,7 @@ import { create, update } from "../api/api"
 import { apiUrl } from "../../constants/urls"
 import { TitleInput, H2 } from "./utils"
 import { useWiki } from "../../contexts/WikiContext"
+import { useUser } from "../../contexts/UserContext"
 
 const ErrorMessage = styled.p`
   color: red;
@@ -18,10 +19,11 @@ const ErrorMessage = styled.p`
 `
 
 const NewItem = ({ onHide, parent, setChildren }) => {
+  const { user } = useUser()
   const { wikiEntries, setWikiEntries } = useWiki()
   const [newTitle, setNewTitle] = useState("")
   const [selected, setSelected] = useState(parent)
-  const [showErrorMessage, setShowErrorMessage] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
   const [newDescription, setNewDescription] = useState({
     meta: { justifyContent: "flex-start" },
     body: "",
@@ -54,22 +56,29 @@ const NewItem = ({ onHide, parent, setChildren }) => {
             setSelected(wikiEntries.find(d => d.title === value))
           }
         />
-        {showErrorMessage && <ErrorMessage>{showErrorMessage}</ErrorMessage>}
+        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
       </div>
       {newTitle !== "" && newDescription !== "" && selected && (
         <ContainedButton
           onClick={() => {
-            const newItem = { title: newTitle, description: newDescription }
+            const newItem = {
+              title: newTitle,
+              description: newDescription,
+              createdBy: { name: user.username, email: user.email },
+            }
             create(`${apiUrl}/wikis`, newItem, "Unauthorized").then(
               response => {
                 console.log("Create response: ", response)
                 if (response.error) {
                   console.error("Create request failed with: ", response.error)
-                  setShowErrorMessage("Create request failed, try again...")
+                  setErrorMessage("Create request failed, try again...")
                   return
                 }
-                setShowErrorMessage("")
-                const createdData = response.created
+                setErrorMessage("")
+                const createdData = {
+                  ...response.created,
+                  createdAt: new Date().toUTCString(),
+                }
                 const { _id, ...dataProps } = selected
                 const newChildren = [
                   ...(dataProps.children || []),
@@ -91,12 +100,12 @@ const NewItem = ({ onHide, parent, setChildren }) => {
                       "Update request failed with: ",
                       response.error
                     )
-                    setShowErrorMessage(
+                    setErrorMessage(
                       `Item created successfully but update request for parent failed... Go to ${selected.title} and add this child manually in the editor.`
                     )
                     return
                   }
-                  setShowErrorMessage("")
+                  setErrorMessage("")
                   onHide()
                   const index = wikiEntries.findIndex(
                     entry => entry._id === _id
