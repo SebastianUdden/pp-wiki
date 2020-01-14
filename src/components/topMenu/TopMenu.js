@@ -89,7 +89,7 @@ const TopMenu = ({
               onClick={() => {
                 if (!user.loggedIn) return
                 setPage("wiki")
-                setSelected("")
+                setSelected("Wiki")
                 setSearchValue("")
               }}
             >
