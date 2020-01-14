@@ -8,6 +8,7 @@ import Footer from "./footer/footer"
 import { FOOTER_MENU } from "../constants/menus"
 
 import Home from "./home/Home"
+import Case from "./case/Case"
 import Signup from "./user/Signup"
 import Login from "./user/Login"
 import Settings from "./user/Settings"
@@ -177,6 +178,7 @@ const Main = () => {
         />
         <Body>
           {page === "home" && <Home />}
+          {page === "case" && <Case />}
           {page === "wiki" &&
             (data ? (
               <Wiki
@@ -220,7 +222,14 @@ const Main = () => {
           if (item.title === "Signup" && user.loggedIn) {
             return false
           }
-          if (item.title !== "Wiki" || user.loggedIn) {
+          if (
+            item.title === "Home" ||
+            item.title === "Login" ||
+            item.title === "Signup"
+          ) {
+            return true
+          }
+          if (user.loggedIn) {
             return true
           }
         }).map(item => {

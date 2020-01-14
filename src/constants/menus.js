@@ -8,6 +8,10 @@ export const FOOTER_MENU = [
     page: "wiki",
   },
   {
+    title: "Case",
+    page: "case",
+  },
+  {
     title: "Signup",
     page: "signup",
   },
