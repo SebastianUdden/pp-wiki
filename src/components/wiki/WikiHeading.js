@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import {
   add,
   block,
@@ -23,14 +23,21 @@ const WikiHeading = ({
   showEditor,
   setShowEditor,
 }) => {
+  const [tempTitle, setTempTitle] = useState(title)
   return (
     <Heading level={lvl} primaryColor={MAIN_THEME.PRIMARY.color.background}>
       <FlexWrapper>
         {showEditor ? (
           <TitleInput
             placeholder="Title"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
+            value={tempTitle}
+            onChange={e => {
+              setTempTitle(e.target.value)
+            }}
+            onBlur={() => {
+              setTitle(tempTitle || title)
+              setTempTitle(tempTitle || title)
+            }}
           />
         ) : (
           <HighlightedText text={title} highlight={highlight} />
