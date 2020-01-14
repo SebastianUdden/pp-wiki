@@ -1,16 +1,22 @@
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useEffect } from "react"
+import styled from "styled-components"
 import { useUser } from "../../contexts/UserContext"
 import { Em, Button, Wrapper, ErrorMessage, FieldHint } from "./common"
 import Form from "../ui/Form"
 import { get } from "../api/api"
 import { apiUrl } from "../../constants/urls"
+import useKeyPress from "../../hooks/useKeyPress"
 
-const checkValidValue = (user, tempUser, value) =>
-  tempUser[value] === user[value] ||
-  (!tempUser[value] && localStorage.getItem(value) === user[value])
+const Mirror = styled.span`
+  display: block;
+  transform: scale(-1, 1);
+  width: auto;
+  user-select: none;
+`
 
 const Login = ({ fields }) => {
   const [invalidEntry, setInvalidEntry] = useState(false)
+  const [validForm, setValidForm] = useState(false)
   const {
     user,
     tempUser,
@@ -20,6 +26,40 @@ const Login = ({ fields }) => {
     setPage,
   } = useUser()
   const loginForm = useRef(null)
+  const enterPress = useKeyPress("Enter")
+  const [loginClick, setLoginClick] = useState(false)
+  const [showHands, setShowHands] = useState(false)
+
+  useEffect(() => {
+    if (!validForm) return
+    get(`${apiUrl}/users`, "Unauthorized").then(users => {
+      if (users.error) return
+      const matchingUser = users.find(
+        u => u.email === tempUser.email && u.password === tempUser.password
+      )
+      if (matchingUser) {
+        Object.keys(matchingUser).forEach(key => {
+          key !== "repeatPassword" &&
+            localStorage.setItem(key, matchingUser[key])
+        })
+        localStorage.setItem("loggedIn", true)
+        setUser({ ...matchingUser, loggedIn: true })
+        setPage("wiki")
+        return
+      }
+      setInvalidEntry(true)
+    })
+  }, [tempUser, validForm])
+
+  useEffect(() => {
+    setLoginClick(enterPress)
+    if (!enterPress) return
+    setValidForm(loginForm.current.validate())
+  }, [enterPress])
+
+  useEffect(() => {
+    setShowHands(loginClick && (!validForm || invalidEntry))
+  }, [loginClick, validForm])
 
   return (
     <Wrapper>
@@ -59,41 +99,29 @@ const Login = ({ fields }) => {
             setFieldValue={setTempUser}
           />
           <Button
-            onClick={() => {
-              const validForm = loginForm.current.validate()
-
-              if (!validForm) return
-              get(`${apiUrl}/users`, "Unauthorized").then(users => {
-                if (users.error) return
-                const exists = users.find(
-                  u =>
-                    (u.email === tempUser.email &&
-                      u.password === tempUser.password) ||
-                    (u.email === localStorage.getItem("email") &&
-                      u.password === localStorage.getItem("password"))
-                )
-                if (
-                  exists
-                  // checkValidValue(user, tempUser, "email") &&
-                  // checkValidValue(user, tempUser, "password")
-                ) {
-                  Object.keys(user).forEach(key => {
-                    key !== "repeatPassword" &&
-                      localStorage.setItem(key, user[key])
-                  })
-                  localStorage.setItem("loggedIn", true)
-                  setUser({ ...user, loggedIn: true })
-                  setPage("wiki")
-                  return
-                }
-                setInvalidEntry(true)
-              })
+            onMouseDown={() => {
+              setValidForm(loginForm.current.validate())
+              setLoginClick(true)
+            }}
+            onMouseUp={() => setLoginClick(false)}
+            onTouchStart={() => {
+              setValidForm(loginForm.current.validate())
+              setLoginClick(true)
+            }}
+            onTouchEnd={() => setLoginClick(false)}
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              userSelect: "none",
             }}
           >
-            Log in
+            {showHands && "☝️"}Log in
+            {showHands && <Mirror>✋</Mirror>}
           </Button>
           {invalidEntry && (
-            <ErrorMessage>Invalid email or password...</ErrorMessage>
+            <ErrorMessage>
+              Invalid email or password... {showHands && "👈"}
+            </ErrorMessage>
           )}
         </>
       )}

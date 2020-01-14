@@ -21,10 +21,17 @@ class Form extends PureComponent {
   }
 
   validate = () =>
-    this.inputRefs.reduce(
-      (isValid, ref) => ref.current.validate() && isValid,
-      true
-    )
+    this.inputRefs.reduce((isValid, ref) => {
+      const c = ref.current
+      if (c.validate()) {
+        this.props.setFieldValue(
+          c.props.field.fieldName,
+          ref.current.state.value
+        )
+        return isValid
+      }
+      return false
+    }, true)
 
   render() {
     const { section, title, formFields, setFieldValue } = this.props
