@@ -78,7 +78,6 @@ const Main = () => {
   if (typeof window === "undefined") return <></>
   const { wikiEntries, setWikiEntries } = useWiki()
   const { page, setPage, user, setUser, users, setUsers } = useUser()
-
   const [reload, setReload] = useState(false)
   const [data, setData] = useState(undefined)
   const [foundMatch, setFoundMatch] = useState(false)
@@ -96,6 +95,7 @@ const Main = () => {
       if (dbUsers.error) return
       setUsers(dbUsers)
     })
+    setPage("home")
   }, [])
 
   useEffect(() => {
@@ -129,14 +129,6 @@ const Main = () => {
       password: localStorage.getItem("password") || "",
       loggedIn: localStorage.getItem("loggedIn") === "true",
     })
-    const exists =
-      users &&
-      users.find(
-        u =>
-          u.username === user.username ||
-          u.username === localStorage.getItem("username")
-      )
-    // TODO: exists is not used
   }, [page])
 
   useEffect(() => {
