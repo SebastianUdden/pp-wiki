@@ -68,24 +68,24 @@ const ButtonWrapper = styled.div`
   display: flex;
 `
 
-const Input = ({ label, type = "text", value, onChange }) => (
+const Input = ({ label, description, type = "text", value, onChange }) => (
   <>
     <Label>{label}</Label>
     <InnerInput
       className="case-input"
       type={type}
       value={value()}
-      placeholder={label}
+      placeholder={description}
       onChange={onChange}
     />
   </>
 )
 
-const TextArea = ({ label, value, onChange }) => (
+const TextArea = ({ label, description, value, onChange }) => (
   <>
     <Label>{label}</Label>
     <InnerTextArea
-      placeholder={label}
+      placeholder={description}
       className="case-input"
       value={value()}
       onChange={onChange}
@@ -144,6 +144,10 @@ const Case = () => {
         This is the case builder, fill in the necessary information below to
         build an investment case.
       </p>
+      {baseInfo && <CurrentInformation data={baseInfo} />}
+      {baseValues && <CurrentInformation data={baseValues} />}
+      {baseValuation && <CurrentInformation data={baseValuation} />}
+      {productAndMarket && <CurrentInformation data={productAndMarket} />}
       {inputIndex[0] >= 0 && inputIndex[0] < 13 && (
         <h2>Step 1: Base information</h2>
       )}
@@ -161,6 +165,7 @@ const Case = () => {
             return (
               <TextArea
                 label={b.label}
+                description={b.description}
                 value={() => {
                   if (!b) return
                   if (b.category === "info" && baseInfo) {
@@ -203,6 +208,7 @@ const Case = () => {
               inputIndex.includes(i) && (
                 <Input
                   label={b.label}
+                  description={b.description}
                   type={b.type}
                   value={() => {
                     if (!b) return
@@ -251,10 +257,6 @@ const Case = () => {
           )}
         </ButtonWrapper>
       </SubSection>
-      {baseInfo && <CurrentInformation data={baseInfo} />}
-      {baseValues && <CurrentInformation data={baseValues} />}
-      {baseValuation && <CurrentInformation data={baseValuation} />}
-      {productAndMarket && <CurrentInformation data={productAndMarket} />}
     </Wrapper>
   )
 }
