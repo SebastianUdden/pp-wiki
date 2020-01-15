@@ -4,6 +4,7 @@ import styled from "styled-components"
 import { useUser } from "../../contexts/UserContext"
 import { PRIMARY, SURFACE, HIGH_EMPHASIS } from "../../constants/theme"
 import useKeyPress from "../../hooks/useKeyPress"
+import { BASE } from "./constants"
 
 const Wrapper = styled.div`
   background: ${SURFACE};
@@ -44,7 +45,7 @@ const InnerTextArea = styled.textarea`
 const InfoWrapper = styled.div`
   border: 1px dashed #bbbbbb;
   padding: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0rem;
 `
 const Strong = styled.strong`
   color: orange;
@@ -53,41 +54,55 @@ const ContainedButton = styled.button`
   background-color: black;
   color: white;
   padding: 1rem;
-  margin: 0 0.5rem 0 0;
   border: none;
+  flex-grow: 1;
+  :first-child {
+    margin: 0 0.5rem 0 0;
+  }
+  :only-child {
+    margin: 0;
+  }
 `
 const ButtonWrapper = styled.div`
   margin: 0.5rem 0;
+  display: flex;
 `
 
 const Input = ({ label, type = "text", value, onChange }) => (
   <>
     <Label>{label}</Label>
     <InnerInput
+      className="case-input"
       type={type}
-      value={value}
+      value={value()}
       placeholder={label}
       onChange={onChange}
     />
   </>
 )
 
-const TextArea = ({ label }) => (
+const TextArea = ({ label, value, onChange }) => (
   <>
     <Label>{label}</Label>
-    <InnerTextArea placeholder={label} />
+    <InnerTextArea
+      placeholder={label}
+      className="case-input"
+      value={value()}
+      onChange={onChange}
+    />
   </>
 )
 
-const CurrentInformation = data => {
+const CurrentInformation = ({ data }) => {
   if (!data) return null
-  const keyArray = data && data.baseInfo && Object.keys(data.baseInfo)
+  const entries = data && Object.entries(data)
+
   return (
     <InfoWrapper>
-      {keyArray &&
-        keyArray.sort().map(key => (
+      {entries &&
+        entries.map(([key, value]) => (
           <Label>
-            {key}: <Strong>{data.baseInfo[key]}</Strong>
+            {key}: <Strong>{value}</Strong>
           </Label>
         ))}
     </InfoWrapper>
@@ -98,12 +113,29 @@ const Case = () => {
   const { user, setPage } = useUser()
   const enterPress = useKeyPress("Enter")
   const [baseInfo, setBaseInfo] = useState(undefined)
+  const [baseValues, setBaseValues] = useState(undefined)
+  const [baseValuation, setBaseValuation] = useState(undefined)
+  const [productAndMarket, setProductAndMarket] = useState(undefined)
   const [inputIndex, setInputIndex] = useState([0])
 
   useEffect(() => {
-    if (!enterPress || inputIndex[0] > 3) return
+    if (!enterPress) return
+    if (inputIndex[0] > BASE.length - 1) {
+      return
+    }
     setInputIndex([inputIndex[0] + 1])
   }, [enterPress])
+
+  useEffect(() => {
+    setTimeout(() => {
+      const elements = document.getElementsByClassName("case-input")
+      if (!elements.length) {
+        console.log(elements)
+        return
+      }
+      elements[0].focus()
+    }, 100)
+  }, [inputIndex])
 
   return (
     <Wrapper>
@@ -112,121 +144,117 @@ const Case = () => {
         This is the case builder, fill in the necessary information below to
         build an investment case.
       </p>
-      <h2>Step 1: Base information</h2>
+      {inputIndex[0] >= 0 && inputIndex[0] < 13 && (
+        <h2>Step 1: Base information</h2>
+      )}
+      {inputIndex[0] > 12 && inputIndex[0] < 18 && (
+        <h2>Step 2: Product and market</h2>
+      )}
+      {inputIndex[0] > 17 && inputIndex[0] < 20 && <h2>Step 3: People</h2>}
+
+      {/* <h2>Step 4: Financial analysis</h2>
+      <h2>Step 5: Macro</h2>
+      <h2>Step 6: Portfolio-fit</h2> */}
       <SubSection>
-        {inputIndex.includes(0) && (
-          <Input
-            label="Line of business"
-            value={baseInfo ? baseInfo["Line of business"] : ""}
-            onChange={e =>
-              setBaseInfo({ ...baseInfo, "Line of business": e.target.value })
-            }
-          />
-        )}
-        {inputIndex.includes(1) && (
-          <Input
-            label="List"
-            value={baseInfo ? baseInfo["List"] : ""}
-            onChange={e => setBaseInfo({ ...baseInfo, List: e.target.value })}
-          />
-        )}
-        {inputIndex.includes(2) && (
-          <Input
-            label="Name"
-            value={baseInfo ? baseInfo["Name"] : ""}
-            onChange={e => setBaseInfo({ ...baseInfo, Name: e.target.value })}
-          />
-        )}
-        {inputIndex.includes(3) && (
-          <Input
-            label="Sector"
-            value={baseInfo ? baseInfo["Sector"] : ""}
-            onChange={e => setBaseInfo({ ...baseInfo, Sector: e.target.value })}
-          />
-        )}
-        {inputIndex.includes(4) && (
-          <Input
-            label="Ticker"
-            value={baseInfo ? baseInfo["Ticker"] : ""}
-            onChange={e => setBaseInfo({ ...baseInfo, Ticker: e.target.value })}
-          />
-        )}
+        {BASE.map((b, i) => {
+          if (inputIndex.includes(i) && b.type === "textarea") {
+            return (
+              <TextArea
+                label={b.label}
+                value={() => {
+                  if (!b) return
+                  if (b.category === "info" && baseInfo) {
+                    return baseInfo[b.label]
+                  }
+                  if (b.category === "values" && baseValues) {
+                    return baseValues[b.label]
+                  }
+                  if (b.category === "valuation" && baseValuation) {
+                    return baseValuation[b.label]
+                  }
+                  if (b.category === "Product & Market" && productAndMarket) {
+                    return productAndMarket[b.label]
+                  }
+                }}
+                onChange={e => {
+                  if (b.category === "info") {
+                    setBaseInfo({ ...baseInfo, [b.label]: e.target.value })
+                  }
+                  if (b.category === "values") {
+                    setBaseValues({ ...baseValues, [b.label]: e.target.value })
+                  }
+                  if (b.category === "valuation") {
+                    setBaseValuation({
+                      ...baseValuation,
+                      [b.label]: e.target.value,
+                    })
+                  }
+                  if (b.category === "Product & Market") {
+                    setProductAndMarket({
+                      ...productAndMarket,
+                      [b.label]: e.target.value,
+                    })
+                  }
+                }}
+              />
+            )
+          } else if (inputIndex.includes(i)) {
+            return (
+              inputIndex.includes(i) && (
+                <Input
+                  label={b.label}
+                  type={b.type}
+                  value={() => {
+                    if (!b) return
+                    if (b.category === "info" && baseInfo) {
+                      return baseInfo[b.label]
+                    }
+                    if (b.category === "values" && baseValues) {
+                      return baseValues[b.label]
+                    }
+                    if (b.category === "valuation" && baseValuation) {
+                      return baseValuation[b.label]
+                    }
+                  }}
+                  onChange={e => {
+                    if (b.category === "info") {
+                      setBaseInfo({ ...baseInfo, [b.label]: e.target.value })
+                    }
+                    if (b.category === "values") {
+                      setBaseValues({
+                        ...baseValues,
+                        [b.label]: e.target.value,
+                      })
+                    }
+                    if (b.category === "valuation") {
+                      setBaseValuation({
+                        ...baseValuation,
+                        [b.label]: e.target.value,
+                      })
+                    }
+                  }}
+                />
+              )
+            )
+          }
+        })}
         <ButtonWrapper>
           {inputIndex[0] !== 0 && (
             <ContainedButton onClick={() => setInputIndex([inputIndex[0] - 1])}>
               Go back
             </ContainedButton>
           )}
-          {inputIndex[0] < 4 && (
+          {inputIndex[0] < BASE.length - 1 && (
             <ContainedButton onClick={() => setInputIndex([inputIndex[0] + 1])}>
               Next
             </ContainedButton>
           )}
         </ButtonWrapper>
       </SubSection>
-      {baseInfo && <CurrentInformation baseInfo={baseInfo} />}
-
-      {/* <SubSection>
-        <Input
-          label="Market value (MSEK)"
-          type="number"
-          caseData={caseData}
-          setCaseData={setCaseData}
-        />
-        <Input
-          label="Stock value"
-          type="number"
-          caseData={caseData}
-          setCaseData={setCaseData}
-        />
-        <Input
-          label="Trade in currency"
-          caseData={caseData}
-          setCaseData={setCaseData}
-        />
-      </SubSection>
-      <SubSection>
-        <Input
-          label="P/E"
-          type="number"
-          caseData={caseData}
-          setCaseData={setCaseData}
-        />
-        <Input
-          label="P/S"
-          type="number"
-          caseData={caseData}
-          setCaseData={setCaseData}
-        />
-        <Input
-          label="P/B"
-          type="number"
-          caseData={caseData}
-          setCaseData={setCaseData}
-        />
-        <Input
-          label="Yield"
-          type="number"
-          caseData={caseData}
-          setCaseData={setCaseData}
-        />
-      </SubSection>
-      <SubSection>
-        <Input
-          label="Trading volume (SEK)"
-          type="number"
-          caseData={caseData}
-          setCaseData={setCaseData}
-        />
-      </SubSection>
-      <SubSection>
-        <TextArea label="Describe the company" setCaseData={setCaseData} />
-      </SubSection> */}
-      <h2>Step 2: Product and market</h2>
-      <h2>Step 3: People</h2>
-      <h2>Step 4: Financial analysis</h2>
-      <h2>Step 5: Macro</h2>
-      <h2>Step 6: Portfolio-fit</h2>
+      {baseInfo && <CurrentInformation data={baseInfo} />}
+      {baseValues && <CurrentInformation data={baseValues} />}
+      {baseValuation && <CurrentInformation data={baseValuation} />}
+      {productAndMarket && <CurrentInformation data={productAndMarket} />}
     </Wrapper>
   )
 }
