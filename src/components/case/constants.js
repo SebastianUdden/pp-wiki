@@ -1,23 +1,30 @@
 export const BASE = [
   {
+    label: "Ticker",
+    description: "For example GOOG or TSLA",
+    category: "Base information",
+    position: 1,
+    type: "text",
+  },
+  {
     label: "Company Name",
     description: "Write the name of the company",
     category: "Base information",
-    position: 1,
+    position: 2,
     type: "text",
   },
   {
     label: "Company Description",
     description: "Write a short description of the company",
     category: "Base information",
-    position: 2,
+    position: 3,
     type: "textarea",
   },
   {
     label: "Sector",
     description: "For example banking, industry or commerce",
     category: "Base information",
-    position: 3,
+    position: 4,
     type: "text",
   },
   {
@@ -25,19 +32,12 @@ export const BASE = [
     description:
       "For example internet banking, industrial machines or ecommerce",
     category: "Base information",
-    position: 4,
+    position: 5,
     type: "text",
   },
   {
     label: "List",
     description: "Where can the company be bought?",
-    category: "Base information",
-    position: 5,
-    type: "text",
-  },
-  {
-    label: "Ticker",
-    description: "For example GOOG or TSLA",
     category: "Base information",
     position: 6,
     type: "text",

@@ -99,3 +99,13 @@ export const getNumberWithSpaces = number => {
 
 export const round = number => Math.round(number)
 export const roundTwoDec = number => number.toFixed(2)
+
+export const convertArrayToObject = (array, key) => {
+  const initialValue = {}
+  return array.reduce((obj, item) => {
+    return {
+      ...obj,
+      [item[key]]: item,
+    }
+  }, initialValue)
+}

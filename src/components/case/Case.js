@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from "react"
 import styled from "styled-components"
+import { SVG, arrowDropUp, arrowDropDown } from "project-pillow-components"
 
-import { SURFACE, HIGH_EMPHASIS } from "../../constants/theme"
+import { SURFACE, HIGH_EMPHASIS, MAIN_THEME } from "../../constants/theme"
 import useKeyPress from "../../hooks/useKeyPress"
 import { BASE } from "./constants"
 import { Wrapper } from "../wiki/Wiki"
 import {
+  checkForContent,
+  convertArrayToObject,
+  downloadData,
+  formatNumberOrString,
+  formatForWiki,
   getInputValue,
   setInputValue,
-  checkForContent,
-  formatNumberOrString,
-  downloadData,
-  formatForWiki,
 } from "./utils"
 import { apiUrl } from "../../constants/urls"
 import { useUser } from "../../contexts/UserContext"
 import { useWiki } from "../../contexts/WikiContext"
 import { create, update } from "../api/api"
+import { getStockQuotes } from "../api/alphaVantage"
 
 const CASES_ID = "5e16390e2ccc7c00081360e4"
 
@@ -63,11 +66,15 @@ const Label = styled.label`
   :hover {
     font-weight: bold;
     cursor: pointer;
+    border-left: 1px solid white;
+    margin-left: -1px;
     border-right: 1px solid white;
   }
 `
 
 const Title = styled.h2`
+  display: flex;
+  justify-content: space-between;
   font-size: medium;
   margin: 0;
   border-bottom: 1px solid white;
@@ -138,26 +145,47 @@ const TextArea = ({ label, description, value, onChange }) => (
 )
 
 const InfoBox = ({ title, data, setInputIndex }) => {
-  const [show, setShow] = useState(true)
+  const [show, setShow] = useState(false)
   if (!data) return null
   const entries = data && Object.entries(data)
-  const entryFound = Object.values(data).findIndex(d => d) !== -1
-  return entryFound ? (
+  const hasEntry = entries.some(([key, entry]) => entry.value)
+
+  useEffect(() => {
+    setShow(hasEntry)
+  }, [hasEntry])
+
+  return (
     <InfoWrapper>
-      <Title onClick={() => setShow(!show)}>{title}</Title>
+      <Title onClick={() => setShow(!show)}>
+        {title}
+        {show ? (
+          <SVG {...arrowDropUp} color={MAIN_THEME.WHITE.color.background} />
+        ) : (
+          <SVG {...arrowDropDown} color={MAIN_THEME.WHITE.color.background} />
+        )}
+      </Title>
       {show &&
         entries &&
-        entries.map(
-          ([key, entry]) =>
-            entry && (
+        entries.map(([key, entry]) => {
+          return (
+            entry &&
+            entry.value && (
               <Label onClick={() => setInputIndex([entry.index])}>
                 {key}: <Strong>{formatNumberOrString(entry.value)}</Strong>
               </Label>
             )
-        )}
+          )
+        })}
+      {show && !hasEntry && <Label>No data</Label>}
     </InfoWrapper>
-  ) : null
+  )
 }
+
+const getObject = category =>
+  convertArrayToObject(
+    BASE.filter(entry => entry.category === category),
+    "label"
+  )
 
 const Case = ({ theme = "Grey" }) => {
   const { user, setPage } = useUser()
@@ -168,14 +196,18 @@ const Case = ({ theme = "Grey" }) => {
   const [inputIndex, setInputIndex] = useState([0])
   const [showSave, setShowSave] = useState(false)
 
-  const [baseInfo, setBaseInfo] = useState(undefined)
-  const [baseValues, setBaseValues] = useState(undefined)
-  const [baseValuation, setBaseValuation] = useState(undefined)
-  const [productAndMarket, setProductAndMarket] = useState(undefined)
-  const [people, setPeople] = useState(undefined)
-  const [financialAnalysis, setFinancialAnalysis] = useState(undefined)
-  const [macro, setMacro] = useState(undefined)
-  const [portfolioFit, setPortfolioFit] = useState(undefined)
+  const [baseInfo, setBaseInfo] = useState(getObject("Base information"))
+  const [baseValues, setBaseValues] = useState(getObject("Pricing"))
+  const [baseValuation, setBaseValuation] = useState(getObject("Valuation"))
+  const [productAndMarket, setProductAndMarket] = useState(
+    getObject("Product & Market")
+  )
+  const [people, setPeople] = useState(getObject("People"))
+  const [financialAnalysis, setFinancialAnalysis] = useState(
+    getObject("Financial Analysis")
+  )
+  const [macro, setMacro] = useState(getObject("Macro"))
+  const [portfolioFit, setPortfolioFit] = useState(getObject("Portfolio-fit"))
 
   const allInfo = {
     "Base information": { get: baseInfo, set: setBaseInfo },
@@ -218,6 +250,7 @@ const Case = ({ theme = "Grey" }) => {
   }, [backspacePress])
 
   useEffect(() => {
+    setErrorMessage(undefined)
     setTimeout(() => {
       const elements = document.getElementsByClassName("case-input")
       if (!elements.length) {
@@ -227,7 +260,7 @@ const Case = ({ theme = "Grey" }) => {
       elements[0].focus()
     }, 100)
   }, [inputIndex])
-
+  const baseInformation = allInfo["Base information"].get
   return (
     <Container>
       <h1>Case builder</h1>
@@ -240,8 +273,8 @@ const Case = ({ theme = "Grey" }) => {
             </Label>
           </InfoWrapper>
         )}
-        {Object.entries(allInfo).map(
-          ([key, value]) =>
+        {Object.entries(allInfo).map(([key, value]) => {
+          return (
             value.get && (
               <InfoBox
                 title={key}
@@ -249,7 +282,8 @@ const Case = ({ theme = "Grey" }) => {
                 setInputIndex={setInputIndex}
               />
             )
-        )}
+          )
+        })}
       </CaseWrapper>
 
       <SubSection>
@@ -277,6 +311,38 @@ const Case = ({ theme = "Grey" }) => {
             )
           }
         })}
+        {baseInformation &&
+          baseInformation.Ticker.value &&
+          baseInformation.Ticker.value.length === 4 && (
+            <ButtonWrapper>
+              <ContainedButton
+                onClick={() => {
+                  setErrorMessage(undefined)
+                  if (!baseInformation.Ticker.value) {
+                    setTimeout(() => setErrorMessage("No ticker defined"), 200)
+                    return
+                  }
+
+                  getStockQuotes({
+                    Ticker: baseInformation.Ticker.value,
+                    onResponse: response => {
+                      const pricing = allInfo["Pricing"]
+                      pricing.set({
+                        ...pricing.get,
+                        ["Stock Price"]: {
+                          ...pricing.get["Stock Price"],
+                          value: Object.values(response)[0]["1. open"],
+                        },
+                      })
+                    },
+                  })
+                }}
+              >
+                Get Stock
+              </ContainedButton>
+            </ButtonWrapper>
+          )}
+        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
         <ButtonWrapper>
           {inputIndex[0] !== 0 && (
             <ContainedButton onClick={() => setInputIndex([inputIndex[0] - 1])}>
@@ -379,7 +445,6 @@ const Case = ({ theme = "Grey" }) => {
             )}
           </ButtonWrapper>
         )}
-        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
       </SubSection>
     </Container>
   )
