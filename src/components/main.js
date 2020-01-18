@@ -96,7 +96,7 @@ const Main = () => {
       if (dbUsers.error) return
       setUsers(dbUsers)
     })
-    setPage("home")
+    setPage("case")
   }, [])
 
   useEffect(() => {

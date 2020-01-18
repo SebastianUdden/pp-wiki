@@ -1,12 +1,33 @@
 import React, { useState, useEffect } from "react"
 import styled from "styled-components"
 
-import { useUser } from "../../contexts/UserContext"
-import { PRIMARY, SURFACE, HIGH_EMPHASIS } from "../../constants/theme"
+import { SURFACE, HIGH_EMPHASIS } from "../../constants/theme"
 import useKeyPress from "../../hooks/useKeyPress"
 import { BASE } from "./constants"
+import { Wrapper } from "../wiki/Wiki"
+import {
+  getInputValue,
+  setInputValue,
+  checkForContent,
+  formatNumberOrString,
+  downloadData,
+  formatForWiki,
+} from "./utils"
+import { apiUrl } from "../../constants/urls"
+import { useUser } from "../../contexts/UserContext"
+import { useWiki } from "../../contexts/WikiContext"
+import { create, update } from "../api/api"
 
-const Wrapper = styled.div`
+const CASES_ID = "5e16390e2ccc7c00081360e4"
+
+const ErrorMessage = styled.p`
+  color: red;
+  font-weight: 800;
+`
+
+const Container = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
   background: ${SURFACE};
   padding: 1rem;
   h1,
@@ -23,6 +44,10 @@ const Wrapper = styled.div`
   }
 `
 
+const CaseWrapper = styled(Wrapper)`
+  margin-bottom: 1rem;
+`
+
 const SubSection = styled.div`
   padding-bottom: 1rem;
   border-bottom: 1px solid white;
@@ -32,7 +57,26 @@ const SubSection = styled.div`
 const Label = styled.label`
   color: #bbbbbb;
   margin: 0.5rem 0 0.2rem;
+  :first-child {
+    margin: 0rem 0 0.2rem;
+  }
+  :hover {
+    font-weight: bold;
+    cursor: pointer;
+    border-right: 1px solid white;
+  }
 `
+
+const Title = styled.h2`
+  font-size: medium;
+  margin: 0;
+  border-bottom: 1px solid white;
+  :hover {
+    color: orange;
+    cursor: pointer;
+  }
+`
+
 const InnerInput = styled.input`
   width: 100%;
   padding: 0.5rem;
@@ -43,8 +87,7 @@ const InnerTextArea = styled.textarea`
   min-height: 6rem;
 `
 const InfoWrapper = styled.div`
-  border: 1px dashed #bbbbbb;
-  padding: 1rem;
+  padding: 0.5rem;
   margin-bottom: 0rem;
 `
 const Strong = styled.strong`
@@ -56,10 +99,11 @@ const ContainedButton = styled.button`
   padding: 1rem;
   border: none;
   flex-grow: 1;
-  :first-child {
-    margin: 0 0.5rem 0 0;
-  }
+  margin: 0 0.5rem 0 0;
   :only-child {
+    margin: 0;
+  }
+  :last-child {
     margin: 0;
   }
 `
@@ -74,7 +118,7 @@ const Input = ({ label, description, type = "text", value, onChange }) => (
     <InnerInput
       className="case-input"
       type={type}
-      value={value()}
+      value={value && value.value}
       placeholder={description}
       onChange={onChange}
     />
@@ -87,36 +131,62 @@ const TextArea = ({ label, description, value, onChange }) => (
     <InnerTextArea
       placeholder={description}
       className="case-input"
-      value={value()}
+      value={value && value.value}
       onChange={onChange}
     />
   </>
 )
 
-const CurrentInformation = ({ data }) => {
+const InfoBox = ({ title, data, setInputIndex }) => {
+  const [show, setShow] = useState(true)
   if (!data) return null
   const entries = data && Object.entries(data)
-
-  return (
+  const entryFound = Object.values(data).findIndex(d => d) !== -1
+  return entryFound ? (
     <InfoWrapper>
-      {entries &&
-        entries.map(([key, value]) => (
-          <Label>
-            {key}: <Strong>{value}</Strong>
-          </Label>
-        ))}
+      <Title onClick={() => setShow(!show)}>{title}</Title>
+      {show &&
+        entries &&
+        entries.map(
+          ([key, entry]) =>
+            entry && (
+              <Label onClick={() => setInputIndex([entry.index])}>
+                {key}: <Strong>{formatNumberOrString(entry.value)}</Strong>
+              </Label>
+            )
+        )}
     </InfoWrapper>
-  )
+  ) : null
 }
 
-const Case = () => {
+const Case = ({ theme = "Grey" }) => {
   const { user, setPage } = useUser()
+  const { wikiEntries, setWikiEntries } = useWiki()
   const enterPress = useKeyPress("Enter")
+  const backspacePress = useKeyPress("Backspace")
+  const [errorMessage, setErrorMessage] = useState("")
+  const [inputIndex, setInputIndex] = useState([0])
+  const [showSave, setShowSave] = useState(false)
+
   const [baseInfo, setBaseInfo] = useState(undefined)
   const [baseValues, setBaseValues] = useState(undefined)
   const [baseValuation, setBaseValuation] = useState(undefined)
   const [productAndMarket, setProductAndMarket] = useState(undefined)
-  const [inputIndex, setInputIndex] = useState([0])
+  const [people, setPeople] = useState(undefined)
+  const [financialAnalysis, setFinancialAnalysis] = useState(undefined)
+  const [macro, setMacro] = useState(undefined)
+  const [portfolioFit, setPortfolioFit] = useState(undefined)
+
+  const allInfo = {
+    "Base information": { get: baseInfo, set: setBaseInfo },
+    Pricing: { get: baseValues, set: setBaseValues },
+    Valuation: { get: baseValuation, set: setBaseValuation },
+    "Product & Market": { get: productAndMarket, set: setProductAndMarket },
+    People: { get: people, set: setPeople },
+    "Financial Analysis": { get: financialAnalysis, set: setFinancialAnalysis },
+    Macro: { get: macro, set: setMacro },
+    "Portfolio-fit": { get: portfolioFit, set: setPortfolioFit },
+  }
 
   useEffect(() => {
     if (!enterPress) return
@@ -125,6 +195,27 @@ const Case = () => {
     }
     setInputIndex([inputIndex[0] + 1])
   }, [enterPress])
+
+  useEffect(() => {
+    if (!backspacePress) return
+    if (inputIndex[0] === 0) {
+      return
+    }
+    const elements = document.getElementsByClassName("case-input")
+    if (!elements.length) {
+      setInputIndex([inputIndex[0] - 1])
+      return
+    }
+    if (elements[0].value.length) {
+      return
+    }
+    setTimeout(() => {
+      if (elements[0].value.length) {
+        return
+      }
+      setInputIndex([inputIndex[0] - 1])
+    }, 700)
+  }, [backspacePress])
 
   useEffect(() => {
     setTimeout(() => {
@@ -138,69 +229,38 @@ const Case = () => {
   }, [inputIndex])
 
   return (
-    <Wrapper>
+    <Container>
       <h1>Case builder</h1>
-      <p>
-        This is the case builder, fill in the necessary information below to
-        build an investment case.
-      </p>
-      {baseInfo && <CurrentInformation data={baseInfo} />}
-      {baseValues && <CurrentInformation data={baseValues} />}
-      {baseValuation && <CurrentInformation data={baseValuation} />}
-      {productAndMarket && <CurrentInformation data={productAndMarket} />}
-      {inputIndex[0] >= 0 && inputIndex[0] < 13 && (
-        <h2>Step 1: Base information</h2>
-      )}
-      {inputIndex[0] > 12 && inputIndex[0] < 18 && (
-        <h2>Step 2: Product and market</h2>
-      )}
-      {inputIndex[0] > 17 && inputIndex[0] < 20 && <h2>Step 3: People</h2>}
+      <CaseWrapper theme={theme}>
+        {checkForContent(allInfo) && (
+          <InfoWrapper>
+            <Label>
+              This is the case builder, fill in the necessary information below
+              to build an investment case.
+            </Label>
+          </InfoWrapper>
+        )}
+        {Object.entries(allInfo).map(
+          ([key, value]) =>
+            value.get && (
+              <InfoBox
+                title={key}
+                data={value.get}
+                setInputIndex={setInputIndex}
+              />
+            )
+        )}
+      </CaseWrapper>
 
-      {/* <h2>Step 4: Financial analysis</h2>
-      <h2>Step 5: Macro</h2>
-      <h2>Step 6: Portfolio-fit</h2> */}
       <SubSection>
-        {BASE.map((b, i) => {
+        {BASE.map((b, i) => ({ ...b, index: i })).map((b, i) => {
           if (inputIndex.includes(i) && b.type === "textarea") {
             return (
               <TextArea
                 label={b.label}
                 description={b.description}
-                value={() => {
-                  if (!b) return
-                  if (b.category === "info" && baseInfo) {
-                    return baseInfo[b.label]
-                  }
-                  if (b.category === "values" && baseValues) {
-                    return baseValues[b.label]
-                  }
-                  if (b.category === "valuation" && baseValuation) {
-                    return baseValuation[b.label]
-                  }
-                  if (b.category === "Product & Market" && productAndMarket) {
-                    return productAndMarket[b.label]
-                  }
-                }}
-                onChange={e => {
-                  if (b.category === "info") {
-                    setBaseInfo({ ...baseInfo, [b.label]: e.target.value })
-                  }
-                  if (b.category === "values") {
-                    setBaseValues({ ...baseValues, [b.label]: e.target.value })
-                  }
-                  if (b.category === "valuation") {
-                    setBaseValuation({
-                      ...baseValuation,
-                      [b.label]: e.target.value,
-                    })
-                  }
-                  if (b.category === "Product & Market") {
-                    setProductAndMarket({
-                      ...productAndMarket,
-                      [b.label]: e.target.value,
-                    })
-                  }
-                }}
+                value={getInputValue(b, allInfo)}
+                onChange={e => setInputValue(b, allInfo, e)}
               />
             )
           } else if (inputIndex.includes(i)) {
@@ -210,35 +270,8 @@ const Case = () => {
                   label={b.label}
                   description={b.description}
                   type={b.type}
-                  value={() => {
-                    if (!b) return
-                    if (b.category === "info" && baseInfo) {
-                      return baseInfo[b.label]
-                    }
-                    if (b.category === "values" && baseValues) {
-                      return baseValues[b.label]
-                    }
-                    if (b.category === "valuation" && baseValuation) {
-                      return baseValuation[b.label]
-                    }
-                  }}
-                  onChange={e => {
-                    if (b.category === "info") {
-                      setBaseInfo({ ...baseInfo, [b.label]: e.target.value })
-                    }
-                    if (b.category === "values") {
-                      setBaseValues({
-                        ...baseValues,
-                        [b.label]: e.target.value,
-                      })
-                    }
-                    if (b.category === "valuation") {
-                      setBaseValuation({
-                        ...baseValuation,
-                        [b.label]: e.target.value,
-                      })
-                    }
-                  }}
+                  value={getInputValue(b, allInfo)}
+                  onChange={e => setInputValue(b, allInfo, e)}
                 />
               )
             )
@@ -256,8 +289,99 @@ const Case = () => {
             </ContainedButton>
           )}
         </ButtonWrapper>
+        {Object.values(allInfo).some(x => x.get) && (
+          <ButtonWrapper>
+            <ContainedButton onClick={() => setShowSave(!showSave)}>
+              {showSave ? "Cancel" : "Save"}
+            </ContainedButton>
+            {showSave && (
+              <>
+                <ContainedButton
+                  onClick={() => {
+                    const data = wikiEntries.find(
+                      entry => entry._id === CASES_ID
+                    )
+                    const newItem = {
+                      ...formatForWiki(allInfo),
+                      createdBy: { name: user.username, email: user.email },
+                    }
+                    create(`${apiUrl}/wikis`, newItem, "Unauthorized").then(
+                      response => {
+                        console.log("Create response: ", response)
+                        if (response.error) {
+                          console.error(
+                            "Create request failed with: ",
+                            response.error
+                          )
+                          setErrorMessage("Create request failed, try again...")
+                          return
+                        }
+                        setErrorMessage("")
+                        const createdData = {
+                          ...response.created,
+                          createdAt: new Date().toUTCString(),
+                        }
+                        const { _id, ...dataProps } = data
+                        const newChildren = [
+                          ...(dataProps.children || []),
+                          response.created._id,
+                        ]
+                        const updateData = {
+                          ...dataProps,
+                          children: newChildren,
+                        }
+                        createdData &&
+                          setWikiEntries([...wikiEntries, createdData])
+                        update(
+                          `${apiUrl}/wikis/${_id}`,
+                          updateData,
+                          "Unauthorized"
+                        ).then(response => {
+                          console.log("Update response: ", response)
+                          if (response.error) {
+                            console.error(
+                              "Update request failed with: ",
+                              response.error
+                            )
+                            setErrorMessage(
+                              `Item created successfully but update request for parent failed... Go to ${data.title} and add this child manually in the editor.`
+                            )
+                            return
+                          }
+                          setErrorMessage("")
+                          const index = wikiEntries.findIndex(
+                            entry => entry._id === _id
+                          )
+                          const newWikiEntries = [...wikiEntries, createdData]
+                          const updatedData = {
+                            _id,
+                            ...updateData,
+                          }
+                          newWikiEntries[index] = updatedData
+                          parent.title === data.title &&
+                            setWikiEntries(newWikiEntries)
+                          setPage("wiki")
+                        })
+                      }
+                    )
+                  }}
+                >
+                  Save to Wiki
+                </ContainedButton>
+                <ContainedButton
+                  onClick={() =>
+                    downloadData({ data: allInfo, fileName: "backup-case" })
+                  }
+                >
+                  Save to file
+                </ContainedButton>
+              </>
+            )}
+          </ButtonWrapper>
+        )}
+        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
       </SubSection>
-    </Wrapper>
+    </Container>
   )
 }
 

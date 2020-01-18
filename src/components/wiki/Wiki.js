@@ -35,7 +35,7 @@ const ErrorMessage = styled.p`
   font-weight: 800;
 `
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   width: 100%;
   max-width: 1200px;
   overflow: hidden;
