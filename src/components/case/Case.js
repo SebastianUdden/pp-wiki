@@ -311,6 +311,18 @@ const Case = ({ theme = "Grey" }) => {
             )
           }
         })}
+        <ButtonWrapper>
+          {inputIndex[0] !== 0 && (
+            <ContainedButton onClick={() => setInputIndex([inputIndex[0] - 1])}>
+              Go back
+            </ContainedButton>
+          )}
+          {inputIndex[0] < BASE.length - 1 && (
+            <ContainedButton onClick={() => setInputIndex([inputIndex[0] + 1])}>
+              Next
+            </ContainedButton>
+          )}
+        </ButtonWrapper>
         {baseInformation &&
           baseInformation.Ticker.value &&
           baseInformation.Ticker.value.length === 4 && (
@@ -343,18 +355,6 @@ const Case = ({ theme = "Grey" }) => {
             </ButtonWrapper>
           )}
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-        <ButtonWrapper>
-          {inputIndex[0] !== 0 && (
-            <ContainedButton onClick={() => setInputIndex([inputIndex[0] - 1])}>
-              Go back
-            </ContainedButton>
-          )}
-          {inputIndex[0] < BASE.length - 1 && (
-            <ContainedButton onClick={() => setInputIndex([inputIndex[0] + 1])}>
-              Next
-            </ContainedButton>
-          )}
-        </ButtonWrapper>
         {Object.values(allInfo).some(x => x.get) && (
           <ButtonWrapper>
             <ContainedButton onClick={() => setShowSave(!showSave)}>
