@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import styled from "styled-components"
+import styled, { css } from "styled-components"
 import { SVG, arrowDropUp, arrowDropDown } from "project-pillow-components"
 
 import { SURFACE, HIGH_EMPHASIS, MAIN_THEME } from "../../constants/theme"
@@ -66,10 +66,13 @@ const Label = styled.label`
   :hover {
     font-weight: bold;
     cursor: pointer;
-    border-left: 1px solid white;
-    margin-left: -1px;
-    border-right: 1px solid white;
   }
+  ${p =>
+    p.selected &&
+    css`
+      border-bottom: 1px dashed orange;
+      margin-bottom: -1px;
+    `}
 `
 
 const Title = styled.h2`
@@ -144,7 +147,7 @@ const TextArea = ({ label, description, value, onChange }) => (
   </>
 )
 
-const InfoBox = ({ title, data, setInputIndex }) => {
+const InfoBox = ({ title, data, inputIndex, setInputIndex }) => {
   const [show, setShow] = useState(false)
   if (!data) return null
   const entries = data && Object.entries(data)
@@ -153,6 +156,10 @@ const InfoBox = ({ title, data, setInputIndex }) => {
   useEffect(() => {
     setShow(hasEntry)
   }, [hasEntry])
+
+  useEffect(() => {
+    setShow(entries.some(entry => entry[1].index === inputIndex[0]))
+  }, [inputIndex])
 
   return (
     <InfoWrapper>
@@ -168,46 +175,54 @@ const InfoBox = ({ title, data, setInputIndex }) => {
         entries &&
         entries.map(([key, entry]) => {
           return (
-            entry &&
-            entry.value && (
-              <Label onClick={() => setInputIndex([entry.index])}>
+            entry && (
+              <Label
+                onClick={() => setInputIndex([entry.index])}
+                selected={entry.index === inputIndex[0]}
+              >
                 {key}: <Strong>{formatNumberOrString(entry.value)}</Strong>
               </Label>
             )
           )
         })}
-      {show && !hasEntry && <Label>No data</Label>}
     </InfoWrapper>
   )
 }
 
-const getObject = category =>
+const getObject = (base, category) =>
   convertArrayToObject(
-    BASE.filter(entry => entry.category === category),
+    base.filter(entry => entry.category === category),
     "label"
   )
 
 const Case = ({ theme = "Grey" }) => {
+  const base = BASE.map((b, i) => ({ ...b, index: i }))
   const { user, setPage } = useUser()
   const { wikiEntries, setWikiEntries } = useWiki()
   const enterPress = useKeyPress("Enter")
   const backspacePress = useKeyPress("Backspace")
+  const arrowUpPress = useKeyPress("ArrowUp")
+  const arrowDownPress = useKeyPress("ArrowDown")
   const [errorMessage, setErrorMessage] = useState("")
   const [inputIndex, setInputIndex] = useState([0])
   const [showSave, setShowSave] = useState(false)
 
-  const [baseInfo, setBaseInfo] = useState(getObject("Base information"))
-  const [baseValues, setBaseValues] = useState(getObject("Pricing"))
-  const [baseValuation, setBaseValuation] = useState(getObject("Valuation"))
+  const [baseInfo, setBaseInfo] = useState(getObject(base, "Base information"))
+  const [baseValues, setBaseValues] = useState(getObject(base, "Pricing"))
+  const [baseValuation, setBaseValuation] = useState(
+    getObject(base, "Valuation")
+  )
   const [productAndMarket, setProductAndMarket] = useState(
-    getObject("Product & Market")
+    getObject(base, "Product & Market")
   )
-  const [people, setPeople] = useState(getObject("People"))
+  const [people, setPeople] = useState(getObject(base, "People"))
   const [financialAnalysis, setFinancialAnalysis] = useState(
-    getObject("Financial Analysis")
+    getObject(base, "Financial Analysis")
   )
-  const [macro, setMacro] = useState(getObject("Macro"))
-  const [portfolioFit, setPortfolioFit] = useState(getObject("Portfolio-fit"))
+  const [macro, setMacro] = useState(getObject(base, "Macro"))
+  const [portfolioFit, setPortfolioFit] = useState(
+    getObject(base, "Portfolio-fit")
+  )
 
   const allInfo = {
     "Base information": { get: baseInfo, set: setBaseInfo },
@@ -227,6 +242,22 @@ const Case = ({ theme = "Grey" }) => {
     }
     setInputIndex([inputIndex[0] + 1])
   }, [enterPress])
+
+  useEffect(() => {
+    if (!arrowDownPress) return
+    if (inputIndex[0] > BASE.length - 1) {
+      return
+    }
+    setInputIndex([inputIndex[0] + 1])
+  }, [arrowDownPress])
+
+  useEffect(() => {
+    if (!arrowUpPress) return
+    if (inputIndex[0] === 0) {
+      return
+    }
+    setInputIndex([inputIndex[0] - 1])
+  }, [arrowUpPress])
 
   useEffect(() => {
     if (!backspacePress) return
@@ -254,12 +285,12 @@ const Case = ({ theme = "Grey" }) => {
     setTimeout(() => {
       const elements = document.getElementsByClassName("case-input")
       if (!elements.length) {
-        console.log(elements)
         return
       }
       elements[0].focus()
     }, 100)
   }, [inputIndex])
+
   const baseInformation = allInfo["Base information"].get
   return (
     <Container>
@@ -279,6 +310,7 @@ const Case = ({ theme = "Grey" }) => {
               <InfoBox
                 title={key}
                 data={value.get}
+                inputIndex={inputIndex}
                 setInputIndex={setInputIndex}
               />
             )
@@ -287,7 +319,7 @@ const Case = ({ theme = "Grey" }) => {
       </CaseWrapper>
 
       <SubSection>
-        {BASE.map((b, i) => ({ ...b, index: i })).map((b, i) => {
+        {base.map((b, i) => {
           if (inputIndex.includes(i) && b.type === "textarea") {
             return (
               <TextArea
@@ -299,15 +331,13 @@ const Case = ({ theme = "Grey" }) => {
             )
           } else if (inputIndex.includes(i)) {
             return (
-              inputIndex.includes(i) && (
-                <Input
-                  label={b.label}
-                  description={b.description}
-                  type={b.type}
-                  value={getInputValue(b, allInfo)}
-                  onChange={e => setInputValue(b, allInfo, e)}
-                />
-              )
+              <Input
+                label={b.label}
+                description={b.description}
+                type={b.type}
+                value={getInputValue(b, allInfo)}
+                onChange={e => setInputValue(b, allInfo, e)}
+              />
             )
           }
         })}
