@@ -216,7 +216,10 @@ const Main = () => {
           {page === "signup" && <Signup fields={SIGNUP_FIELDS} />}
           {page === "login" && <Login fields={LOGIN_FIELDS} />}
           {page === "login" && user.loggedIn && (
-            <Signup fields={SIGNUP_FIELDS} />
+            <>
+              <Signup fields={SIGNUP_FIELDS} />
+              <Settings />
+            </>
           )}
           {page === "settings" && <Settings />}
         </Body>

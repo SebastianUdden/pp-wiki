@@ -1,9 +1,16 @@
 import React, { useState } from "react"
 import { useUser } from "../../contexts/UserContext"
 import { FieldHint, Wrapper, Button, Em, FlexWrapper } from "./common"
-import { ON_ERROR, ERROR_BACKGROUND } from "../../constants/theme"
+import {
+  ON_ERROR,
+  ERROR_BACKGROUND,
+  ON_BACKGROUND,
+  SUCCESS_TEXT_COLOR,
+} from "../../constants/theme"
 import Input from "../ui/Input"
 import { SETTINGS_FIELDS } from "../../constants/fields"
+import { useWiki } from "../../contexts/WikiContext"
+import { downloadData } from "../case/utils"
 
 const Displayfield = ({ section, field }) => (
   <Wrapper>
@@ -60,12 +67,30 @@ const EditField = ({ section, field, onValue }) => {
 }
 
 const Settings = () => {
+  const { wikiEntries } = useWiki()
+  const [showBackupOptions, setShowBackupOptions] = useState(false)
   const [showConfirmRemoval, setShowConfirmRemoval] = useState(false)
   const { user, clearUser, setTempUser } = useUser()
 
   return (
     <Wrapper>
-      {user.email && user.password && (
+      <FlexWrapper>
+        <Button onClick={() => setShowBackupOptions(!showBackupOptions)}>
+          {showBackupOptions ? "Cancel" : "Backup Wiki-data"}
+        </Button>
+        {showBackupOptions && (
+          <>
+            <Button
+              backgroundColor={SUCCESS_TEXT_COLOR}
+              color={ON_BACKGROUND}
+              onClick={() => downloadData({ data: wikiEntries })}
+            >
+              Save to file
+            </Button>
+          </>
+        )}
+      </FlexWrapper>
+      {false && user.email && user.password && (
         <>
           <Displayfield
             section="settings"
