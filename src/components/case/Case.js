@@ -184,6 +184,7 @@ const InfoBox = ({ title, companyName, data, inputIndex, setInputIndex }) => {
           return (
             entry && (
               <Label
+                key={key}
                 onClick={() => setInputIndex([entry.index])}
                 selected={entry.index === inputIndex[0]}
               >
@@ -193,7 +194,7 @@ const InfoBox = ({ title, companyName, data, inputIndex, setInputIndex }) => {
                     ""}+${entry.value || ""}`}
                   target="_blank"
                 >
-                  <SVG {...search} size="0.8rem" />
+                  <SVG {...search} size="1rem" />
                 </Link>
                 : <Strong>{formatNumberOrString(entry.value)}</Strong>
               </Label>
@@ -323,6 +324,7 @@ const Case = ({ theme = "Grey" }) => {
           return (
             value.get && (
               <InfoBox
+                key={key}
                 title={key}
                 companyName={baseInformation["Company Name"]}
                 data={value.get}
@@ -339,6 +341,7 @@ const Case = ({ theme = "Grey" }) => {
           if (inputIndex.includes(i) && b.type === "textarea") {
             return (
               <TextArea
+                key={b.label}
                 label={b.label}
                 description={b.description}
                 value={getInputValue(b, allInfo)}
@@ -348,6 +351,7 @@ const Case = ({ theme = "Grey" }) => {
           } else if (inputIndex.includes(i)) {
             return (
               <Input
+                key={b.label}
                 label={b.label}
                 description={b.description}
                 type={b.type}

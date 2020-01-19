@@ -20,7 +20,6 @@ import { get } from "./api/api"
 import Spinner from "./wiki/Spinner"
 import SideMenu from "./sideMenu/SideMenu"
 import TopMenu from "./topMenu/TopMenu"
-// import { FLAT_DATA } from "./wiki/wiki-mocks"
 
 const Page = styled.div`
   padding: 0;
@@ -69,7 +68,6 @@ const createDataTree = wikiEntries => {
 
   const dataTree = {
     ...topNode,
-    // children: getNodeChildren(topNode, wikiEntries),
   }
 
   return dataTree
@@ -90,6 +88,12 @@ const Main = () => {
   const [searchValue, setSearchValue] = useState("")
   const [history, setHistory] = useState([])
   const [historyIndex, setHistoryIndex] = useState(0)
+
+  window.onhashchange = () => {
+    const hash = document.location.hash
+    if (!hash) return
+    setSelected(hash.substring(10).replace("%20", " "))
+  }
 
   useEffect(() => {
     get(`${apiUrl}/users`, "Unauthorized").then(dbUsers => {
@@ -141,6 +145,7 @@ const Main = () => {
       setHistory([...newHistory, { isSelected: false, value: searchValue }])
     }
     setHistoryIndex(newHistory.length)
+    document.location.hash = ""
   }, [selected, searchValue])
 
   return (
