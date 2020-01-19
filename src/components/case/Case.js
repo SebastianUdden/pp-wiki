@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react"
 import styled, { css } from "styled-components"
-import { SVG, arrowDropUp, arrowDropDown } from "project-pillow-components"
+import {
+  SVG,
+  arrowDropUp,
+  arrowDropDown,
+  search,
+} from "project-pillow-components"
 
 import { SURFACE, HIGH_EMPHASIS, MAIN_THEME } from "../../constants/theme"
 import useKeyPress from "../../hooks/useKeyPress"
@@ -27,6 +32,8 @@ const ErrorMessage = styled.p`
   color: red;
   font-weight: 800;
 `
+
+const Link = styled.a``
 
 const Container = styled.div`
   max-width: 1200px;
@@ -147,7 +154,7 @@ const TextArea = ({ label, description, value, onChange }) => (
   </>
 )
 
-const InfoBox = ({ title, data, inputIndex, setInputIndex }) => {
+const InfoBox = ({ title, companyName, data, inputIndex, setInputIndex }) => {
   const [show, setShow] = useState(false)
   if (!data) return null
   const entries = data && Object.entries(data)
@@ -180,7 +187,15 @@ const InfoBox = ({ title, data, inputIndex, setInputIndex }) => {
                 onClick={() => setInputIndex([entry.index])}
                 selected={entry.index === inputIndex[0]}
               >
-                {key}: <Strong>{formatNumberOrString(entry.value)}</Strong>
+                {key}{" "}
+                <Link
+                  href={`${entry.link}${companyName.value || ""}+${key ||
+                    ""}+${entry.value || ""}`}
+                  target="_blank"
+                >
+                  <SVG {...search} size="0.8rem" />
+                </Link>
+                : <Strong>{formatNumberOrString(entry.value)}</Strong>
               </Label>
             )
           )
@@ -309,6 +324,7 @@ const Case = ({ theme = "Grey" }) => {
             value.get && (
               <InfoBox
                 title={key}
+                companyName={baseInformation["Company Name"]}
                 data={value.get}
                 inputIndex={inputIndex}
                 setInputIndex={setInputIndex}
