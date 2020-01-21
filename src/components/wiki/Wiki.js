@@ -54,6 +54,7 @@ export const Wrapper = styled.div`
         `
       case "Light":
         return css`
+          margin: 0;
           background-color: #ffffff;
           color: #000000;
           p,

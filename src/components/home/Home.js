@@ -9,11 +9,8 @@ import {
 } from "project-pillow-components"
 import { useUser } from "../../contexts/UserContext"
 import { PRIMARY, SURFACE, HIGH_EMPHASIS } from "../../constants/theme"
+import { Wrapper } from "../user/common"
 
-const Wrapper = styled.div`
-  background: ${SURFACE};
-  padding: 1rem;
-`
 const H1 = styled.h1`
   opacity: ${HIGH_EMPHASIS};
 `

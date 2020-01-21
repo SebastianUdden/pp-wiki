@@ -12,9 +12,10 @@ import {
 } from "../../constants/theme"
 
 export const Wrapper = styled.div`
-  margin: 1rem 0;
-  background: ${SURFACE};
+  max-width: 1200px;
+  margin: 1rem auto;
   padding: 1rem;
+  background: ${SURFACE};
   box-shadow: ${DP6};
 `
 
