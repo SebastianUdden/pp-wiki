@@ -128,6 +128,10 @@ const ButtonWrapper = styled.div`
   margin: 0.5rem 0;
   display: flex;
 `
+const SubWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`
 
 const Input = ({ label, description, type = "text", value, onChange }) => (
   <>
@@ -154,6 +158,14 @@ const TextArea = ({ label, description, value, onChange }) => (
   </>
 )
 
+const Amount = ({ count, total }) => {
+  return (
+    <Strong>
+      {count}/{total}
+    </Strong>
+  )
+}
+
 const InfoBox = ({ title, companyName, data, inputIndex, setInputIndex }) => {
   const [show, setShow] = useState(false)
   if (!data) return null
@@ -172,11 +184,17 @@ const InfoBox = ({ title, companyName, data, inputIndex, setInputIndex }) => {
     <InfoWrapper>
       <Title onClick={() => setShow(!show)}>
         {title}
-        {show ? (
-          <SVG {...arrowDropUp} color={MAIN_THEME.WHITE.color.background} />
-        ) : (
-          <SVG {...arrowDropDown} color={MAIN_THEME.WHITE.color.background} />
-        )}
+        <SubWrapper>
+          <Amount
+            count={entries.filter(([key, entry]) => entry.value).length}
+            total={entries.length}
+          />
+          {show ? (
+            <SVG {...arrowDropUp} color={MAIN_THEME.WHITE.color.background} />
+          ) : (
+            <SVG {...arrowDropDown} color={MAIN_THEME.WHITE.color.background} />
+          )}
+        </SubWrapper>
       </Title>
       {show &&
         entries &&
