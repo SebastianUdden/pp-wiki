@@ -66,7 +66,7 @@ const TopMenu = ({
   theme,
   setTheme,
 }) => {
-  const { setPage, user } = useUser()
+  const { page, setPage, user } = useUser()
   const [value, setValue] = useState("")
   const [showSearch, setShowSearch] = useState(false)
   return (
@@ -93,7 +93,7 @@ const TopMenu = ({
                 setSearchValue("")
               }}
             >
-              Wiki
+              Pillow
             </Title>
           </InnerWrapper>
           <InnerWrapper>
@@ -104,7 +104,10 @@ const TopMenu = ({
               <ActionItem
                 color={MAIN_THEME.WHITE.color.background}
                 svg={arrowBack}
-                onClick={() => setHistoryIndex(historyIndex - 1)}
+                onClick={() => {
+                  setPage("wiki")
+                  setHistoryIndex(historyIndex - 1)
+                }}
                 padding={1}
               />
             )}
@@ -112,30 +115,29 @@ const TopMenu = ({
               <ActionItem
                 color={MAIN_THEME.WHITE.color.background}
                 svg={arrowForward}
-                onClick={() => setHistoryIndex(historyIndex + 1)}
+                onClick={() => {
+                  setPage("wiki")
+                  setHistoryIndex(historyIndex + 1)
+                }}
                 padding={1}
               />
             )}
-            <Toggle>
-              <Dropdown
-                label="Select theme"
-                options={[
-                  { _id: "light", title: "Light" },
-                  { _id: "grey", title: "Grey" },
-                  { _id: "dark", title: "Dark" },
-                ]}
-                onChange={value => {
-                  setTheme(value)
-                }}
-                color="white"
-              />
-              {/* <ToggleSwitch
-                size={30}
-                checked={toggleStyle}
-                onClick={onToggleStyle}
-                backgroundColor={MAIN_THEME.PRIMARY.color.background}
-              /> */}
-            </Toggle>
+            {page === "wiki" && (
+              <Toggle>
+                <Dropdown
+                  label="Select theme"
+                  options={[
+                    { _id: "light", title: "Light" },
+                    { _id: "grey", title: "Grey" },
+                    { _id: "dark", title: "Dark" },
+                  ]}
+                  onChange={value => {
+                    setTheme(value)
+                  }}
+                  color="white"
+                />
+              </Toggle>
+            )}
             <ActionItem
               svg={search}
               onClick={() => {
