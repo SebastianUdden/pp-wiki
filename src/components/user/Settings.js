@@ -74,6 +74,7 @@ const Settings = () => {
 
   return (
     <Wrapper>
+      <FieldHint>Backup wiki data as JSON-file here.</FieldHint>
       <FlexWrapper>
         <Button onClick={() => setShowBackupOptions(!showBackupOptions)}>
           {showBackupOptions ? "Cancel" : "Backup Wiki-data"}
