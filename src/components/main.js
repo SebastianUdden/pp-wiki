@@ -8,7 +8,7 @@ import Footer from "./footer/footer"
 import { FOOTER_MENU } from "../constants/menus"
 
 import Home from "./home/Home"
-import Case from "./case/Case"
+import Tools from "./tools/Tools"
 import Signup from "./user/Signup"
 import Login from "./user/Login"
 import Settings from "./user/Settings"
@@ -100,7 +100,7 @@ const Main = () => {
       if (dbUsers.error) return
       setUsers(dbUsers)
     })
-    setPage("case")
+    setPage("tools")
   }, [])
 
   useEffect(() => {
@@ -183,7 +183,7 @@ const Main = () => {
         />
         <Body>
           {page === "home" && <Home />}
-          {page === "case" && <Case />}
+          {page === "tools" && <Tools />}
           {page === "wiki" &&
             (data ? (
               <Wiki

@@ -7,10 +7,10 @@ import {
   search,
 } from "project-pillow-components"
 
-import { SURFACE, HIGH_EMPHASIS, MAIN_THEME } from "../../constants/theme"
-import useKeyPress from "../../hooks/useKeyPress"
+import { SURFACE, HIGH_EMPHASIS, MAIN_THEME } from "../../../constants/theme"
+import useKeyPress from "../../../hooks/useKeyPress"
 import { BASE } from "./constants"
-import { Wrapper } from "../wiki/Wiki"
+import { Wrapper } from "../../common"
 import {
   checkForContent,
   convertArrayToObject,
@@ -20,11 +20,11 @@ import {
   getInputValue,
   setInputValue,
 } from "./utils"
-import { apiUrl } from "../../constants/urls"
-import { useUser } from "../../contexts/UserContext"
-import { useWiki } from "../../contexts/WikiContext"
-import { create, update } from "../api/api"
-import { getStockQuotes } from "../api/alphaVantage"
+import { apiUrl } from "../../../constants/urls"
+import { useUser } from "../../../contexts/UserContext"
+import { useWiki } from "../../../contexts/WikiContext"
+import { create, update } from "../../api/api"
+import { getStockQuotes } from "../../api/alphaVantage"
 
 const CASES_ID = "5e16390e2ccc7c00081360e4"
 
@@ -39,7 +39,6 @@ const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   background: ${SURFACE};
-  padding: 1rem;
   h1,
   h2,
   h3,

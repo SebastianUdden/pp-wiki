@@ -8,7 +8,7 @@ import {
   SVG,
 } from "project-pillow-components"
 import { useUser } from "../../contexts/UserContext"
-import { PRIMARY, SURFACE, HIGH_EMPHASIS } from "../../constants/theme"
+import { PRIMARY, HIGH_EMPHASIS } from "../../constants/theme"
 import { Wrapper } from "../user/common"
 
 const H1 = styled.h1`

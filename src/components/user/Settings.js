@@ -10,7 +10,7 @@ import {
 import Input from "../ui/Input"
 import { SETTINGS_FIELDS } from "../../constants/fields"
 import { useWiki } from "../../contexts/WikiContext"
-import { downloadData } from "../case/utils"
+import { downloadData } from "../tools/case/utils"
 
 const Displayfield = ({ section, field }) => (
   <Wrapper>

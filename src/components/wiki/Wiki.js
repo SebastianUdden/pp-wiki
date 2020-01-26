@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import styled, { css } from "styled-components"
+import styled from "styled-components"
 import {
   Breadcrumbs,
   Chips,
@@ -9,13 +9,8 @@ import {
   MarkdownEditor,
   ContainedButton,
 } from "project-pillow-components"
-import {
-  DP_TYPES,
-  MAIN_THEME,
-  ALTERNATE_THEME_COLORS,
-} from "../../constants/theme"
+import { MAIN_THEME, ALTERNATE_THEME_COLORS } from "../../constants/theme"
 import { Toggle } from "../main"
-import { MEDIA_MIN_MEDIUM } from "../../constants/sizes"
 import { update, remove } from "../api/api"
 import { apiUrl } from "../../constants/urls"
 import NewItem from "./NewItem"
@@ -25,6 +20,7 @@ import Diff from "./Diff"
 import { useWiki } from "../../contexts/WikiContext"
 import { useUser } from "../../contexts/UserContext"
 import { arraysEqual } from "./utils"
+import { Wrapper } from "../common"
 
 export const Label = styled.label`
   margin-right: 0.2rem;
@@ -35,45 +31,6 @@ const ErrorMessage = styled.p`
   font-weight: 800;
 `
 
-export const Wrapper = styled.div`
-  width: 100%;
-  max-width: 1200px;
-  overflow: hidden;
-  margin: 0.5rem auto;
-
-  ${p => {
-    switch (p.theme) {
-      case "Grey":
-        return css`
-          background-color: #44444477;
-          padding: 0.5rem;
-          box-shadow: ${DP_TYPES.DP6};
-          ${MEDIA_MIN_MEDIUM} {
-            padding: 1.5rem 3rem;
-          }
-        `
-      case "Light":
-        return css`
-          margin: 0;
-          background-color: #ffffff;
-          color: #000000;
-          p,
-          input,
-          li {
-            color: #000000;
-          }
-          div.crumbs button,
-          div.crumbs svg {
-            color: #666666;
-            font-size: large;
-          }
-          padding: 0.5rem;
-        `
-      default:
-        break
-    }
-  }}
-`
 const FlexWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -158,7 +115,7 @@ const Wiki = ({
   historyIndex,
   setHistoryIndex,
   parentIsMatch = false,
-  theme = "grey",
+  theme = "Grey",
   data: dataProps,
   level,
   crumbs = [],
