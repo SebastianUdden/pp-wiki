@@ -2,6 +2,7 @@ import { get } from "./api"
 
 const getBorsData = async (type, prop) => {
   const apiKey = process.env.BORSDATA_API_KEY
+  if (!apiKey) return []
   const response = await get(
     `https://apiservice.borsdata.se/v1/${type}?authKey=${apiKey}`
   )
