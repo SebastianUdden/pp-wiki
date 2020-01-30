@@ -4,19 +4,29 @@ import { Wrapper } from "../../common"
 import Input from "../../ui/InputUI"
 import { DP6 } from "../../../constants/theme"
 import { formatWithSpaces, getYearlyResults } from "./utils"
+import { MEDIA_MAX_MEDIUM } from "../../../constants/sizes"
 
 const FlexWrapper = styled.div`
   display: flex;
+  ${MEDIA_MAX_MEDIUM} {
+    flex-direction: column;
+  }
 `
 const Column = styled.div`
   display: flex;
-  padding: 0.5rem;
+  padding: 1rem;
   flex-direction: column;
   background-color: #333333;
   box-shadow: ${DP6};
   :last-child {
     flex-grow: 1;
     margin-left: 0.5rem;
+  }
+  ${MEDIA_MAX_MEDIUM} {
+    :last-child {
+      margin-left: 0;
+      margin-top: 0.5rem;
+    }
   }
 `
 const Results = styled.div``
