@@ -22,11 +22,11 @@ const InputUI = styled.input`
   width: 100%;
   display: block;
   padding: 0.2rem;
-  background-color: inherit;
+  background-color: #777777;
   color: inherit;
-  border: none;
   outline: none;
-  border-bottom: 1px solid ${p => (p.hasValue ? "green" : "red")};
+  border: none;
+  /* border-bottom: 1px solid ${p => (p.hasValue ? "green" : "red")}; */
 `
 
 const formatWithSpaces = value =>
@@ -36,7 +36,7 @@ const formatWithSpaces = value =>
     .replace(/ /g, "")
     .replace(/\B(?=(\d{3})+(?!\d))/g, " ")
 
-const Input = ({
+const InputClassic = ({
   type,
   label,
   value,
@@ -78,4 +78,4 @@ const Input = ({
   )
 }
 
-export default Input
+export default InputClassic

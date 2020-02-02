@@ -9,24 +9,28 @@ import {
   BACKGROUND_ACTIVE,
   PRIMARY,
   HIGH_EMPHASIS,
+  DP2,
 } from "../../constants/theme"
 
 export const Wrapper = styled.div`
   max-width: 1200px;
-  margin: 1rem auto;
+  margin: 0.5rem auto;
   padding: 1rem;
+  border-radius: 7px;
   background: ${SURFACE};
   box-shadow: ${DP6};
 `
 
 export const Button = styled.button`
-  margin: 1rem 0.2rem;
-  padding: 1rem;
+  display: flex;
+  align-items: center;
+  border-radius: 7px;
+
+  padding: 0.6rem 1rem;
   background-color: ${p => p.backgroundColor || BACKGROUND};
   color: ${p => p.color || ON_BACKGROUND};
   border: none;
-  width: 100%;
-  box-shadow: ${DP6};
+  box-shadow: ${DP2};
   text-transform: uppercase;
   cursor: pointer;
   :hover {

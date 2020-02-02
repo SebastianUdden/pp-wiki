@@ -7,6 +7,7 @@ export const Wrapper = styled.div`
   max-width: 1200px;
   overflow: hidden;
   margin: 0.5rem auto;
+  border-radius: 7px;
 
   ${p => {
     switch (p.theme) {

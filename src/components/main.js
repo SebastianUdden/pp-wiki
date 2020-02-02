@@ -20,6 +20,7 @@ import { get } from "./api/api"
 import Spinner from "./wiki/Spinner"
 import SideMenu from "./sideMenu/SideMenu"
 import TopMenu from "./topMenu/TopMenu"
+import Profile from "./user/Profile"
 
 const Page = styled.div`
   padding: 0;
@@ -215,44 +216,32 @@ const Main = () => {
           )}
           {page === "signup" && <Signup fields={SIGNUP_FIELDS} />}
           {page === "login" && <Login fields={LOGIN_FIELDS} />}
-          {page === "login" && user.loggedIn && (
-            <>
-              <Signup fields={SIGNUP_FIELDS} />
-              <Settings />
-            </>
-          )}
-          {page === "settings" && <Settings />}
+          {page === "profile" && user.loggedIn && <Profile />}
         </Body>
       </Page>
       <Footer
         page={page}
         items={FOOTER_MENU.filter(item => {
-          if (item.title === "Signup" && user.loggedIn) {
+          if (
+            (item.title === "Signup" && user.loggedIn) ||
+            (item.title === "Login" && user.loggedIn)
+          ) {
             return false
           }
           if (
             item.title === "Home" ||
-            item.title === "Login" ||
-            item.title === "Signup"
+            item.title === "Signup" ||
+            item.title === "Login"
           ) {
             return true
           }
           if (user.loggedIn) {
             return true
           }
-        }).map(item => {
-          if (item.title === "Login" && user.loggedIn) {
-            return {
-              ...item,
-              title: "Profile",
-              onClick: () => setPage(item.page),
-            }
-          }
-          return {
-            ...item,
-            onClick: () => setPage(item.page),
-          }
-        })}
+        }).map(item => ({
+          ...item,
+          onClick: () => setPage(item.page),
+        }))}
       />
     </>
   )
