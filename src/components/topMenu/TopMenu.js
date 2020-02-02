@@ -43,6 +43,7 @@ const InnerWrapper = styled.div`
 `
 
 const Title = styled.h1`
+  text-transform: capitalize;
   font-family: ${DEFAULT_FONT.family};
   font-size: ${DEFAULT_FONT.largeSize};
   margin: ${p => (p.large ? "2.5rem" : 0)} 0 0 0.2rem;
@@ -87,13 +88,12 @@ const TopMenu = ({
             <Title
               color={MAIN_THEME.PRIMARY.color.background}
               onClick={() => {
-                if (!user.loggedIn) return
-                setPage("wiki")
+                if (!user.loggedIn || page !== "wiki") return
                 setSelected("Wiki")
                 setSearchValue("")
               }}
             >
-              Pillow
+              {page}
             </Title>
           </InnerWrapper>
           <InnerWrapper>

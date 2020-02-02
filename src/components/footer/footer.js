@@ -7,6 +7,7 @@ import {
   ON_BACKGROUND,
   MAIN_THEME,
 } from "../../constants/theme"
+import { SVG } from "project-pillow-components"
 
 const Wrapper = styled.footer`
   position: fixed;
@@ -22,8 +23,14 @@ const ButtonContainer = styled.div`
   height: 100%;
 `
 
+const Title = styled.p`
+  margin-top: -0.6rem;
+  font-size: x-small;
+`
+
 const Item = styled.button`
   border: none;
+  padding-top: 0.7rem;
   background-color: ${p =>
     p.active ? MAIN_THEME.PRIMARY_DARK.color.background : BACKGROUND};
   color: ${ON_BACKGROUND};
@@ -48,7 +55,8 @@ const Footer = ({ items, page }) => {
             active={item.title.toLowerCase() === page}
             onClick={() => item.onClick()}
           >
-            {item.title}
+            <SVG {...item.svg} size="1.7rem" />
+            <Title>{item.title}</Title>
           </Item>
         ))}
       </ButtonContainer>
