@@ -39,7 +39,7 @@ const Button = styled.button`
 `
 
 const Tools = ({ theme = "Grey" }) => {
-  const [tab, setTab] = useState(2)
+  const [tab, setTab] = useState(3)
   const [showTabs, setShowTabs] = useState(false)
   return (
     <Wrapper theme={theme}>

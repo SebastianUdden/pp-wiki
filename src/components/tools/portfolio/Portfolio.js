@@ -11,6 +11,7 @@ import {
 import { MEDIA_MAX_MEDIUM } from "../../../constants/sizes"
 import DonutChart from "./Donut"
 import Input from "../../ui/InputUI"
+import { formatWithSpaces } from "../extrapolator/utils"
 
 const FlexWrapper = styled.div`
   display: flex;
@@ -30,10 +31,28 @@ const Column = styled.div`
   }
   ${MEDIA_MAX_MEDIUM} {
     :last-child {
-      margin-left: 0;
       margin-top: 0.5rem;
+      margin-left: 0;
     }
   }
+  :only-child {
+    margin: 1rem 0;
+  }
+`
+
+const ChartWrapper = styled.div`
+  max-width: 10rem;
+`
+
+const Assets = styled.div`
+  margin: 1rem;
+`
+
+const Asset = styled.p`
+  margin: 0.2rem 0;
+  padding: 0.3rem 0.5rem;
+  border-left: 1px solid ${p => p.color};
+  border-top: 1px dashed ${p => p.color};
 `
 
 const Button = styled.button`
@@ -74,6 +93,15 @@ const Portfolio = ({}) => {
   const [investmentSize, setInvestmentSize] = useState(0)
   const [totalInvested, setTotalInvested] = useState(0)
 
+  const handleDonutChartClick = title => {
+    setPortfolioAssets(
+      portfolioAssets.map(asset => ({
+        ...asset,
+        selected: asset.title === title,
+      }))
+    )
+  }
+
   useEffect(() => {
     setTotalInvested(portfolioAssets.reduce((a, b) => a + b.investmentSize, 0))
   }, [portfolioAssets])
@@ -111,11 +139,25 @@ const Portfolio = ({}) => {
       <FlexWrapper>
         <Column>
           <h3>Invested: {totalInvested}</h3>
-          <DonutChart
-            color="#aaaaaa11"
-            values={portfolioAssets}
-            percentageValue="investmentSize"
-          />
+          <FlexWrapper>
+            <ChartWrapper>
+              <DonutChart
+                color="#aaaaaa11"
+                values={portfolioAssets}
+                percentageValue="investmentSize"
+                onClick={handleDonutChartClick}
+              />
+            </ChartWrapper>
+            <Assets>
+              {portfolioAssets &&
+                portfolioAssets.map(asset => (
+                  <Asset color={asset.color} selected={asset.selected}>
+                    {asset.title}: {formatWithSpaces(asset.investmentSize)}
+                  </Asset>
+                ))}
+            </Assets>
+          </FlexWrapper>
+          {JSON.stringify(portfolioAssets)}
         </Column>
       </FlexWrapper>
     </Wrapper>
