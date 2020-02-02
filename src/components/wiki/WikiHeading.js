@@ -3,13 +3,12 @@ import styled from "styled-components"
 import {
   add,
   block,
-  cross,
   Heading,
   SVG,
-  ToggleSwitch,
   HighlightedText,
   cloudDone,
   cloudUpload,
+  create,
 } from "project-pillow-components"
 import { MAIN_THEME } from "../../constants/theme"
 import { TitleInput, FlexWrapper } from "./utils"
@@ -118,7 +117,7 @@ const WikiHeading = ({
         )}
         <FlexWrapper column alignment="flex-end">
           <FlexWrapper>
-            {lvl < 3 && !showCreate && (
+            {lvl < 3 && !showCreate && !showEditor && (
               <SVG
                 {...add}
                 onClick={() => setShowCreate(true)}
@@ -126,7 +125,10 @@ const WikiHeading = ({
                 color="#bbbbbb"
               />
             )}
-            <ToggleSwitch
+            <SVGWrapper onClick={() => setShowEditor(!showEditor)}>
+              {showEditor ? <SVG {...block} /> : <SVG {...create} />}
+            </SVGWrapper>
+            {/* <ToggleSwitch
               size={20}
               backgroundColor={MAIN_THEME.PRIMARY.color.background}
               checked={showEditor}
@@ -148,7 +150,7 @@ const WikiHeading = ({
                   color="#bbbbbb"
                 />
               )}
-            </SVGWrapper>
+            </SVGWrapper> */}
           </FlexWrapper>
         </FlexWrapper>
       </FlexWrapper>

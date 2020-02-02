@@ -1,5 +1,5 @@
-import React, { useState } from "react"
-import styled from "styled-components"
+import React, { useState, useEffect } from "react"
+import styled, { css } from "styled-components"
 import {
   Breadcrumbs,
   Chips,
@@ -41,6 +41,23 @@ const FlexWrapper = styled.div`
 const ButtonWrapper = styled.div`
   display: inline-block;
   margin: 0.5rem 0;
+`
+
+const ContentBox = styled.div`
+  ${p =>
+    p.showEditor &&
+    css`
+      position: fixed;
+      top: 4.7rem;
+      left: 0.5rem;
+      right: 0.5rem;
+      bottom: 0rem;
+      border-radius: 12px;
+      overflow-y: scroll;
+      background-color: #2e2e2e;
+      padding: 0.5rem 1rem 2rem;
+      z-index: 90;
+    `};
 `
 
 const Section = styled.div`
@@ -166,6 +183,16 @@ const Wiki = ({
   }
 
   if (hide) return null
+
+  useEffect(() => {
+    if (showEditor) {
+      document.body.style.position = "fixed"
+      document.body.style.top = `-${window.scrollY}px`
+      return
+    }
+    document.body.style.position = ""
+  }, [showEditor])
+
   return isMatch ? (
     <Wrapper theme={theme}>
       {data && (
@@ -177,113 +204,116 @@ const Wiki = ({
               onHide={() => setShowCreate(false)}
             />
           )}
-          <Section>
-            {title !== data.title && (
+          <ContentBox showEditor={showEditor}>
+            <Section>
+              {title !== data.title && (
+                <SectionItem>
+                  <Diff color={MAIN_THEME.PRIMARY.color.background} />
+                </SectionItem>
+              )}
               <SectionItem>
-                <Diff color={MAIN_THEME.PRIMARY.color.background} />
-              </SectionItem>
-            )}
-            <SectionItem>
-              <WikiHeading
-                title={title || data.title}
-                setTitle={setTitle}
-                createdAt={createdAt}
-                updatedAt={updatedAt}
-                createdBy={data.createdBy}
-                updatedBy={data.updatedBy}
-                highlight={highlight}
-                lvl={lvl}
-                showCreate={showCreate}
-                setShowCreate={setShowCreate}
-                showDelete={showDelete}
-                setShowDelete={setShowDelete}
-                showEditor={showEditor}
-                setShowEditor={setShowEditor}
-              />
-            </SectionItem>
-          </Section>
-          {newCrumbs.length > 0 && (
-            <Breadcrumbs
-              className="crumbs"
-              crumbs={newCrumbs}
-              onChange={value => {
-                setSelected(value.title)
-                setSearchValue("")
-              }}
-              size="medium"
-            />
-          )}
-          <Section>
-            {tags !== data.tags && (
-              <SectionItem>
-                <Diff color={MAIN_THEME.PRIMARY.color.background} />
-              </SectionItem>
-            )}
-            {tags && (
-              <SectionItem>
-                <Chips
-                  chips={tags.map(t => ({
-                    title: t,
-                    showRemove: showEditor,
-                  }))}
-                  onChange={value => {
-                    showEditor
-                      ? setTags(tags.filter(t => t !== value[0]))
-                      : value[0] && setSearchValue(value[0])
-                  }}
-                />
-              </SectionItem>
-            )}
-          </Section>
-          <Section>
-            {description !== data.description && (
-              <SectionItem>
-                <Diff color={MAIN_THEME.PRIMARY.color.background} />
-              </SectionItem>
-            )}
-            <SectionItem>
-              {description && !showEditor && (
-                <MarkdownParser
-                  markdown={description}
+                <WikiHeading
+                  title={title || data.title}
+                  setTitle={setTitle}
+                  createdAt={createdAt}
+                  updatedAt={updatedAt}
+                  createdBy={data.createdBy}
+                  updatedBy={data.updatedBy}
                   highlight={highlight}
-                  primaryColor={MAIN_THEME.PRIMARY.color.background}
+                  lvl={lvl}
+                  showCreate={showCreate}
+                  setShowCreate={setShowCreate}
+                  showDelete={showDelete}
+                  setShowDelete={setShowDelete}
+                  showEditor={showEditor}
+                  setShowEditor={setShowEditor}
                 />
+              </SectionItem>
+            </Section>
+            {newCrumbs.length > 0 && (
+              <Breadcrumbs
+                className="crumbs"
+                crumbs={newCrumbs}
+                onChange={value => {
+                  setSelected(value.title)
+                  setSearchValue("")
+                }}
+                size="medium"
+              />
+            )}
+            <Section>
+              {tags !== data.tags && (
+                <SectionItem>
+                  <Diff color={MAIN_THEME.PRIMARY.color.background} />
+                </SectionItem>
               )}
-              {showEditor && (
-                <MarkdownEditor
-                  markdown={description}
-                  setMarkdown={setDescription}
-                />
+              {tags && (
+                <SectionItem>
+                  <Chips
+                    chips={tags.map(t => ({
+                      title: t,
+                      showRemove: showEditor,
+                    }))}
+                    onChange={value => {
+                      showEditor
+                        ? setTags(tags.filter(t => t !== value[0]))
+                        : value[0] && setSearchValue(value[0])
+                    }}
+                  />
+                </SectionItem>
               )}
-            </SectionItem>
-          </Section>
-          {data.table && (
-            <Table
-              headings={data.table.headings}
-              data={data.table.data}
-              headingBackgroundColor="#323232"
-              headingForegroundColor="#cccccc"
-              backgroundColor="#222222"
-              alternateColor="#888888"
-            />
-          )}
-          {data && showDelete && (
-            <>
-              <ButtonWrapper>
-                <ContainedButton
-                  foregroundColor={MAIN_THEME.BLACK.color.foreground}
-                  onClick={() => setShowDelete(false)}
-                >
-                  Cancel
-                </ContainedButton>
-              </ButtonWrapper>
-              <ButtonWrapper>
-                <ContainedButton
-                  backgroundColor={ALTERNATE_THEME_COLORS.ERROR_TEXT_COLOR}
-                  foregroundColor={MAIN_THEME.BLACK.color.foreground}
-                  onClick={() => {
-                    remove(`${apiUrl}/wikis/${data._id}`, "Unauthorized").then(
-                      response => {
+            </Section>
+            <Section>
+              {description !== data.description && (
+                <SectionItem>
+                  <Diff color={MAIN_THEME.PRIMARY.color.background} />
+                </SectionItem>
+              )}
+              <SectionItem>
+                {description && !showEditor && (
+                  <MarkdownParser
+                    markdown={description}
+                    highlight={highlight}
+                    primaryColor={MAIN_THEME.PRIMARY.color.background}
+                  />
+                )}
+                {showEditor && (
+                  <MarkdownEditor
+                    markdown={description}
+                    setMarkdown={setDescription}
+                  />
+                )}
+              </SectionItem>
+            </Section>
+            {data.table && (
+              <Table
+                headings={data.table.headings}
+                data={data.table.data}
+                headingBackgroundColor="#323232"
+                headingForegroundColor="#cccccc"
+                backgroundColor="#222222"
+                alternateColor="#888888"
+              />
+            )}
+            {data && showDelete && (
+              <>
+                <ButtonWrapper>
+                  <ContainedButton
+                    foregroundColor={MAIN_THEME.BLACK.color.foreground}
+                    onClick={() => setShowDelete(false)}
+                  >
+                    Cancel
+                  </ContainedButton>
+                </ButtonWrapper>
+                <ButtonWrapper>
+                  <ContainedButton
+                    backgroundColor={ALTERNATE_THEME_COLORS.ERROR_TEXT_COLOR}
+                    foregroundColor={MAIN_THEME.BLACK.color.foreground}
+                    onClick={() => {
+                      remove(
+                        `${apiUrl}/wikis/${data._id}`,
+                        "Unauthorized"
+                      ).then(response => {
                         console.log({ response })
                         if (response.error) {
                           console.error(
@@ -307,126 +337,127 @@ const Wiki = ({
                         setSearchValue("")
                         setSelected("Wiki")
                         setHide(true)
-                      }
-                    )
-                  }}
-                >
-                  Delete
-                </ContainedButton>
-              </ButtonWrapper>
-              {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-            </>
-          )}
-          <Section>
-            {!arraysEqual(children, data.children) && (
-              <SectionItem>
-                <Diff color={MAIN_THEME.PRIMARY.color.background} />
-              </SectionItem>
-            )}
-            <SectionItem>
-              <FlexWrapper>
-                {children && children.length > 0 && (
-                  <Breadcrumbs
-                    icon={false}
-                    crumbs={children.map(c => {
-                      const entry = wikiEntries.find(entry => entry._id === c)
-                      const title = entry && entry.title
-                      return {
-                        _id: c,
-                        title: `${title}${showEditor ? " x" : ""}`,
-                        showDelete: showEditor,
-                      }
-                    })}
-                    onChange={value => {
-                      if (showEditor) {
-                        setChildren(children.filter(c => c !== value._id))
-                      } else {
-                        setSelected(value.title)
-                        setSearchValue("")
-                      }
-                    }}
-                    size="medium"
-                  />
-                )}
-              </FlexWrapper>
-            </SectionItem>
-          </Section>
-          {showEditor && (
-            <NewChildren
-              data={data}
-              children={children}
-              setChildren={setChildren}
-              newCrumbs={newCrumbs}
-            />
-          )}
-          {!showDelete &&
-            (title !== data.title ||
-              description !== data.description ||
-              tags !== data.tags ||
-              !arraysEqual(children, data.children)) && (
-              <>
-                <ButtonWrapper>
-                  <ContainedButton
-                    onClick={() => {
-                      setTitle(data.title)
-                      setDescription(data.description)
-                      setChildren(data.children)
-                      setShowEditor(false)
-                    }}
-                  >
-                    Cancel
-                  </ContainedButton>
-                </ButtonWrapper>
-                <ButtonWrapper>
-                  <ContainedButton
-                    backgroundColor={MAIN_THEME.PRIMARY.color.background}
-                    onClick={() => {
-                      setErrorMessage("")
-                      const { _id, ...dataProps } = data
-                      const updateData = {
-                        ...dataProps,
-                        title: title || data.title,
-                        description: description || data.description,
-                        tags: tags || data.tags,
-                        children: children ? children.filter(Boolean) : [],
-                        updatedBy: { name: user.username, email: user.email },
-                      }
-                      update(
-                        `${apiUrl}/wikis/${_id}`,
-                        updateData,
-                        "Unauthorized"
-                      ).then(response => {
-                        console.log({ response })
-                        if (response.error) {
-                          console.error(
-                            "Update request failed with: ",
-                            response.error
-                          )
-                          setErrorMessage(
-                            "Update failed, wait for a few seconds then try again..."
-                          )
-                          return
-                        }
-                        const index = wikiEntries.findIndex(
-                          entry => entry._id === data._id
-                        )
-                        const newWikiEntries = [...wikiEntries]
-                        newWikiEntries[index] = {
-                          _id,
-                          ...updateData,
-                          updatedAt: new Date(),
-                        }
-                        setWikiEntries(newWikiEntries)
-                        setShowEditor(false)
                       })
                     }}
                   >
-                    Update
+                    Delete
                   </ContainedButton>
                 </ButtonWrapper>
                 {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
               </>
             )}
+            <Section>
+              {!arraysEqual(children, data.children) && (
+                <SectionItem>
+                  <Diff color={MAIN_THEME.PRIMARY.color.background} />
+                </SectionItem>
+              )}
+              <SectionItem>
+                <FlexWrapper>
+                  {children && children.length > 0 && (
+                    <Breadcrumbs
+                      icon={false}
+                      crumbs={children.map(c => {
+                        const entry = wikiEntries.find(entry => entry._id === c)
+                        const title = entry && entry.title
+                        return {
+                          _id: c,
+                          title: `${title}${showEditor ? " x" : ""}`,
+                          showDelete: showEditor,
+                        }
+                      })}
+                      onChange={value => {
+                        if (showEditor) {
+                          setChildren(children.filter(c => c !== value._id))
+                        } else {
+                          setSelected(value.title)
+                          setSearchValue("")
+                        }
+                      }}
+                      size="medium"
+                    />
+                  )}
+                </FlexWrapper>
+              </SectionItem>
+            </Section>
+            {showEditor && (
+              <NewChildren
+                data={data}
+                children={children}
+                setChildren={setChildren}
+                newCrumbs={newCrumbs}
+              />
+            )}
+            {!showDelete &&
+              (title !== data.title ||
+                description !== data.description ||
+                tags !== data.tags ||
+                !arraysEqual(children, data.children)) && (
+                <>
+                  <ButtonWrapper>
+                    <ContainedButton
+                      onClick={() => {
+                        setTitle(data.title)
+                        setDescription(data.description)
+                        setChildren(data.children)
+                        setShowEditor(false)
+                      }}
+                    >
+                      Cancel
+                    </ContainedButton>
+                  </ButtonWrapper>
+                  <ButtonWrapper>
+                    <ContainedButton
+                      backgroundColor={MAIN_THEME.PRIMARY.color.background}
+                      onClick={() => {
+                        setErrorMessage("")
+                        const { _id, ...dataProps } = data
+                        const updateData = {
+                          ...dataProps,
+                          title: title || data.title,
+                          description: description || data.description,
+                          tags: tags || data.tags,
+                          children: children ? children.filter(Boolean) : [],
+                          updatedBy: { name: user.username, email: user.email },
+                        }
+                        update(
+                          `${apiUrl}/wikis/${_id}`,
+                          updateData,
+                          "Unauthorized"
+                        ).then(response => {
+                          console.log({ response })
+                          if (response.error) {
+                            console.error(
+                              "Update request failed with: ",
+                              response.error
+                            )
+                            setErrorMessage(
+                              "Update failed, wait for a few seconds then try again..."
+                            )
+                            return
+                          }
+                          const index = wikiEntries.findIndex(
+                            entry => entry._id === data._id
+                          )
+                          const newWikiEntries = [...wikiEntries]
+                          newWikiEntries[index] = {
+                            _id,
+                            ...updateData,
+                            updatedAt: new Date(),
+                          }
+                          setWikiEntries(newWikiEntries)
+                          setShowEditor(false)
+                        })
+                      }}
+                    >
+                      Update
+                    </ContainedButton>
+                  </ButtonWrapper>
+                  {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+                </>
+              )}
+          </ContentBox>
+
           {children && children.length > 0 && (searchValue !== "" || selected) && (
             <Toggle>
               <Label onClick={() => setShowChildren(!showChildren)}>

@@ -101,7 +101,7 @@ const Main = () => {
       if (dbUsers.error) return
       setUsers(dbUsers)
     })
-    setPage("tools")
+    setPage("wiki")
   }, [])
 
   useEffect(() => {
