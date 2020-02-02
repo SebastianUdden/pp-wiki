@@ -21,23 +21,6 @@ export const Wrapper = styled.div`
   box-shadow: ${DP6};
 `
 
-export const Button = styled.button`
-  display: flex;
-  align-items: center;
-  border-radius: 7px;
-
-  padding: 0.6rem 1rem;
-  background-color: ${p => p.backgroundColor || BACKGROUND};
-  color: ${p => p.color || ON_BACKGROUND};
-  border: none;
-  box-shadow: ${DP2};
-  text-transform: uppercase;
-  cursor: pointer;
-  :hover {
-    background-color: ${BACKGROUND_ACTIVE};
-  }
-`
-
 export const Em = styled.em`
   color: ${PRIMARY};
   font-style: normal;

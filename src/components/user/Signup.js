@@ -1,14 +1,8 @@
 import React, { useRef, useState } from "react"
 import { useUser } from "../../contexts/UserContext"
 import Input from "../ui/Input"
-import {
-  FieldHint,
-  Wrapper,
-  ErrorMessage,
-  Button,
-  Em,
-  FlexWrapper,
-} from "./common"
+import { FieldHint, Wrapper, ErrorMessage, Em, FlexWrapper } from "./common"
+import { Button } from "../common"
 import { ERROR, ON_ERROR } from "../../constants/theme"
 import Modal from "../ui/Modal"
 import { create, get } from "../api/api"

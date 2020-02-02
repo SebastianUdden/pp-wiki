@@ -1,5 +1,11 @@
 import styled, { css } from "styled-components"
-import { DP_TYPES } from "../constants/theme"
+import {
+  DP_TYPES,
+  ON_BACKGROUND,
+  BACKGROUND_ACTIVE,
+  DP2,
+  BACKGROUND,
+} from "../constants/theme"
 import { MEDIA_MIN_MEDIUM } from "../constants/sizes"
 
 export const Wrapper = styled.div`
@@ -41,4 +47,21 @@ export const Wrapper = styled.div`
         break
     }
   }}
+`
+
+export const Button = styled.button`
+  display: flex;
+  align-items: center;
+  border-radius: 7px;
+
+  padding: 0.6rem 1rem;
+  background-color: ${p => p.backgroundColor || BACKGROUND};
+  color: ${p => p.color || ON_BACKGROUND};
+  border: none;
+  box-shadow: ${DP2};
+  text-transform: uppercase;
+  cursor: pointer;
+  :hover {
+    background-color: ${BACKGROUND_ACTIVE};
+  }
 `

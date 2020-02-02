@@ -9,12 +9,16 @@ import {
 } from "../../constants/theme"
 import { SVG } from "project-pillow-components"
 
-const Wrapper = styled.footer`
+export const FooterWrapper = styled.footer`
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 10vh;
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
 `
 
 const ButtonContainer = styled.div`
@@ -47,7 +51,7 @@ const Item = styled.button`
 
 const Footer = ({ items, page }) => {
   return (
-    <Wrapper>
+    <FooterWrapper>
       <ButtonContainer>
         {items.map(item => (
           <Item
@@ -60,7 +64,7 @@ const Footer = ({ items, page }) => {
           </Item>
         ))}
       </ButtonContainer>
-    </Wrapper>
+    </FooterWrapper>
   )
 }
 

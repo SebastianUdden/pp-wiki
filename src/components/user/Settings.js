@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { useUser } from "../../contexts/UserContext"
-import { FieldHint, Wrapper, Button, Em, FlexWrapper } from "./common"
+import { FieldHint, Wrapper, Em, FlexWrapper } from "./common"
+import { Button } from "../common"
 import {
   ON_ERROR,
   ERROR_BACKGROUND,

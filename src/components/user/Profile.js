@@ -12,7 +12,7 @@ import {
   saveAlt,
   deleteTrashcan,
 } from "project-pillow-components"
-import { Button as ButtonUI } from "./common"
+import { Button as ButtonUI } from "../common"
 import { downloadData } from "../tools/case/utils"
 import { useWiki } from "../../contexts/WikiContext"
 import { useUser } from "../../contexts/UserContext"
@@ -70,7 +70,7 @@ const Buttons = styled.div`
 
 const Button = styled(ButtonUI)`
   margin-right: 0.3rem;
-  background-color: ${p => p.color || "#010101"};
+  /* background-color: ${p => p.color || "#010101"}; */
 `
 
 const EditableField = ({ label, fieldValue, type, onChange }) => {
@@ -122,13 +122,13 @@ const ButtonLogic = ({ type }) => {
             {showConfirmAction && (
               <>
                 <Button
-                  color="#1a1a1a"
+                  backgroundColor="#1a1a1a"
                   onClick={() => setShowConfirmAction(false)}
                 >
                   <SVG {...block} size="1rem" />
                 </Button>
                 <Button
-                  color="#1a4a1a"
+                  backgroundColor="#1a4a1a"
                   onClick={() => {
                     setShowConfirmAction(false)
                     Object.keys(user).forEach(key => {
@@ -159,13 +159,13 @@ const ButtonLogic = ({ type }) => {
             {showConfirmAction && (
               <>
                 <Button
-                  color="#1a1a1a"
+                  backgroundColor="#1a1a1a"
                   onClick={() => setShowConfirmAction(false)}
                 >
                   <SVG {...block} size="1rem" />
                 </Button>
                 <Button
-                  color="#4a1a1a"
+                  backgroundColor="#4a1a1a"
                   onClick={() => {
                     setShowConfirmAction(false)
                     location.href =
@@ -192,13 +192,13 @@ const ButtonLogic = ({ type }) => {
             {showConfirmAction && (
               <>
                 <Button
-                  color="#1a1a1a"
+                  backgroundColor="#1a1a1a"
                   onClick={() => setShowConfirmAction(false)}
                 >
                   <SVG {...block} size="1rem" />
                 </Button>
                 <Button
-                  color="#1a4a1a"
+                  backgroundColor="#1a4a1a"
                   onClick={() => {
                     setShowConfirmAction(false)
                     downloadData({ data: wikiEntries })

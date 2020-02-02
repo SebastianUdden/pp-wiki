@@ -8,6 +8,11 @@ import {
   MarkdownParser,
   MarkdownEditor,
   ContainedButton,
+  block,
+  SVG,
+  done,
+  deleteTrashcanForever,
+  deleteTrashcan,
 } from "project-pillow-components"
 import { MAIN_THEME, ALTERNATE_THEME_COLORS } from "../../constants/theme"
 import { Toggle } from "../main"
@@ -20,7 +25,8 @@ import Diff from "./Diff"
 import { useWiki } from "../../contexts/WikiContext"
 import { useUser } from "../../contexts/UserContext"
 import { arraysEqual } from "./utils"
-import { Wrapper } from "../common"
+import { Button, Wrapper } from "../common"
+import { FooterWrapper } from "../footer/footer"
 
 export const Label = styled.label`
   margin-right: 0.2rem;
@@ -38,11 +44,6 @@ const FlexWrapper = styled.div`
   margin: 0;
 `
 
-const ButtonWrapper = styled.div`
-  display: inline-block;
-  margin: 0.5rem 0;
-`
-
 const ContentBox = styled.div`
   ${p =>
     p.showEditor &&
@@ -55,7 +56,7 @@ const ContentBox = styled.div`
       border-radius: 12px;
       overflow-y: scroll;
       background-color: #2e2e2e;
-      padding: 0.5rem 1rem 2rem;
+      padding: 0.5rem 1rem 6rem;
       z-index: 90;
     `};
 `
@@ -297,53 +298,12 @@ const Wiki = ({
             )}
             {data && showDelete && (
               <>
-                <ButtonWrapper>
-                  <ContainedButton
-                    foregroundColor={MAIN_THEME.BLACK.color.foreground}
-                    onClick={() => setShowDelete(false)}
-                  >
-                    Cancel
-                  </ContainedButton>
-                </ButtonWrapper>
-                <ButtonWrapper>
-                  <ContainedButton
-                    backgroundColor={ALTERNATE_THEME_COLORS.ERROR_TEXT_COLOR}
-                    foregroundColor={MAIN_THEME.BLACK.color.foreground}
-                    onClick={() => {
-                      remove(
-                        `${apiUrl}/wikis/${data._id}`,
-                        "Unauthorized"
-                      ).then(response => {
-                        console.log({ response })
-                        if (response.error) {
-                          console.error(
-                            "Delete request failed with: ",
-                            response.error
-                          )
-                          setErrorMessage(
-                            "Deletion of item failed, try again in a few seconds..."
-                          )
-                          return
-                        }
-                        const newEntries = wikiEntries
-                          .filter(entry => entry._id !== data._id)
-                          .map(entry => ({
-                            ...entry,
-                            children:
-                              entry.children &&
-                              entry.children.filter(c => c !== data._id),
-                          }))
-                        setWikiEntries(newEntries)
-                        setSearchValue("")
-                        setSelected("Wiki")
-                        setHide(true)
-                      })
-                    }}
-                  >
-                    Delete
-                  </ContainedButton>
-                </ButtonWrapper>
-                {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+                <ContainedButton
+                  foregroundColor={MAIN_THEME.BLACK.color.foreground}
+                  onClick={() => setShowDelete(false)}
+                >
+                  Cancel
+                </ContainedButton>
               </>
             )}
             <Section>
@@ -388,27 +348,73 @@ const Wiki = ({
                 newCrumbs={newCrumbs}
               />
             )}
-            {!showDelete &&
-              (title !== data.title ||
-                description !== data.description ||
-                tags !== data.tags ||
-                !arraysEqual(children, data.children)) && (
-                <>
-                  <ButtonWrapper>
-                    <ContainedButton
-                      onClick={() => {
-                        setTitle(data.title)
-                        setDescription(data.description)
-                        setChildren(data.children)
-                        setShowEditor(false)
-                      }}
-                    >
-                      Cancel
-                    </ContainedButton>
-                  </ButtonWrapper>
-                  <ButtonWrapper>
-                    <ContainedButton
-                      backgroundColor={MAIN_THEME.PRIMARY.color.background}
+            {showEditor && (
+              <FooterWrapper>
+                {showDelete ? (
+                  <Button
+                    backgroundColor="#7a1a1a"
+                    foregroundColor={MAIN_THEME.BLACK.color.foreground}
+                    onClick={() => {
+                      remove(
+                        `${apiUrl}/wikis/${data._id}`,
+                        "Unauthorized"
+                      ).then(response => {
+                        console.log({ response })
+                        if (response.error) {
+                          console.error(
+                            "Delete request failed with: ",
+                            response.error
+                          )
+                          setErrorMessage(
+                            "Deletion of item failed, try again in a few seconds..."
+                          )
+                          return
+                        }
+                        const newEntries = wikiEntries
+                          .filter(entry => entry._id !== data._id)
+                          .map(entry => ({
+                            ...entry,
+                            children:
+                              entry.children &&
+                              entry.children.filter(c => c !== data._id),
+                          }))
+                        setWikiEntries(newEntries)
+                        setSearchValue("")
+                        setSelected("Wiki")
+                        setHide(true)
+                        setShowDelete(false)
+                      })
+                    }}
+                  >
+                    <span style={{ fontSize: "small", marginRight: "0.3rem" }}>
+                      Confirm
+                    </span>
+                    <SVG {...deleteTrashcanForever} size="1.5rem" />
+                  </Button>
+                ) : (
+                  <Button onClick={() => setShowDelete(true)}>
+                    <SVG {...deleteTrashcan} size="1.5rem" />
+                  </Button>
+                )}
+                {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+                <Button
+                  backgroundColor="#1a1a1a"
+                  onClick={() => {
+                    setTitle(data.title)
+                    setDescription(data.description)
+                    setChildren(data.children)
+                    setShowEditor(false)
+                  }}
+                >
+                  <SVG {...block} size="1.5rem" />
+                </Button>
+                {(title !== data.title ||
+                  description !== data.description ||
+                  tags !== data.tags ||
+                  !arraysEqual(children, data.children)) && (
+                  <>
+                    <Button
+                      backgroundColor="#1a4a1a"
                       onClick={() => {
                         setErrorMessage("")
                         const { _id, ...dataProps } = data
@@ -450,12 +456,15 @@ const Wiki = ({
                         })
                       }}
                     >
-                      Update
-                    </ContainedButton>
-                  </ButtonWrapper>
-                  {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-                </>
-              )}
+                      <SVG {...done} size="1.5rem" />
+                    </Button>
+                    {errorMessage && (
+                      <ErrorMessage>{errorMessage}</ErrorMessage>
+                    )}
+                  </>
+                )}
+              </FooterWrapper>
+            )}
           </ContentBox>
 
           {children && children.length > 0 && (searchValue !== "" || selected) && (
