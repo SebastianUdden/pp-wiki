@@ -49,14 +49,14 @@ const ContentBox = styled.div`
     p.showEditor &&
     css`
       position: fixed;
-      top: 4.7rem;
+      top: 4.5rem;
       left: 0.5rem;
       right: 0.5rem;
       bottom: 0rem;
       border-radius: 12px;
       overflow-y: scroll;
       background-color: #2e2e2e;
-      padding: 0.5rem 1rem 6rem;
+      padding: 0 1rem 6rem;
       z-index: 90;
     `};
 `
