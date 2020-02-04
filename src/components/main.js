@@ -93,7 +93,11 @@ const Main = () => {
   window.onhashchange = () => {
     const hash = document.location.hash
     if (!hash) return
-    setSelected(hash.substring(10).replace("%20", " "))
+    const formattedHash = hash
+      .substring(10)
+      .split("%20")
+      .join(" ")
+    setSelected(formattedHash)
   }
 
   useEffect(() => {
