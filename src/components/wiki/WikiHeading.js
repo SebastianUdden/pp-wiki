@@ -48,8 +48,6 @@ const WikiHeading = ({
   lvl,
   showCreate,
   setShowCreate,
-  showDelete,
-  setShowDelete,
   showEditor,
   setShowEditor,
 }) => {
@@ -128,29 +126,6 @@ const WikiHeading = ({
             <SVGWrapper onClick={() => setShowEditor(!showEditor)}>
               {showEditor ? <SVG {...block} /> : <SVG {...create} />}
             </SVGWrapper>
-            {/* <ToggleSwitch
-              size={20}
-              backgroundColor={MAIN_THEME.PRIMARY.color.background}
-              checked={showEditor}
-              onClick={() => setShowEditor(!showEditor)}
-            />
-            <SVGWrapper>
-              {showDelete ? (
-                <SVG
-                  {...block}
-                  size={20}
-                  onClick={() => setShowDelete(false)}
-                  color="#bbbbbb"
-                />
-              ) : (
-                <SVG
-                  {...cross}
-                  size={15}
-                  onClick={() => setShowDelete(true)}
-                  color="#bbbbbb"
-                />
-              )}
-            </SVGWrapper> */}
           </FlexWrapper>
         </FlexWrapper>
       </FlexWrapper>

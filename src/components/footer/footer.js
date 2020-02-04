@@ -19,6 +19,7 @@ export const FooterWrapper = styled.footer`
   display: flex;
   align-items: center;
   justify-content: space-around;
+  padding: 0 1rem;
 `
 
 const ButtonContainer = styled.div`

@@ -44,6 +44,21 @@ const ChartWrapper = styled.div`
   max-width: 10rem;
 `
 
+const Title = styled.h3`
+  padding: 2px;
+  border-bottom: 2px solid ${p => p.color};
+`
+const Invested = styled.p`
+  margin: 0;
+`
+
+const Currency = styled.span`
+  font-weight: bold;
+  padding: 4px;
+  border-top: 2px solid ${p => p.color};
+  border-right: 2px solid ${p => p.color};
+`
+
 const Assets = styled.div`
   margin: 1rem;
 `
@@ -51,8 +66,15 @@ const Assets = styled.div`
 const Asset = styled.p`
   margin: 0.2rem 0;
   padding: 0.3rem 0.5rem;
-  border-left: 1px solid ${p => p.color};
-  border-top: 1px dashed ${p => p.color};
+  border-left: ${p => (p.selected ? 6 : 1)}px solid ${p => p.color};
+  border-top: 2px dashed ${p => p.color};
+  background-color: ${p => (p.selected ? "#444444" : "inherit")};
+  :hover {
+    cursor: pointer;
+    background-color: #222222;
+    border-right: ${p => (p.selected ? 6 : 1)}px solid ${p => p.color};
+    margin-right: ${p => -(p.selected ? 6 : 1)}px;
+  }
 `
 
 const Button = styled.button`
@@ -77,6 +99,25 @@ const Button = styled.button`
 `
 
 const COLORS = [
+  "#D50000",
+  "#C51162",
+  "#AA00FF",
+  "#6200EA",
+  "#304FFE",
+  "#2962FF",
+  "#0091EA",
+  "#00B8D4",
+  "#00BFA5",
+  "#00C853",
+  "#64DD17",
+  "#AEEA00",
+  "#FFD600",
+  "#FFAB00",
+  "#FF6D00",
+  "#DD2C00",
+  "#3E2723",
+  "#78909C",
+  "#455A64",
   "red",
   "orange",
   "yellow",
@@ -89,15 +130,15 @@ const COLORS = [
 
 const Portfolio = ({}) => {
   const [portfolioAssets, setPortfolioAssets] = useState([])
-  const [assetName, setAssetName] = useState("")
-  const [investmentSize, setInvestmentSize] = useState(0)
+  const [assetName, setAssetName] = useState("Stock name")
+  const [investmentSize, setInvestmentSize] = useState(3000)
   const [totalInvested, setTotalInvested] = useState(0)
 
-  const handleDonutChartClick = title => {
+  const handleDonutChartClick = id => {
     setPortfolioAssets(
       portfolioAssets.map(asset => ({
         ...asset,
-        selected: asset.title === title,
+        selected: asset.id === id,
       }))
     )
   }
@@ -105,7 +146,7 @@ const Portfolio = ({}) => {
   useEffect(() => {
     setTotalInvested(portfolioAssets.reduce((a, b) => a + b.investmentSize, 0))
   }, [portfolioAssets])
-
+  const selectedAsset = portfolioAssets.find(a => a.selected)
   return (
     <Wrapper>
       <h1>Portfolio</h1>
@@ -127,6 +168,9 @@ const Portfolio = ({}) => {
           setPortfolioAssets([
             ...portfolioAssets,
             {
+              id: Math.floor(
+                Math.random() * 10 * Math.random() * 1000 * Math.random()
+              ),
               title: assetName,
               investmentSize,
               color: COLORS[portfolioAssets.length],
@@ -151,11 +195,24 @@ const Portfolio = ({}) => {
             <Assets>
               {portfolioAssets &&
                 portfolioAssets.map(asset => (
-                  <Asset color={asset.color} selected={asset.selected}>
+                  <Asset
+                    color={asset.color}
+                    selected={asset.selected}
+                    onClick={() => handleDonutChartClick(asset.id)}
+                  >
                     {asset.title}: {formatWithSpaces(asset.investmentSize)}
                   </Asset>
                 ))}
             </Assets>
+            {selectedAsset && (
+              <Assets>
+                <Title color={selectedAsset.color}>{selectedAsset.title}</Title>
+                <Invested>
+                  {formatWithSpaces(selectedAsset.investmentSize)}{" "}
+                  <Currency color={selectedAsset.color}>kr</Currency>
+                </Invested>
+              </Assets>
+            )}
           </FlexWrapper>
           {JSON.stringify(portfolioAssets)}
         </Column>

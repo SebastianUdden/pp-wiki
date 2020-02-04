@@ -14,7 +14,7 @@ import {
   deleteTrashcanForever,
   deleteTrashcan,
 } from "project-pillow-components"
-import { MAIN_THEME, ALTERNATE_THEME_COLORS } from "../../constants/theme"
+import { MAIN_THEME } from "../../constants/theme"
 import { Toggle } from "../main"
 import { update, remove } from "../api/api"
 import { apiUrl } from "../../constants/urls"
@@ -32,9 +32,11 @@ export const Label = styled.label`
   margin-right: 0.2rem;
   cursor: pointer;
 `
+
 const ErrorMessage = styled.p`
   color: red;
   font-weight: 800;
+  margin: 0;
 `
 
 const FlexWrapper = styled.div`
@@ -231,6 +233,7 @@ const Wiki = ({
                 />
               </SectionItem>
             </Section>
+
             {newCrumbs.length > 0 && (
               <Breadcrumbs
                 className="crumbs"
@@ -350,6 +353,7 @@ const Wiki = ({
             )}
             {showEditor && (
               <FooterWrapper>
+                {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
                 {showDelete ? (
                   <Button
                     backgroundColor="#7a1a1a"
@@ -396,7 +400,6 @@ const Wiki = ({
                     <SVG {...deleteTrashcan} size="1.5rem" />
                   </Button>
                 )}
-                {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
                 <Button
                   backgroundColor="#1a1a1a"
                   onClick={() => {
@@ -404,6 +407,7 @@ const Wiki = ({
                     setDescription(data.description)
                     setChildren(data.children)
                     setShowEditor(false)
+                    setErrorMessage("")
                   }}
                 >
                   <SVG {...block} size="1.5rem" />
@@ -458,9 +462,6 @@ const Wiki = ({
                     >
                       <SVG {...done} size="1.5rem" />
                     </Button>
-                    {errorMessage && (
-                      <ErrorMessage>{errorMessage}</ErrorMessage>
-                    )}
                   </>
                 )}
               </FooterWrapper>
