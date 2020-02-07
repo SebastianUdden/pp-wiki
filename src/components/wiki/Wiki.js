@@ -33,6 +33,10 @@ export const Label = styled.label`
   cursor: pointer;
 `
 
+const EditorFooter = styled(FooterWrapper)`
+  padding: 0 1rem;
+`
+
 const ErrorMessage = styled.p`
   color: red;
   font-weight: 800;
@@ -54,7 +58,7 @@ const ContentBox = styled.div`
       top: 4.5rem;
       left: 0.5rem;
       right: 0.5rem;
-      bottom: 0rem;
+      bottom: 0;
       border-radius: 12px;
       overflow-y: scroll;
       background-color: #2e2e2e;
@@ -186,6 +190,65 @@ const Wiki = ({
   }
 
   if (hide) return null
+
+  const handleUpdate = () => {
+    setErrorMessage("")
+    const { _id, ...dataProps } = data
+    const updateData = {
+      ...dataProps,
+      title: title || data.title,
+      description: description || data.description,
+      tags: tags || data.tags,
+      children: children ? children.filter(Boolean) : [],
+      updatedBy: { name: user.username, email: user.email },
+    }
+    update(`${apiUrl}/wikis/${_id}`, updateData, "Unauthorized").then(
+      response => {
+        console.log({ response })
+        if (response.error) {
+          console.error("Update request failed with: ", response.error)
+          setErrorMessage(
+            "Update failed, wait for a few seconds then try again..."
+          )
+          return
+        }
+        const index = wikiEntries.findIndex(entry => entry._id === data._id)
+        const newWikiEntries = [...wikiEntries]
+        newWikiEntries[index] = {
+          _id,
+          ...updateData,
+          updatedAt: new Date(),
+        }
+        setWikiEntries(newWikiEntries)
+        setShowEditor(false)
+      }
+    )
+  }
+
+  const handleDelete = () => {
+    remove(`${apiUrl}/wikis/${data._id}`, "Unauthorized").then(response => {
+      console.log({ response })
+      if (response.error) {
+        console.error("Delete request failed with: ", response.error)
+        setErrorMessage(
+          "Deletion of item failed, try again in a few seconds..."
+        )
+        return
+      }
+      const newEntries = wikiEntries
+        .filter(entry => entry._id !== data._id)
+        .map(entry => ({
+          ...entry,
+          children:
+            entry.children && entry.children.filter(c => c !== data._id),
+        }))
+      setWikiEntries(newEntries)
+      setSearchValue("")
+      setSelected("Wiki")
+      setHide(true)
+      setShowDelete(false)
+    })
+  }
 
   useEffect(() => {
     if (showEditor) {
@@ -352,43 +415,13 @@ const Wiki = ({
               />
             )}
             {showEditor && (
-              <FooterWrapper>
+              <EditorFooter>
                 {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
                 {showDelete ? (
                   <Button
                     backgroundColor="#7a1a1a"
                     foregroundColor={MAIN_THEME.BLACK.color.foreground}
-                    onClick={() => {
-                      remove(
-                        `${apiUrl}/wikis/${data._id}`,
-                        "Unauthorized"
-                      ).then(response => {
-                        console.log({ response })
-                        if (response.error) {
-                          console.error(
-                            "Delete request failed with: ",
-                            response.error
-                          )
-                          setErrorMessage(
-                            "Deletion of item failed, try again in a few seconds..."
-                          )
-                          return
-                        }
-                        const newEntries = wikiEntries
-                          .filter(entry => entry._id !== data._id)
-                          .map(entry => ({
-                            ...entry,
-                            children:
-                              entry.children &&
-                              entry.children.filter(c => c !== data._id),
-                          }))
-                        setWikiEntries(newEntries)
-                        setSearchValue("")
-                        setSelected("Wiki")
-                        setHide(true)
-                        setShowDelete(false)
-                      })
-                    }}
+                    onClick={() => handleDelete()}
                   >
                     <span style={{ fontSize: "small", marginRight: "0.3rem" }}>
                       Confirm
@@ -419,52 +452,13 @@ const Wiki = ({
                   <>
                     <Button
                       backgroundColor="#1a4a1a"
-                      onClick={() => {
-                        setErrorMessage("")
-                        const { _id, ...dataProps } = data
-                        const updateData = {
-                          ...dataProps,
-                          title: title || data.title,
-                          description: description || data.description,
-                          tags: tags || data.tags,
-                          children: children ? children.filter(Boolean) : [],
-                          updatedBy: { name: user.username, email: user.email },
-                        }
-                        update(
-                          `${apiUrl}/wikis/${_id}`,
-                          updateData,
-                          "Unauthorized"
-                        ).then(response => {
-                          console.log({ response })
-                          if (response.error) {
-                            console.error(
-                              "Update request failed with: ",
-                              response.error
-                            )
-                            setErrorMessage(
-                              "Update failed, wait for a few seconds then try again..."
-                            )
-                            return
-                          }
-                          const index = wikiEntries.findIndex(
-                            entry => entry._id === data._id
-                          )
-                          const newWikiEntries = [...wikiEntries]
-                          newWikiEntries[index] = {
-                            _id,
-                            ...updateData,
-                            updatedAt: new Date(),
-                          }
-                          setWikiEntries(newWikiEntries)
-                          setShowEditor(false)
-                        })
-                      }}
+                      onClick={() => handleUpdate()}
                     >
                       <SVG {...done} size="1.5rem" />
                     </Button>
                   </>
                 )}
-              </FooterWrapper>
+              </EditorFooter>
             )}
           </ContentBox>
 
