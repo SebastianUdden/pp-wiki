@@ -24,14 +24,13 @@ export const getStockQuotes = ({
   Ticker,
   onResponse = response => console.log(response),
 }) => {
-  const apiKey = process.env.BORSDATA_API_KEY
-  get(`https://apiservice.borsdata.se/${Ticker}?authKey=${apiKey}`).then(
-    response => {
-      console.log("Borsdata-response: ", response)
-      onResponse(response)
-      // response.note
-      //   ? onResponse(response)
-      //   : onResponse(response["Time Series (Daily)"])
-    }
-  )
+  get(
+    `https://apiservice.borsdata.se/${Ticker}?authKey=${borsDataApiKey}`
+  ).then(response => {
+    console.log("Borsdata-response: ", response)
+    onResponse(response)
+    // response.note
+    //   ? onResponse(response)
+    //   : onResponse(response["Time Series (Daily)"])
+  })
 }
