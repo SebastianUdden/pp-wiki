@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 import { Wrapper } from "../../common"
 import {
@@ -8,6 +8,8 @@ import {
   BACKGROUND_ACTIVE,
   BACKGROUND,
 } from "../../../constants/theme"
+import { Table } from "project-pillow-components"
+import { API_CALLS } from "./constants"
 import {
   getCountries,
   getMarkets,
@@ -16,7 +18,6 @@ import {
   getInstruments,
   getStockPrices,
 } from "../../api/borsData"
-import { Table } from "project-pillow-components"
 
 const FlexWrapper = styled.div`
   display: flex;
@@ -57,39 +58,56 @@ const Button = styled.button`
   }
 `
 
-const Markets = () => {
-  const [markets, setMarkets] = useState([])
-  const [showMarkets, setShowMarkets] = useState(true)
+const ShowTable = ({
+  title,
+  headings,
+  getData,
+  countries,
+  markets,
+  sectors,
+  branches,
+}) => {
+  const [show, setShow] = useState(true)
+  const [rows, setRows] = useState([])
   return (
     <Container>
       <FlexWrapper>
         <Button
           onClick={async () => {
-            const marketsResponse = await getMarkets()
-            setMarkets(marketsResponse)
+            const response = await getData()
+            console.log(title, { response })
+            setRows(response)
           }}
         >
-          Get Markets
+          Get {title}
         </Button>
-        {markets.length !== 0 && (
-          <Button onClick={() => setShowMarkets(!showMarkets)}>
-            {showMarkets ? "Hide" : "Show"} markets
+        {rows.length !== 0 && (
+          <Button onClick={() => setShow(!show)}>
+            {show ? "Hide" : "Show"} {title}
           </Button>
         )}
       </FlexWrapper>
-      {markets && markets.length !== 0 && showMarkets && (
+      {rows && rows.length !== 0 && show && (
         <TableWrapper>
           <Table
             enableSearch
             headingForegroundColor={BACKGROUND}
             alternateColor="#eeeeee"
-            headings={[
-              { id: "0001", title: "Market", alignRight: false },
-              { id: "0002", title: "Exchange name", alignRight: false },
-            ]}
+            headings={headings}
             data={{
-              rows: markets.map(m => ({
-                cells: [m.name || "", m.exchangeName || ""],
+              rows: rows.map(row => ({
+                cells: Object.entries(row).map(([key, value]) => {
+                  if (!value && value !== 0) return "N/A"
+                  if (key === "countryId") {
+                    return countries[value - 1]
+                      ? countries[value - 1].name
+                      : value
+                  }
+                  if (key === "marketId") return markets[value - 1].name
+                  if (key === "sectorId") return sectors[value - 1].name
+                  if (key === "branchId") return branches[value - 1].name
+                  return value === null ? "" : value.toString()
+                }),
               })),
             }}
           />
@@ -99,220 +117,81 @@ const Markets = () => {
   )
 }
 
-const Instruments = () => {
-  const [instruments, setInstruments] = useState([])
-  const [showInstruments, setShowInstruments] = useState(true)
-  return (
-    <Container>
-      <FlexWrapper>
-        <Button
-          onClick={async () => {
-            const instrumentsResponse = await getInstruments()
-            console.log({ instrumentsResponse })
-            setInstruments(instrumentsResponse)
-          }}
-        >
-          Get instruments
-        </Button>
-        {instruments.length !== 0 && (
-          <Button onClick={() => setShowInstruments(!showInstruments)}>
-            {showInstruments ? "Hide" : "Show"} instruments
-          </Button>
-        )}
-      </FlexWrapper>
-      {instruments && instruments.length !== 0 && showInstruments && (
-        <TableWrapper>
-          <Table
-            enableSearch
-            headingForegroundColor={BACKGROUND}
-            alternateColor="#eeeeee"
-            headings={[
-              { id: "0001", title: "Ticker", alignRight: false },
-              { id: "0002", title: "Name", alignRight: false },
-              { id: "0003", title: "ISIN", alignRight: false },
-            ]}
-            data={{
-              rows: instruments.map(i => ({
-                cells: [i.ticker || "", i.name || "", i.isin || ""],
-              })),
-            }}
-          />
-        </TableWrapper>
-      )}
-    </Container>
-  )
-}
-
-const Branches = () => {
-  const [branches, setBranches] = useState([])
-  const [showBranches, setShowBranches] = useState(true)
-  return (
-    <Container>
-      <FlexWrapper>
-        <Button
-          onClick={async () => {
-            const branchesResponse = await getBranches()
-            console.log({ branchesResponse })
-            setBranches(branchesResponse)
-          }}
-        >
-          Get branches
-        </Button>
-        {branches.length !== 0 && (
-          <Button onClick={() => setShowBranches(!showBranches)}>
-            {showBranches ? "Hide" : "Show"} branches
-          </Button>
-        )}
-      </FlexWrapper>
-      {branches && branches.length !== 0 && showBranches && (
-        <TableWrapper>
-          <Table
-            enableSearch
-            headingForegroundColor={BACKGROUND}
-            alternateColor="#eeeeee"
-            headings={[
-              { id: "0001", title: "Name", alignRight: false },
-              { id: "0002", title: "Sector ID", alignRight: true },
-            ]}
-            data={{
-              rows: branches.map(b => ({
-                cells: [b.name || "", b.sectorId || ""],
-              })),
-            }}
-          />
-        </TableWrapper>
-      )}
-    </Container>
-  )
-}
-
-const Sectors = () => {
-  const [sectors, setSectors] = useState([])
-  const [showSectors, setShowSectors] = useState(true)
-  return (
-    <Container>
-      <FlexWrapper>
-        <Button
-          onClick={async () => {
-            const sectorsResponse = await getSectors()
-            console.log({ sectorsResponse })
-            setSectors(sectorsResponse)
-          }}
-        >
-          Get sectors
-        </Button>
-        {sectors.length !== 0 && (
-          <Button onClick={() => setShowSectors(!showSectors)}>
-            {showSectors ? "Hide" : "Show"} sectors
-          </Button>
-        )}
-      </FlexWrapper>
-      {sectors && sectors.length !== 0 && showSectors && (
-        <TableWrapper>
-          <Table
-            enableSearch
-            headingForegroundColor={BACKGROUND}
-            alternateColor="#eeeeee"
-            headings={[{ id: "0001", title: "Name", alignRight: false }]}
-            data={{
-              rows: sectors.map(b => ({
-                cells: [b.name || ""],
-              })),
-            }}
-          />
-        </TableWrapper>
-      )}
-    </Container>
-  )
-}
-
-const Countries = () => {
-  const [countries, setCountries] = useState([])
-  const [showCountries, setShowCountries] = useState(true)
-  return (
-    <Container>
-      <FlexWrapper>
-        <Button
-          onClick={async () => {
-            const countriesResponse = await getCountries()
-            console.log({ countriesResponse })
-            setCountries(countriesResponse)
-          }}
-        >
-          Get countries
-        </Button>
-        {countries.length !== 0 && (
-          <Button onClick={() => setShowCountries(!showCountries)}>
-            {showCountries ? "Hide" : "Show"} countries
-          </Button>
-        )}
-      </FlexWrapper>
-      {countries && countries.length !== 0 && showCountries && (
-        <TableWrapper>
-          <Table
-            enableSearch
-            headingForegroundColor={BACKGROUND}
-            alternateColor="#eeeeee"
-            headings={[{ id: "0001", title: "Name", alignRight: false }]}
-            data={{
-              rows: countries.map(b => ({
-                cells: [b.name || ""],
-              })),
-            }}
-          />
-        </TableWrapper>
-      )}
-    </Container>
-  )
-}
-
-const StockPrices = () => {
+const StockTable = ({
+  title,
+  countries,
+  markets,
+  sectors,
+  branches,
+  instruments,
+}) => {
+  const [show, setShow] = useState(true)
   const [stockPrices, setStockPrices] = useState([])
-  const [showStockPrices, setShowStockPrices] = useState(true)
   return (
     <Container>
       <FlexWrapper>
         <Button
           onClick={async () => {
-            const stockPricesResponse = await getStockPrices()
-            console.log({ stockPricesResponse })
-            setStockPrices(stockPricesResponse)
+            const response = await getStockPrices()
+            console.log(title, { response })
+            setStockPrices(response)
           }}
         >
-          Get stockPrices
+          Get {title}
         </Button>
         {stockPrices.length !== 0 && (
-          <Button onClick={() => setShowStockPrices(!showStockPrices)}>
-            {showStockPrices ? "Hide" : "Show"} stockPrices
+          <Button onClick={() => setShow(!show)}>
+            {show ? "Hide" : "Show"} {title}
           </Button>
         )}
       </FlexWrapper>
-      {stockPrices && stockPrices.length !== 0 && showStockPrices && (
+      {stockPrices && stockPrices.length !== 0 && show && (
         <TableWrapper>
           <Table
             enableSearch
             headingForegroundColor={BACKGROUND}
             alternateColor="#eeeeee"
             headings={[
-              { id: "0001", title: "ID", alignRight: false },
-              { id: "0002", title: "Date", alignRight: false },
-              { id: "0003", title: "Highest", alignRight: true },
-              { id: "0004", title: "Lowest", alignRight: true },
-              { id: "0005", title: "Opening", alignRight: true },
-              { id: "0006", title: "Closing", alignRight: true },
-              { id: "0007", title: "Total vol.", alignRight: true },
+              { id: "0001", title: "Ins. ID", alignRight: false },
+              { id: "0002", title: "Name", alignRight: false },
+              { id: "0003", title: "URL", alignRight: false },
+              { id: "0004", title: "Instrument", alignRight: false },
+              { id: "0005", title: "ISIN", alignRight: false },
+              { id: "0006", title: "Ticker", alignRight: false },
+              { id: "0007", title: "Yahoo", alignRight: false },
+              { id: "0008", title: "Sector", alignRight: false },
+              { id: "0009", title: "Market", alignRight: false },
+              { id: "0010", title: "Branch", alignRight: false },
+              { id: "0011", title: "Country", alignRight: false },
+              { id: "0012", title: "Listing Date", alignRight: false },
+              { id: "0013", title: "ID", alignRight: false },
+              { id: "0014", title: "Date", alignRight: false },
+              { id: "0015", title: "Highest", alignRight: true },
+              { id: "0016", title: "Lowest", alignRight: true },
+              { id: "0017", title: "Opening", alignRight: true },
+              { id: "0018", title: "Closing", alignRight: true },
+              { id: "0019", title: "Total vol.", alignRight: true },
             ]}
             data={{
-              rows: stockPrices.map(s => ({
-                cells: [
-                  s.i || "",
-                  s.d || "",
-                  s.h || "",
-                  s.l || "",
-                  s.c || "",
-                  s.o || "",
-                  s.v || "",
-                ],
+              rows: instruments.map(row => ({
+                cells: Object.entries(row)
+                  .map(([key, value]) => {
+                    if (!value && value !== 0) return "N/A"
+                    if (key === "countryId") {
+                      return countries[value - 1]
+                        ? countries[value - 1].name
+                        : value
+                    }
+                    if (key === "marketId") return markets[value - 1].name
+                    if (key === "sectorId") return sectors[value - 1].name
+                    if (key === "branchId") return branches[value - 1].name
+                    return value === null ? "" : value.toString()
+                  })
+                  .concat(
+                    Object.values(
+                      stockPrices.find(stockPrice => stockPrice.i === row.insId)
+                    )
+                  ),
               })),
             }}
           />
@@ -323,17 +202,54 @@ const StockPrices = () => {
 }
 
 const Borsdata = ({}) => {
+  const [markets, setMarkets] = useState([])
+  const [countries, setCountries] = useState([])
+  const [sectors, setSectors] = useState([])
+  const [branches, setBranches] = useState([])
+  const [instruments, setInstruments] = useState([])
+  const [show, setShow] = useState(false)
+  useEffect(async () => {
+    const c = await getCountries()
+    const m = await getMarkets()
+    setCountries(c)
+    setMarkets(m)
+    setTimeout(async () => {
+      const s = await getSectors()
+      setSectors(s)
+      const b = await getBranches()
+      setBranches(b)
+    }, 1000)
+    setTimeout(async () => {
+      const i = await getInstruments()
+      setInstruments(i)
+      setShow(true)
+    }, 3000)
+  }, [])
   return (
     <Wrapper>
       <h1>Börsdata</h1>
-      <Countries />
-      <Markets />
-      <Sectors />
-      <Branches />
-      <Instruments />
-      <StockPrices />
+      {show && (
+        <StockTable
+          title="Stocks"
+          countries={countries}
+          markets={markets}
+          sectors={sectors}
+          branches={branches}
+          instruments={instruments}
+        />
+      )}
     </Wrapper>
   )
 }
+// API_CALLS.map(apiCall => (
+//   <ShowTable
+//     {...apiCall}
+//     countries={countries}
+//     markets={markets}
+//     sectors={sectors}
+//     branches={branches}
+//     instruments={instruments}
+//   />
+// ))
 
 export default Borsdata

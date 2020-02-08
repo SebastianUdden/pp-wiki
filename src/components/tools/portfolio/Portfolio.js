@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react"
 import styled from "styled-components"
+import { MarkdownParser, MarkdownEditor } from "project-pillow-components"
 import { Wrapper } from "../../common"
 import {
   DP6,
@@ -12,6 +13,7 @@ import { MEDIA_MAX_MEDIUM } from "../../../constants/sizes"
 import DonutChart from "./Donut"
 import Input from "../../ui/InputUI"
 import { formatWithSpaces } from "../extrapolator/utils"
+import { uuidv4 } from "../../common"
 
 const FlexWrapper = styled.div`
   display: flex;
@@ -131,6 +133,10 @@ const COLORS = [
 const Portfolio = ({}) => {
   const [portfolioAssets, setPortfolioAssets] = useState([])
   const [assetName, setAssetName] = useState("Stock name")
+  const [description, setDescription] = useState({
+    meta: { justifyContent: "flex-start" },
+    body: "",
+  })
   const [investmentSize, setInvestmentSize] = useState(3000)
   const [totalInvested, setTotalInvested] = useState(0)
 
@@ -156,6 +162,7 @@ const Portfolio = ({}) => {
         value={assetName}
         onChange={e => setAssetName(e.target.value)}
       />
+      <MarkdownEditor markdown={description} setMarkdown={setDescription} />
       <Input
         type="number"
         label="Investment size (SEK)"
@@ -168,10 +175,9 @@ const Portfolio = ({}) => {
           setPortfolioAssets([
             ...portfolioAssets,
             {
-              id: Math.floor(
-                Math.random() * 10 * Math.random() * 1000 * Math.random()
-              ),
+              id: uuidv4(),
               title: assetName,
+              description,
               investmentSize,
               color: COLORS[portfolioAssets.length],
             },
@@ -211,10 +217,10 @@ const Portfolio = ({}) => {
                   {formatWithSpaces(selectedAsset.investmentSize)}{" "}
                   <Currency color={selectedAsset.color}>kr</Currency>
                 </Invested>
+                <MarkdownParser markdown={selectedAsset.description} />
               </Assets>
             )}
           </FlexWrapper>
-          {JSON.stringify(portfolioAssets)}
         </Column>
       </FlexWrapper>
     </Wrapper>
