@@ -1,10 +1,11 @@
 import { get } from "./api"
+import { borsDataApiKey } from "../../constants/urls"
 
 const getBorsData = async (type, prop) => {
-  const apiKey = process.env.BORSDATA_API_KEY
+  console.log({ borsDataApiKey })
   if (!apiKey) return []
   const response = await get(
-    `https://apiservice.borsdata.se/v1/${type}?authKey=${apiKey}`
+    `https://apiservice.borsdata.se/v1/${type}?authKey=${borsDataApiKey}`
   )
   console.log(`${type}: `, response)
   return prop ? response[prop] : response[type]
