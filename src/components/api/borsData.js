@@ -1,10 +1,11 @@
 import { get } from "./api"
-import { borsDataApiKey, apiUrl } from "../../constants/urls"
+import { borsDataApiKey } from "../../constants/urls"
 
 const getBorsData = async (type, prop) => {
-  console.log({ borsDataApiKey })
-  console.log({ apiUrl })
-  if (!borsDataApiKey) return []
+  if (!borsDataApiKey) {
+    console.log("No API-key found!")
+    return []
+  }
   const response = await get(
     `https://apiservice.borsdata.se/v1/${type}?authKey=${borsDataApiKey}`
   )

@@ -208,48 +208,57 @@ const Borsdata = ({}) => {
   const [branches, setBranches] = useState([])
   const [instruments, setInstruments] = useState([])
   const [show, setShow] = useState(false)
-  useEffect(async () => {
-    const c = await getCountries()
-    const m = await getMarkets()
-    setCountries(c)
-    setMarkets(m)
-    setTimeout(async () => {
-      const s = await getSectors()
-      setSectors(s)
-      const b = await getBranches()
-      setBranches(b)
-    }, 1000)
-    setTimeout(async () => {
-      const i = await getInstruments()
-      setInstruments(i)
-      setShow(true)
-    }, 3000)
+
+  useEffect(() => {
+    async function fetchData() {
+      const c = await getCountries()
+      const m = await getMarkets()
+      setCountries(c)
+      setMarkets(m)
+      setTimeout(async () => {
+        const s = await getSectors()
+        setSectors(s)
+        const b = await getBranches()
+        setBranches(b)
+      }, 1000)
+      setTimeout(async () => {
+        const i = await getInstruments()
+        setInstruments(i)
+        setShow(true)
+      }, 3000)
+    }
+    fetchData()
   }, [])
+
   return (
-    <Wrapper>
-      <h1>Börsdata</h1>
-      {show && (
-        <StockTable
-          title="Stocks"
-          countries={countries}
-          markets={markets}
-          sectors={sectors}
-          branches={branches}
-          instruments={instruments}
-        />
-      )}
-    </Wrapper>
+    <>
+      <Wrapper>
+        <h1>Börsdata</h1>
+        {show && (
+          <StockTable
+            title="Stocks"
+            countries={countries}
+            markets={markets}
+            sectors={sectors}
+            branches={branches}
+            instruments={instruments}
+          />
+        )}
+      </Wrapper>
+      <Wrapper>
+        {API_CALLS.map(apiCall => (
+          <ShowTable
+            {...apiCall}
+            countries={countries}
+            markets={markets}
+            sectors={sectors}
+            branches={branches}
+            instruments={instruments}
+          />
+        ))}
+      </Wrapper>
+    </>
   )
 }
-// API_CALLS.map(apiCall => (
-//   <ShowTable
-//     {...apiCall}
-//     countries={countries}
-//     markets={markets}
-//     sectors={sectors}
-//     branches={branches}
-//     instruments={instruments}
-//   />
-// ))
 
 export default Borsdata
